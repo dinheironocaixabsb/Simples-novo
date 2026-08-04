@@ -1,0 +1,122 @@
+<ConsultarNfseServicoPrestadoResposta xmlns="http://www.abrasf.org.br/nfse.xsd">
+  <ListaNfse>
+    <CompNfse>
+      <Nfse versao="2.04">
+        <InfNfse>
+          <Numero>2091</Numero>
+          <CodigoVerificacao>F02C707DD</CodigoVerificacao>
+          <DataEmissao>2025-04-14T12:43:30</DataEmissao>
+          <OutrasInformacoes>I - "DOCUMENTO EMITIDO POR ME OU EPP OPTANTE PELO SIMPLES NACIONAL"; e \s\n II - "NÃO GERA DIREITO A CRÉDITO FISCAL DE IPI."\s\nPROCON: TEL 151- SETOR COMERCIAL SUL, QUADRA 8, BLOCO B-60, SALA 240- BRASILIA - DF</OutrasInformacoes>
+          <ValoresNfse>
+            <BaseCalculo>1926.07</BaseCalculo>
+            <Aliquota>0</Aliquota>
+            <ValorIss>0.00</ValorIss>
+            <ValorLiquidoNfse>1926.07</ValorLiquidoNfse>
+          </ValoresNfse>
+          <DescricaoCodigoTributacaoMunicípio>7.10 - Limpeza, manutenção e conservação de vias e logradouros públicos, imóveis, chaminés, piscinas, parques, jardins e congêneres.</DescricaoCodigoTributacaoMunicípio>
+          <ValorCredito>0</ValorCredito>
+          <PrestadorServico>
+            <RazaoSocial>L/DF 024 SERVICOS DE LIMPEZA LTDA</RazaoSocial>
+            <NomeFantasia>LIMPIDUS</NomeFantasia>
+            <Endereco>
+              <Endereco>QD 01 CJ B LT 24 SL 202 S/N </Endereco>
+              <Complemento>
+              </Complemento>
+              <Bairro>CEILANDIA</Bairro>
+              <CodigoMunicipio>5300108</CodigoMunicipio>
+              <Uf>DF</Uf>
+              <Cep>72237120</Cep>
+            </Endereco>
+            <Contato>
+              <Telefone>6133221552</Telefone>
+              <Email>limpidus.slcontabilidade@yahoo.com.br</Email>
+            </Contato>
+          </PrestadorServico>
+          <OrgaoGerador>
+            <CodigoMunicipio>5300108</CodigoMunicipio>
+            <Uf>DF</Uf>
+          </OrgaoGerador>
+          <DeclaracaoPrestacaoServico>
+            <InfDeclaracaoPrestacaoServico Id="NSe5325040898298200017656003000002091000002091">
+              <Rps>
+                <IdentificacaoRps>
+                  <Numero>2091</Numero>
+                  <Serie>3</Serie>
+                  <Tipo>1</Tipo>
+                </IdentificacaoRps>
+                <DataEmissao>2025-04-14</DataEmissao>
+                <Status>1</Status>
+              </Rps>
+              <Competencia>2025-04-14</Competencia>
+              <Servico>
+                <Valores>
+                  <ValorServicos>1926.07</ValorServicos>
+                  <ValorIss>90.14</ValorIss>
+                </Valores>
+                <IssRetido>2</IssRetido>
+                <ItemListaServico>07.10</ItemListaServico>
+                <CodigoCnae>8121400</CodigoCnae>
+                <CodigoTributacaoMunicipio>710</CodigoTributacaoMunicipio>
+                <Discriminacao>SERVICO DE LIMPEZA.                                                                                                                      CONFORME A LEI 12.741/2012, TOTAL APROXIMADO DE TRIBUTOS - 36,10%</Discriminacao>
+                <CodigoMunicipio>5300108</CodigoMunicipio>
+                <ExigibilidadeISS>1</ExigibilidadeISS>
+                <MunicipioIncidencia>5300108</MunicipioIncidencia>
+              </Servico>
+              <Prestador>
+                <CpfCnpj>
+                  <Cnpj>08982982000176</Cnpj>
+                </CpfCnpj>
+                <InscricaoMunicipal>0749098400107</InscricaoMunicipal>
+              </Prestador>
+              <TomadorServico>
+                <IdentificacaoTomador>
+                  <CpfCnpj>
+                    <Cnpj>10542965000160</Cnpj>
+                  </CpfCnpj>
+                  <InscricaoMunicipal>0751458500150</InscricaoMunicipal>
+                </IdentificacaoTomador>
+                <RazaoSocial>VECTOR ASSESSORIA E CONSULTORIA EM RELACOES GOVERNAMENTAIS E</RazaoSocial>
+                <Endereco>
+                  <Endereco>ST SH/SUL QD 06 CJ A BL C SALAS 1806 1807 1808</Endereco>
+                  <Numero>1809</Numero>
+                  <Bairro>ASA SUL</Bairro>
+                  <CodigoMunicipio>5300108</CodigoMunicipio>
+                  <Uf>DF</Uf>
+                  <Cep>70322915</Cep>
+                </Endereco>
+                <Contato>
+                  <Telefone>6130416069</Telefone>
+                  <Email>adm@vectorrelgov.com.br</Email>
+                </Contato>
+              </TomadorServico>
+              <OptanteSimplesNacional>1</OptanteSimplesNacional>
+              <IncentivoFiscal>2</IncentivoFiscal>
+              <InformacoesComplementares> PROCON 151. Endereco: SCS. Qd. 08 - Ed. Venancio 2000 - BL. B-60 - SL 240 - CEP: 70.333-900</InformacoesComplementares>
+            </InfDeclaracaoPrestacaoServico>
+            <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+              <SignedInfo>
+                <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+                <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+                <Reference URI="#NSe5325040898298200017656003000002091000002091">
+                  <Transforms>
+                    <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+                    <Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+                  </Transforms>
+                  <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+                  <DigestValue>M9wDeUYeMyJEX2rxu87t29SuN1E=</DigestValue>
+                </Reference>
+              </SignedInfo>
+              <SignatureValue>itTwLjo2DVuiQmwtr0Z4yumzEczDKPcpTgSzoyvg4G+3Giw3XsGXAjZ239jo+VMjlKyquRkmJkhNxRrs5x258VGnjUNhmkGg7u9A4Dfr31UJcuNwVNFEbAZtVHIVTiUF7vyRT2Dxa/N3iUvVjlkIY0AatikjX+skrXdSGv1Ux0R15kUVvcpBO+XLWhHpkMr7hhgVPNwJ3ouqzQhJEfwEMXWKwxaXy5vhijdJN7U20v0p5mTP5KtinFjOc2Uxmjp5NV5pxFDf1AF7ivDcup/UjZw0s2881vShQrO+Lk2PxNZHGWuq35JkVZ4icHuRtPfEXEoeFxnzseYk1R3OxJgF5Q==</SignatureValue>
+              <KeyInfo>
+                <X509Data>
+                  <X509Certificate>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</X509Certificate>
+                </X509Data>
+              </KeyInfo>
+            </Signature>
+          </DeclaracaoPrestacaoServico>
+        </InfNfse>
+      </Nfse>
+    </CompNfse>
+    <Pagina>1</Pagina>
+  </ListaNfse>
+</ConsultarNfseServicoPrestadoResposta>

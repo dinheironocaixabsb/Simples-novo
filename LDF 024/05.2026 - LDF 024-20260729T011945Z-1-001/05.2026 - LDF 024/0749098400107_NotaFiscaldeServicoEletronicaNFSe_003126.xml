@@ -1,0 +1,121 @@
+<ConsultarNfseServicoPrestadoResposta xmlns="http://www.sped.fazenda.gov.br/nfse">
+  <ListaNfse>
+    <CompNfse>
+      <NFSe versao="1.00">
+        <infNFSe Id="NFS53001081208982982000176000000000312626051778707733">
+          <xLocEmi>Brasília</xLocEmi>
+          <xLocPrestacao>Brasília</xLocPrestacao>
+          <nNFSe>3126</nNFSe>
+          <cLocIncid>5300108</cLocIncid>
+          <xLocIncid>Brasília</xLocIncid>
+          <xTribNac>Limpeza, manutenção e conservação de vias e logradouros públicos, parques, jardins e congêneres.</xTribNac>
+          <xTribMun>7.10 - Limpeza, manutenção e conservação de vias e logradouros públicos, imóveis, chaminés, piscinas, parques, jardins e congêneres.</xTribMun>
+          <xNBS>1.1803.10.00-Serviços gerais de limpeza</xNBS>
+          <verAplic>ISSNET v7.5.2.0</verAplic>
+          <ambGer>1</ambGer>
+          <tpEmis>2</tpEmis>
+          <cStat>100</cStat>
+          <dhProc>2026-05-13T18:28:54-03:00</dhProc>
+          <nDFSe>3126</nDFSe>
+          <emit>
+            <CNPJ>08982982000176</CNPJ>
+            <IM>0749098400107</IM>
+            <xNome>L/DF 024 SERVICOS DE LIMPEZA LTDA</xNome>
+            <xFant>LIMPIDUS</xFant>
+            <enderNac>
+              <xLgr>QD 01 CJ B LT 24 SL 202 S/N </xLgr>
+              <nro>0</nro>
+              <xBairro>CEILANDIA</xBairro>
+              <cMun>5300108</cMun>
+              <UF>DF</UF>
+              <CEP>72237120</CEP>
+            </enderNac>
+            <fone>6133221552</fone>
+            <email>limpidus.slcontabilidade@yahoo.com.br</email>
+          </emit>
+          <valores>
+            <vBC>1378.41</vBC>
+            <pAliqAplic>4.31</pAliqAplic>
+            <vISSQN>59.41</vISSQN>
+            <vLiq>1378.41</vLiq>
+          </valores>
+          <xOutInf>I - "DOCUMENTO EMITIDO POR ME OU EPP OPTANTE PELO SIMPLES NACIONAL"; e II - "NÃO GERA DIREITO A CRÉDITO FISCAL DE IPI."\s\nPROCON: TEL 151- SETOR COMERCIAL SUL, QUADRA 8, BLOCO B-60, SALA 240- BRASILIA - DF</xOutInf>
+          <DPS versao="1.00">
+            <infDPS Id="DPS530010820898298200017670001000000000003126">
+              <tpAmb>1</tpAmb>
+              <dhEmi>2026-05-13T18:28:54-03:00</dhEmi>
+              <verAplic>ISSNET v7.5.2.0</verAplic>
+              <serie>70001</serie>
+              <nDPS>3126</nDPS>
+              <dCompet>2026-05-13</dCompet>
+              <tpEmit>1</tpEmit>
+              <cLocEmi>5300108</cLocEmi>
+              <prest>
+                <CNPJ>08982982000176</CNPJ>
+                <IM>0749098400107</IM>
+                <fone>6133221552</fone>
+                <email>limpidus.slcontabilidade@yahoo.com.br</email>
+                <regTrib>
+                  <opSimpNac>3</opSimpNac>
+                  <regApTribSN>1</regApTribSN>
+                  <regEspTrib>0</regEspTrib>
+                </regTrib>
+              </prest>
+              <toma>
+                <CNPJ>07944223000156</CNPJ>
+                <xNome> STURZENEGGER E CAVALCANTE ADVOGADOS ASSOCIADOS </xNome>
+                <end>
+                  <endNac>
+                    <cMun>3550308</cMun>
+                    <CEP>04102000</CEP>
+                  </endNac>
+                  <xLgr>Rua Vergueiro</xLgr>
+                  <nro>2016</nro>
+                  <xCpl> ANDAR 6 E 12 </xCpl>
+                  <xBairro>Vila Mariana</xBairro>
+                </end>
+              </toma>
+              <serv>
+                <locPrest>
+                  <cLocPrestacao>5300108</cLocPrestacao>
+                </locPrest>
+                <cServ>
+                  <cTribNac>071001</cTribNac>
+                  <cTribMun>710</cTribMun>
+                  <xDescServ>SERVICO DE LIMPEZA - PRESTADO NO DF.                                                                                                     
+CONFORME A LEI 12.741/2012, TOTAL APROXIMADO DE TRIBUTOS - 36,10%</xDescServ>
+                  <cNBS>118031000</cNBS>
+                </cServ>
+                <infoCompl>
+                  <xInfComp>PROCON 151. Endereco: SCS. Qd. 08 - Ed. Venancio 2000 - BL. B-60 - SL 240 - CEP: 70.333-900</xInfComp>
+                </infoCompl>
+              </serv>
+              <valores>
+                <vServPrest>
+                  <vServ>1378.41</vServ>
+                </vServPrest>
+                <trib>
+                  <tribMun>
+                    <tribISSQN>1</tribISSQN>
+                    <tpRetISSQN>1</tpRetISSQN>
+                    <pAliq>4.31</pAliq>
+                  </tribMun>
+                  <tribFed>
+                    <piscofins>
+                      <CST>00</CST>
+                      <tpRetPisCofins>0</tpRetPisCofins>
+                    </piscofins>
+                  </tribFed>
+                  <totTrib>
+                    <indTotTrib>0</indTotTrib>
+                  </totTrib>
+                </trib>
+              </valores>
+            </infDPS>
+          </DPS>
+        </infNFSe>
+      </NFSe>
+    </CompNfse>
+    <Pagina>1</Pagina>
+  </ListaNfse>
+</ConsultarNfseServicoPrestadoResposta>

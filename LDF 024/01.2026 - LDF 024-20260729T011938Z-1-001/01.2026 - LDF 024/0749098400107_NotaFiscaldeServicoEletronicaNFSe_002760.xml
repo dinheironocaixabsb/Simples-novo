@@ -1,0 +1,102 @@
+<ConsultarNfseServicoPrestadoResposta xmlns="http://www.abrasf.org.br/nfse.xsd">
+  <ListaNfse>
+    <CompNfse>
+      <Nfse versao="2.04">
+        <InfNfse>
+          <Numero>2760</Numero>
+          <CodigoVerificacao>E3585BBD4</CodigoVerificacao>
+          <DataEmissao>2026-01-14T17:00:12.547</DataEmissao>
+          <OutrasInformacoes>I - "DOCUMENTO EMITIDO POR ME OU EPP OPTANTE PELO SIMPLES NACIONAL"; e II - "NÃO GERA DIREITO A CRÉDITO FISCAL DE IPI."\s\nPROCON: TEL 151- SETOR COMERCIAL SUL, QUADRA 8, BLOCO B-60, SALA 240- BRASILIA - DF</OutrasInformacoes>
+          <ValoresNfse>
+            <BaseCalculo>1086.95</BaseCalculo>
+            <ValorLiquidoNfse>1086.95</ValorLiquidoNfse>
+          </ValoresNfse>
+          <DescricaoCodigoTributacaoMunicípio>7.10 - Limpeza, manutenção e conservação de vias e logradouros públicos, imóveis, chaminés, piscinas, parques, jardins e congêneres.</DescricaoCodigoTributacaoMunicípio>
+          <ValorCredito>0.00</ValorCredito>
+          <PrestadorServico>
+            <RazaoSocial>L/DF 024 SERVICOS DE LIMPEZA LTDA</RazaoSocial>
+            <NomeFantasia>LIMPIDUS</NomeFantasia>
+            <Endereco>
+              <Endereco>QD 01 CJ B LT 24 SL 202 S/N </Endereco>
+              <Complemento>
+              </Complemento>
+              <Bairro>CEILANDIA</Bairro>
+              <CodigoMunicipio>5300108</CodigoMunicipio>
+              <Uf>DF</Uf>
+              <Cep>72237120</Cep>
+            </Endereco>
+            <Contato>
+              <Telefone>6133221552</Telefone>
+              <Email>limpidus.slcontabilidade@yahoo.com.br</Email>
+            </Contato>
+          </PrestadorServico>
+          <OrgaoGerador>
+            <CodigoMunicipio>5300108</CodigoMunicipio>
+            <Uf>DF</Uf>
+          </OrgaoGerador>
+          <DeclaracaoPrestacaoServico>
+            <InfDeclaracaoPrestacaoServico Id="2760">
+              <Competencia>2026-01-14</Competencia>
+              <Servico>
+                <Valores>
+                  <ValorServicos>1086.95</ValorServicos>
+                  <ValorDeducoes>0.00</ValorDeducoes>
+                  <ValorPis>0.00</ValorPis>
+                  <ValorCofins>0.00</ValorCofins>
+                  <ValorInss>0.00</ValorInss>
+                  <ValorIr>0.00</ValorIr>
+                  <ValorCsll>0.00</ValorCsll>
+                  <OutrasRetencoes>0.00</OutrasRetencoes>
+                  <ValorIss>45.65</ValorIss>
+                  <Aliquota>4.2</Aliquota>
+                  <DescontoIncondicionado>0.00</DescontoIncondicionado>
+                  <DescontoCondicionado>0.00</DescontoCondicionado>
+                </Valores>
+                <IssRetido>2</IssRetido>
+                <ItemListaServico>07.10</ItemListaServico>
+                <CodigoCnae>8121400</CodigoCnae>
+                <CodigoTributacaoMunicipio>710</CodigoTributacaoMunicipio>
+                <CodigoNbs>118031000</CodigoNbs>
+                <Discriminacao>SERVICO DE LIMPEZA.                                                                                                                      
+CONFORME A LEI 12.741/2012, TOTAL APROXIMADO DE TRIBUTOS - 36,10%</Discriminacao>
+                <CodigoMunicipio>5300108</CodigoMunicipio>
+                <ExigibilidadeISS>1</ExigibilidadeISS>
+                <MunicipioIncidencia>5300108</MunicipioIncidencia>
+              </Servico>
+              <Prestador>
+                <CpfCnpj>
+                  <Cnpj>08982982000176</Cnpj>
+                </CpfCnpj>
+                <InscricaoMunicipal>0749098400107</InscricaoMunicipal>
+              </Prestador>
+              <TomadorServico>
+                <IdentificacaoTomador>
+                  <CpfCnpj>
+                    <Cnpj>16811264000165</Cnpj>
+                  </CpfCnpj>
+                </IdentificacaoTomador>
+                <RazaoSocial>ORGANIZACAO DAS NACOES UNIDAS PARA O DESENVOLVIMENTO INDUSTR</RazaoSocial>
+                <Endereco>
+                  <Endereco>Quadra SHS Quadra 6 Conjunto A Bloco A</Endereco>
+                  <Numero>612</Numero>
+                  <Bairro>Asa Sul</Bairro>
+                  <CodigoMunicipio>5300108</CodigoMunicipio>
+                  <Uf>DF</Uf>
+                  <Cep>70316102</Cep>
+                </Endereco>
+                <Contato>
+                  <Telefone>6130378440</Telefone>
+                  <Email>j.limaderegueiro@unido.org</Email>
+                </Contato>
+              </TomadorServico>
+              <OptanteSimplesNacional>1</OptanteSimplesNacional>
+              <IncentivoFiscal>2</IncentivoFiscal>
+              <InformacoesComplementares>PROCON 151. Endereco: SCS. Qd. 08 - Ed. Venancio 2000 - BL. B-60 - SL 240 - CEP: 70.333-900</InformacoesComplementares>
+            </InfDeclaracaoPrestacaoServico>
+          </DeclaracaoPrestacaoServico>
+        </InfNfse>
+      </Nfse>
+    </CompNfse>
+    <Pagina>1</Pagina>
+  </ListaNfse>
+</ConsultarNfseServicoPrestadoResposta>

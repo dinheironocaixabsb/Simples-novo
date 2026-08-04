@@ -1,0 +1,124 @@
+<ConsultarNfseServicoPrestadoResposta xmlns="http://www.abrasf.org.br/nfse.xsd">
+  <ListaNfse>
+    <CompNfse>
+      <Nfse versao="2.04">
+        <InfNfse>
+          <Numero>1824</Numero>
+          <CodigoVerificacao>5089853C6</CodigoVerificacao>
+          <DataEmissao>2025-01-03T16:59:15</DataEmissao>
+          <OutrasInformacoes>I - "DOCUMENTO EMITIDO POR ME OU EPP OPTANTE PELO SIMPLES NACIONAL"; e \s\n II - "NÃO GERA DIREITO A CRÉDITO FISCAL DE IPI."\s\nPROCON: TEL 151- SETOR COMERCIAL SUL, QUADRA 8, BLOCO B-60, SALA 240- BRASILIA - DF</OutrasInformacoes>
+          <ValoresNfse>
+            <BaseCalculo>3094.36</BaseCalculo>
+            <ValorIss>154.72</ValorIss>
+            <ValorLiquidoNfse>2753.98</ValorLiquidoNfse>
+          </ValoresNfse>
+          <DescricaoCodigoTributacaoMunicípio>7.10 - Limpeza, manutenção e conservação de vias e logradouros públicos, imóveis, chaminés, piscinas, parques, jardins e congêneres.</DescricaoCodigoTributacaoMunicípio>
+          <ValorCredito>0</ValorCredito>
+          <PrestadorServico>
+            <RazaoSocial>L/df 024 Servicos de Limpeza Eireli EPP</RazaoSocial>
+            <NomeFantasia>Limpidus</NomeFantasia>
+            <Endereco>
+              <Endereco>Quadra 01 Conjunto B Lote Lote 24 Sala 202 S/n</Endereco>
+              <Complemento>
+              </Complemento>
+              <Bairro>Ceilandia</Bairro>
+              <CodigoMunicipio>5300108</CodigoMunicipio>
+              <Uf>DF</Uf>
+              <Cep>72237120</Cep>
+            </Endereco>
+            <Contato>
+              <Telefone>6133221552</Telefone>
+              <Email>limpidus.slcontabilidade@yahoo.com.br</Email>
+            </Contato>
+          </PrestadorServico>
+          <OrgaoGerador>
+            <CodigoMunicipio>5300108</CodigoMunicipio>
+            <Uf>DF</Uf>
+          </OrgaoGerador>
+          <DeclaracaoPrestacaoServico>
+            <InfDeclaracaoPrestacaoServico Id="NSe5325010898298200017656003000001824000001824">
+              <Rps>
+                <IdentificacaoRps>
+                  <Numero>1824</Numero>
+                  <Serie>3</Serie>
+                  <Tipo>1</Tipo>
+                </IdentificacaoRps>
+                <DataEmissao>2025-01-03</DataEmissao>
+                <Status>1</Status>
+              </Rps>
+              <Competencia>2025-01-03</Competencia>
+              <Servico>
+                <Valores>
+                  <ValorServicos>3094.36</ValorServicos>
+                  <ValorInss>340.38</ValorInss>
+                  <ValorIss>154.72</ValorIss>
+                  <Aliquota>5.00</Aliquota>
+                </Valores>
+                <IssRetido>2</IssRetido>
+                <ItemListaServico>07.10</ItemListaServico>
+                <CodigoCnae>8121400</CodigoCnae>
+                <CodigoTributacaoMunicipio>710</CodigoTributacaoMunicipio>
+                <Discriminacao>SERVICO DE LIMPEZA   - Pedido n. SAP 4500756269 - Dados Bancarios Santander: AG: 3678 CC: 13000977-1.                                   CONFORME A LEI 12.741/2012, TOTAL APROXIMADO DE TRIBUTOS - 36,10%</Discriminacao>
+                <CodigoMunicipio>5300108</CodigoMunicipio>
+                <ExigibilidadeISS>1</ExigibilidadeISS>
+                <MunicipioIncidencia>5300108</MunicipioIncidencia>
+              </Servico>
+              <Prestador>
+                <CpfCnpj>
+                  <Cnpj>08982982000176</Cnpj>
+                </CpfCnpj>
+                <InscricaoMunicipal>0749098400107</InscricaoMunicipal>
+              </Prestador>
+              <TomadorServico>
+                <IdentificacaoTomador>
+                  <CpfCnpj>
+                    <Cnpj>02919555000248</Cnpj>
+                  </CpfCnpj>
+                  <InscricaoMunicipal>0758135700287</InscricaoMunicipal>
+                </IdentificacaoTomador>
+                <RazaoSocial>ARTERIS S.A.</RazaoSocial>
+                <Endereco>
+                  <Endereco>Q SHS QUADRA 6 CONJUNTO A BLOCO A SN SALA 607 EDIF BRASIL XXI</Endereco>
+                  <Numero>SN</Numero>
+                  <Complemento>EDIF: BRASIL XXI</Complemento>
+                  <Bairro>ASA SUL</Bairro>
+                  <CodigoMunicipio>5300108</CodigoMunicipio>
+                  <Uf>DF</Uf>
+                  <Cep>70316102</Cep>
+                </Endereco>
+                <Contato>
+                  <Telefone>6130399541</Telefone>
+                  <Email>viviane.silva@arteris.com.br</Email>
+                </Contato>
+              </TomadorServico>
+              <OptanteSimplesNacional>1</OptanteSimplesNacional>
+              <IncentivoFiscal>2</IncentivoFiscal>
+              <InformacoesComplementares> PROCON 151. Endereco: SCS. Qd. 08 - Ed. Venancio 2000 - BL. B-60 - SL 240 - CEP: 70.333-900</InformacoesComplementares>
+            </InfDeclaracaoPrestacaoServico>
+            <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+              <SignedInfo>
+                <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+                <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+                <Reference URI="#NSe5325010898298200017656003000001824000001824">
+                  <Transforms>
+                    <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+                    <Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+                  </Transforms>
+                  <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+                  <DigestValue>zL8pIp/UKhmTI6E9Q+NjbGxL1go=</DigestValue>
+                </Reference>
+              </SignedInfo>
+              <SignatureValue>GI4V+6RPf1QvhpnVMyQD1OOOE8ChWZbqtaxdvc6W8582Aamz7bTHPxQf8u9bhPRs17J/mUiaLZIkioSmv++ZeUirFBSFiBcyiKWKIHl9BXF2sp4wBXrvFjHCDO/tl/TyG3PZz/rTeHGvGuwp6O9eSkAJFIZf/sunxiPyYQHOL+Z72IPLfu5/Ku09VQYwJccWbmULqFz/MmSJRYvTa5STZVm8RjjEmEcWjvjo6GCk8ZMEqsVh0K01nb3nAusGUC/Fw2SVCQjOqC4jLdyu9YAJWJZrZO6iPBCsGos04iw84jEOzyldcx/iJLYL7Mu1xIVpMQjPQHFB5RPE0X7ayioWMw==</SignatureValue>
+              <KeyInfo>
+                <X509Data>
+                  <X509Certificate>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</X509Certificate>
+                </X509Data>
+              </KeyInfo>
+            </Signature>
+          </DeclaracaoPrestacaoServico>
+        </InfNfse>
+      </Nfse>
+    </CompNfse>
+    <Pagina>1</Pagina>
+  </ListaNfse>
+</ConsultarNfseServicoPrestadoResposta>

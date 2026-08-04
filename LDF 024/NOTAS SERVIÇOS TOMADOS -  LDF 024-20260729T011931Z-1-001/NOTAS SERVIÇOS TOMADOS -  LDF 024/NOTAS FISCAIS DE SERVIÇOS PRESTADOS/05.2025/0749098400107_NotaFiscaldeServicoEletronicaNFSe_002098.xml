@@ -1,0 +1,102 @@
+<ConsultarNfseServicoPrestadoResposta xmlns="http://www.abrasf.org.br/nfse.xsd">
+  <ListaNfse>
+    <CompNfse>
+      <Nfse versao="2.04">
+        <InfNfse>
+          <Numero>2098</Numero>
+          <CodigoVerificacao>603C84473</CodigoVerificacao>
+          <DataEmissao>2025-05-12T11:18:11.137</DataEmissao>
+          <OutrasInformacoes>I - "DOCUMENTO EMITIDO POR ME OU EPP OPTANTE PELO SIMPLES NACIONAL"; e II - "NÃO GERA DIREITO A CRÉDITO FISCAL DE IPI."\s\nPROCON: TEL 151- SETOR COMERCIAL SUL, QUADRA 8, BLOCO B-60, SALA 240- BRASILIA - DF</OutrasInformacoes>
+          <ValoresNfse>
+            <BaseCalculo>5798.28</BaseCalculo>
+            <ValorLiquidoNfse>5288.03</ValorLiquidoNfse>
+          </ValoresNfse>
+          <DescricaoCodigoTributacaoMunicípio>7.10 - Limpeza, manutenção e conservação de vias e logradouros públicos, imóveis, chaminés, piscinas, parques, jardins e congêneres.</DescricaoCodigoTributacaoMunicípio>
+          <ValorCredito>0.00</ValorCredito>
+          <PrestadorServico>
+            <RazaoSocial>L/DF 024 SERVICOS DE LIMPEZA LTDA</RazaoSocial>
+            <NomeFantasia>LIMPIDUS</NomeFantasia>
+            <Endereco>
+              <Endereco>QD 01 CJ B LT 24 SL 202 S/N </Endereco>
+              <Complemento>
+              </Complemento>
+              <Bairro>CEILANDIA</Bairro>
+              <CodigoMunicipio>5300108</CodigoMunicipio>
+              <Uf>DF</Uf>
+              <Cep>72237120</Cep>
+            </Endereco>
+            <Contato>
+              <Telefone>6133221552</Telefone>
+              <Email>limpidus.slcontabilidade@yahoo.com.br</Email>
+            </Contato>
+          </PrestadorServico>
+          <OrgaoGerador>
+            <CodigoMunicipio>5300108</CodigoMunicipio>
+            <Uf>DF</Uf>
+          </OrgaoGerador>
+          <DeclaracaoPrestacaoServico>
+            <InfDeclaracaoPrestacaoServico Id="2098">
+              <Competencia>2025-05-12</Competencia>
+              <Servico>
+                <Valores>
+                  <ValorServicos>5798.28</ValorServicos>
+                  <ValorDeducoes>0.00</ValorDeducoes>
+                  <ValorPis>0.00</ValorPis>
+                  <ValorCofins>0.00</ValorCofins>
+                  <ValorInss>510.25</ValorInss>
+                  <ValorIr>0.00</ValorIr>
+                  <ValorCsll>0.00</ValorCsll>
+                  <OutrasRetencoes>0.00</OutrasRetencoes>
+                  <ValorIss>269.04</ValorIss>
+                  <Aliquota>4.64</Aliquota>
+                  <DescontoIncondicionado>0.00</DescontoIncondicionado>
+                  <DescontoCondicionado>0.00</DescontoCondicionado>
+                </Valores>
+                <IssRetido>2</IssRetido>
+                <ItemListaServico>07.10</ItemListaServico>
+                <CodigoCnae>8121400</CodigoCnae>
+                <CodigoTributacaoMunicipio>710</CodigoTributacaoMunicipio>
+                <Discriminacao>SERVICO DE COPEIRA - PEDIDO DE COMPRA N  X24258 - MES DE REFERENCIA 05/2025 - DADOS BANCARIOS: BANCO SANTANDER AG: 3678 C/C: 13000977-1  
+MAO DE OBRA: R$ 4.638,62 MATER./EQUIP.: R$ 1.159,66 
+CONFORME A LEI 12.741/2012, TOTAL APROXIMADO DE TRIBUTOS - 36,10%</Discriminacao>
+                <CodigoMunicipio>5300108</CodigoMunicipio>
+                <ExigibilidadeISS>1</ExigibilidadeISS>
+                <MunicipioIncidencia>5300108</MunicipioIncidencia>
+              </Servico>
+              <Prestador>
+                <CpfCnpj>
+                  <Cnpj>08982982000176</Cnpj>
+                </CpfCnpj>
+                <InscricaoMunicipal>0749098400107</InscricaoMunicipal>
+              </Prestador>
+              <TomadorServico>
+                <IdentificacaoTomador>
+                  <CpfCnpj>
+                    <Cnpj>03585183000142</Cnpj>
+                  </CpfCnpj>
+                  <InscricaoMunicipal>0750507000162</InscricaoMunicipal>
+                </IdentificacaoTomador>
+                <RazaoSocial>FSB COMUNICACAO E PLANEJAMENTO ESTRATEGICO LTDA</RazaoSocial>
+                <Endereco>
+                  <Endereco>SHS QUADRA 6 CONJ A BLOCO E SALA 711 A 722 PARTE S/N</Endereco>
+                  <Bairro>ASA SUL</Bairro>
+                  <CodigoMunicipio>5300108</CodigoMunicipio>
+                  <Uf>DF</Uf>
+                  <Cep>70316000</Cep>
+                </Endereco>
+                <Contato>
+                  <Telefone>2132065050</Telefone>
+                  <Email>juridico@fsb.com.br</Email>
+                </Contato>
+              </TomadorServico>
+              <OptanteSimplesNacional>1</OptanteSimplesNacional>
+              <IncentivoFiscal>2</IncentivoFiscal>
+              <InformacoesComplementares>PROCON 151. Endereco: SCS. Qd. 08 - Ed. Venancio 2000 - BL. B-60 - SL 240 - CEP: 70.333-900</InformacoesComplementares>
+            </InfDeclaracaoPrestacaoServico>
+          </DeclaracaoPrestacaoServico>
+        </InfNfse>
+      </Nfse>
+    </CompNfse>
+    <Pagina>1</Pagina>
+  </ListaNfse>
+</ConsultarNfseServicoPrestadoResposta>
