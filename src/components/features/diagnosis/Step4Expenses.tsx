@@ -559,6 +559,136 @@ export function Step4Expenses() {
         </div>
       )}
 
+      {/* Detalhamento Manual das Despesas Elegíveis LC 214 */}
+      <div className="mt-6 border border-[#e2e8f0] rounded bg-white overflow-hidden p-5 shadow-sm">
+        <h3 className="text-[#005696] font-bold text-[15px] mb-6">
+          Despesas Elegíveis LC 214: Mês de {['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][currentMonth]}
+        </h3>
+
+        {/* Linha 1 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+          {/* Despesa Geral (Normal) */}
+          <div className="flex flex-col">
+            <label className="text-[#334155] text-[11px] font-bold mb-1 h-8">Despesa Geral (Normal)</label>
+            <CurrencyInput
+              value={monthlyExpenses[currentMonth]?.despesaGeral || 0}
+              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { despesaGeral: Number((val || '0').replace(/\D/g, '')) / 100 })}
+              decimalsLimit={2} decimalSeparator="," groupSeparator="."
+              className="border border-[#cbd5e1] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
+              placeholder="0,00"
+            />
+            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+          </div>
+
+          {/* Produtos Tribut. Normal */}
+          <div className="flex flex-col">
+            <label className="text-[#334155] text-[11px] font-bold mb-1 h-8">Produtos Tribut. Normal<br/>(Crédito 100%)</label>
+            <CurrencyInput
+              value={monthlyExpenses[currentMonth]?.despesaCreditoIntegral || 0}
+              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { despesaCreditoIntegral: Number((val || '0').replace(/\D/g, '')) / 100 })}
+              decimalsLimit={2} decimalSeparator="," groupSeparator="."
+              className="border border-red-300 rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
+              placeholder="0,00"
+            />
+            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+          </div>
+
+          {/* Anexo I: Alimentos */}
+          <div className="flex flex-col">
+            <label className="text-[#334155] text-[11px] font-bold mb-1 h-8">Anexo I: Alimentos (Zero)</label>
+            <CurrencyInput
+              value={monthlyExpenses[currentMonth]?.despesaAnexo1 || 0}
+              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { despesaAnexo1: Number((val || '0').replace(/\D/g, '')) / 100 })}
+              decimalsLimit={2} decimalSeparator="," groupSeparator="."
+              className="border border-[#bfdbfe] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
+              placeholder="0,00"
+            />
+            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+          </div>
+
+          {/* Anexo XV: Hortifruti */}
+          <div className="flex flex-col">
+            <label className="text-[#334155] text-[11px] font-bold mb-1 h-8">Anexo XV: Hortifruti (100%)</label>
+            <CurrencyInput
+              value={monthlyExpenses[currentMonth]?.despesaAnexo15 || 0}
+              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { despesaAnexo15: Number((val || '0').replace(/\D/g, '')) / 100 })}
+              decimalsLimit={2} decimalSeparator="," groupSeparator="."
+              className="border border-[#bfdbfe] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
+              placeholder="0,00"
+            />
+            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+          </div>
+
+          {/* Anexo VII: Alimentos (60%) */}
+          <div className="flex flex-col">
+            <label className="text-[#334155] text-[11px] font-bold mb-1 h-8">Anexo VII: Alimentos (60%)</label>
+            <CurrencyInput
+              value={monthlyExpenses[currentMonth]?.despesaAnexo7 || 0}
+              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { despesaAnexo7: Number((val || '0').replace(/\D/g, '')) / 100 })}
+              decimalsLimit={2} decimalSeparator="," groupSeparator="."
+              className="border border-[#bfdbfe] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
+              placeholder="0,00"
+            />
+            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+          </div>
+
+          {/* Anexo VIII: Higiene (60%) */}
+          <div className="flex flex-col">
+            <label className="text-[#334155] text-[11px] font-bold mb-1 h-8">Anexo VIII: Higiene (60%)</label>
+            <CurrencyInput
+              value={monthlyExpenses[currentMonth]?.despesaAnexo8 || 0}
+              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { despesaAnexo8: Number((val || '0').replace(/\D/g, '')) / 100 })}
+              decimalsLimit={2} decimalSeparator="," groupSeparator="."
+              className="border border-[#bfdbfe] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
+              placeholder="0,00"
+            />
+            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+          </div>
+        </div>
+
+        {/* Linha 2 (Deduções) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {/* ICMS/ISS */}
+          <div className="flex flex-col">
+            <label className="text-[#475569] text-[11px] font-bold mb-1 h-8">(-) ICMS / ISS Destac.<br/>Compras/Serviços</label>
+            <CurrencyInput
+              value={monthlyExpenses[currentMonth]?.deducaoIcmsIss || 0}
+              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { deducaoIcmsIss: Number((val || '0').replace(/\D/g, '')) / 100 })}
+              decimalsLimit={2} decimalSeparator="," groupSeparator="."
+              className="border border-red-300 rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
+              placeholder="0,00"
+            />
+            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+          </div>
+
+          {/* PIS/COFINS */}
+          <div className="flex flex-col">
+            <label className="text-[#475569] text-[11px] font-bold mb-1 h-8">(-) PIS/COFINS Destac.<br/>Compras/Serviços</label>
+            <CurrencyInput
+              value={monthlyExpenses[currentMonth]?.deducaoPisCofins || 0}
+              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { deducaoPisCofins: Number((val || '0').replace(/\D/g, '')) / 100 })}
+              decimalsLimit={2} decimalSeparator="," groupSeparator="."
+              className="border border-red-300 rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
+              placeholder="0,00"
+            />
+            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+          </div>
+
+          {/* Descontos Incondicionais */}
+          <div className="flex flex-col">
+            <label className="text-[#475569] text-[11px] font-bold mb-1 h-8">(-) Desconto Incond.<br/>Compras/Serviços</label>
+            <CurrencyInput
+              value={monthlyExpenses[currentMonth]?.deducaoDescontos || 0}
+              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { deducaoDescontos: Number((val || '0').replace(/\D/g, '')) / 100 })}
+              decimalsLimit={2} decimalSeparator="," groupSeparator="."
+              className="border border-red-300 rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
+              placeholder="0,00"
+            />
+            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+          </div>
+        </div>
+      </div>
+
       {/* Actions */}
       <div className="flex flex-wrap gap-2 justify-end pt-4 mt-8 border-t border-gray-200">
         <button onClick={() => setStep(3)} className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-[13px] py-2 px-5 rounded shadow-sm">Voltar</button>
