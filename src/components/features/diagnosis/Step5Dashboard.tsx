@@ -380,17 +380,18 @@ export function Step5Dashboard() {
           </div>
           <div className="overflow-x-auto max-h-[400px]">
             <table className="w-full text-left border-collapse min-w-[1200px]">
-              <thead className="sticky top-0 z-20 shadow-sm bg-white">
+              <thead className="sticky top-0 z-40 shadow-sm bg-white">
                 <tr className="text-[10px] uppercase text-center border-b border-gray-200">
-                  <th colSpan={3} className="px-4 py-2 bg-[#f8fafc] text-[#334155] border-r-2 border-gray-300 font-bold">Cenário Atual (Cenário 1)</th>
+                  <th colSpan={3} className="px-4 py-2 bg-[#f8fafc] text-[#334155] border-r-2 border-gray-300 font-bold sticky left-0 z-40 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">Cenário Atual (Cenário 1)</th>
                   <th colSpan={9} className="px-4 py-2 bg-[#f0fdf4] text-[#166534] border-r-2 border-[#bbf7d0] font-bold">Cálculo da Nova Carga Tributária</th>
                   <th colSpan={3} className="px-4 py-2 bg-[#eff6ff] text-[#1e40af] border-r-2 border-[#bfdbfe] font-bold">Impacto Aproveitando Crédito (B2B)</th>
                   <th colSpan={3} className="px-4 py-2 bg-[#fff7ed] text-[#9a3412] font-bold">Impacto Não Aproveitando (PF/Simples)</th>
                 </tr>
                 <tr className="text-[11px] text-[#475569] border-b border-gray-200 text-center bg-white">
-                  <th className="px-4 py-3 sticky left-0 bg-[#f8fafc] border-r border-gray-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] z-30 whitespace-nowrap">Cliente / Tomador</th>
-                  <th className="px-4 py-3 bg-[#f8fafc] whitespace-nowrap">Regime</th>
-                  <th className="px-4 py-3 bg-[#f8fafc] border-r-2 border-gray-300 whitespace-nowrap">Faturamento Atual</th>
+                  <th className="px-4 py-3 sticky left-0 z-30 bg-[#f8fafc] w-[180px] min-w-[180px] max-w-[180px] whitespace-nowrap">Cliente / Tomador</th>
+                  <th className="px-4 py-3 sticky left-[180px] z-30 bg-[#f8fafc] w-[100px] min-w-[100px] max-w-[100px] whitespace-nowrap">Regime</th>
+                  <th className="px-4 py-3 sticky left-[280px] z-30 bg-[#f8fafc] border-r-2 border-gray-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] w-[140px] min-w-[140px] max-w-[140px] whitespace-nowrap">Faturamento Atual</th>
+                  
                   <th className="px-4 py-3 whitespace-nowrap">Carga Trib. Atual</th>
                   <th className="px-4 py-3 whitespace-nowrap">Tributos "Dentro"</th>
                   <th className="px-4 py-3 whitespace-nowrap">Custo S/ Tributos</th>
@@ -445,15 +446,15 @@ export function Step5Dashboard() {
                     const formatNum = (num: number) => num.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
                     return (
-                      <tr key={idx} className="hover:bg-gray-50 text-right text-[12px] text-gray-600 transition-colors bg-white border-b border-gray-100">
-                        <td className="px-4 py-3 text-left sticky left-0 bg-white group-hover:bg-gray-50 border-r border-gray-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] z-10">
-                          <div className="font-semibold text-gray-800 truncate max-w-[150px]" title={c.nome}>{c.nome}</div>
+                      <tr key={idx} className="hover:bg-gray-50 text-right text-[12px] text-gray-600 transition-colors bg-white border-b border-gray-100 group">
+                        <td className="px-4 py-3 text-left sticky left-0 z-10 bg-white group-hover:bg-gray-50 w-[180px] min-w-[180px] max-w-[180px]">
+                          <div className="font-semibold text-gray-800 truncate" title={c.nome}>{c.nome}</div>
                           <div className="text-[10px] text-gray-500 font-mono mt-0.5">{c.cnpj || 'CPF/Outros'}</div>
                         </td>
-                        <td className="px-4 py-3 text-center">
+                        <td className="px-4 py-3 text-center sticky left-[180px] z-10 bg-white group-hover:bg-gray-50 w-[100px] min-w-[100px] max-w-[100px]">
                           <span className="bg-[#f1f5f9] text-[#475569] px-2 py-1 rounded text-[10px] font-semibold whitespace-nowrap">{c.regime}</span>
                         </td>
-                        <td className="px-4 py-3 font-semibold text-gray-900 border-r-2 border-gray-300 whitespace-nowrap">
+                        <td className="px-4 py-3 font-semibold text-gray-900 border-r-2 border-gray-300 whitespace-nowrap sticky left-[280px] z-10 bg-white group-hover:bg-gray-50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] w-[140px] min-w-[140px] max-w-[140px]">
                           <span className="text-[10px] text-gray-400 font-normal mr-1">R$</span>{formatNum(c.faturamentoAtual)}
                         </td>
                         
