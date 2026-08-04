@@ -209,11 +209,11 @@ const makeRevenueArray = (): RevenueData[] => Array(12).fill(null).map(() => JSO
 const makeExpensesArray = (): MonthlyExpenses[] => Array(12).fill(null).map(() => ({ ...defaultMonthlyExpensesMonth }));
 
 const defaultSimulationParams: SimulationParams = {
-  anoSimulacao: 'definitivo',
-  faturamentoAliquotaIBS: 0, faturamentoAliquotaCBS: 0,
-  despesasAliquotaIBS: 0, despesasAliquotaCBS: 0,
+  anoSimulacao: '2026',
+  faturamentoAliquotaIBS: 0.10, faturamentoAliquotaCBS: 0.90,
+  despesasAliquotaIBS: 0.10, despesasAliquotaCBS: 0.90,
   regimeCreditoSn: 'porDentro',
-  snAliqDentro: 0, snAliqIbsFora: 0, snAliqCbsFora: 0,
+  snAliqDentro: 4, snAliqIbsFora: 0.10, snAliqCbsFora: 0.90,
   ultrapassouSublimite: false,
   creditoEstoqueVal: 0, redutorIbsCbs: 0,
 };

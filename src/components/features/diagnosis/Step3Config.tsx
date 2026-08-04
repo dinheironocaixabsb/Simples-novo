@@ -8,6 +8,47 @@ export const Step3Config: React.FC = () => {
   const { simulationParams, updateSimulationParams, setStep } = useDiagnosisStore();
 
   const handleChange = (field: keyof typeof simulationParams, value: any) => {
+    if (field === 'anoSimulacao') {
+      let faturamentoAliquotaIBS = simulationParams.faturamentoAliquotaIBS;
+      let faturamentoAliquotaCBS = simulationParams.faturamentoAliquotaCBS;
+      let despesasAliquotaIBS = simulationParams.despesasAliquotaIBS;
+      let despesasAliquotaCBS = simulationParams.despesasAliquotaCBS;
+
+      switch (value) {
+        case '2026':
+          faturamentoAliquotaIBS = 0.10; faturamentoAliquotaCBS = 0.90;
+          despesasAliquotaIBS = 0.10; despesasAliquotaCBS = 0.90;
+          break;
+        case '2029':
+          faturamentoAliquotaIBS = 1.00; faturamentoAliquotaCBS = 8.80;
+          despesasAliquotaIBS = 1.00; despesasAliquotaCBS = 8.80;
+          break;
+        case '2030':
+          faturamentoAliquotaIBS = 2.00; faturamentoAliquotaCBS = 8.80;
+          despesasAliquotaIBS = 2.00; despesasAliquotaCBS = 8.80;
+          break;
+        case '2031':
+          faturamentoAliquotaIBS = 3.00; faturamentoAliquotaCBS = 8.80;
+          despesasAliquotaIBS = 3.00; despesasAliquotaCBS = 8.80;
+          break;
+        case '2032':
+          faturamentoAliquotaIBS = 4.00; faturamentoAliquotaCBS = 8.80;
+          despesasAliquotaIBS = 4.00; despesasAliquotaCBS = 8.80;
+          break;
+        case 'definitivo':
+          faturamentoAliquotaIBS = 17.00; faturamentoAliquotaCBS = 8.80;
+          despesasAliquotaIBS = 17.00; despesasAliquotaCBS = 8.80;
+          break;
+      }
+
+      updateSimulationParams({ 
+        anoSimulacao: value,
+        faturamentoAliquotaIBS, faturamentoAliquotaCBS,
+        despesasAliquotaIBS, despesasAliquotaCBS
+      });
+      return;
+    }
+
     updateSimulationParams({ [field]: value });
   };
 
@@ -60,9 +101,12 @@ export const Step3Config: React.FC = () => {
                 onChange={(e) => handleChange('anoSimulacao', e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded text-sm text-gray-700 focus:outline-none focus:border-[#005696]"
               >
-                <option value="Transição (2026 a 2028)">Transição (2026 a 2028)</option>
-                <option value="2029-2032">2029-2032</option>
-                <option value="Pos-2033">Definitivo (Pós-2033)</option>
+                <option value="2026">Transição (2026 a 2028)</option>
+                <option value="2029">Transição (2029)</option>
+                <option value="2030">Transição (2030)</option>
+                <option value="2031">Transição (2031)</option>
+                <option value="2032">Transição (2032)</option>
+                <option value="definitivo">Regime Definitivo (2033+)</option>
               </select>
             </div>
 
