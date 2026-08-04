@@ -77,7 +77,7 @@ export function Step2RevenueData() {
                       type="text" 
                       value={monthData.competencia || ''}
                       onChange={(e) => updateRevenueData(monthIndex, { competencia: e.target.value })}
-                      placeholder={`${(monthIndex + 1).toString().padStart(2, '0')}/AAAA`}
+                      placeholder="MM/AAAA"
                       className="border border-[#d1d5db] rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
                     />
                   </div>
