@@ -621,7 +621,7 @@ export function Step4Expenses() {
       {/* Actions */}
       <div className="flex flex-wrap gap-2 justify-end pt-4 mt-8 border-t border-gray-200">
         <button onClick={() => setStep(3)} className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-[13px] py-2 px-5 rounded shadow-sm">Voltar</button>
-        <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-5 rounded shadow-sm ml-auto">Imprimir</button>
+        <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-5 rounded shadow-sm">Imprimir</button>
         <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-5 rounded shadow-sm">Salvar Diagnóstico</button>
         <button className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold text-[13px] py-2 px-5 rounded shadow-sm">Excluir Dados</button>
         <button onClick={() => setStep(5)} className="bg-[#004a82] hover:bg-[#003d6b] text-white font-bold text-[13px] py-2 px-5 rounded shadow-sm">Ver Resultados / Dashboard</button>
