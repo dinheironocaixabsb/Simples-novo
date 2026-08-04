@@ -72,20 +72,19 @@ export function Step5Dashboard() {
         </div>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {months.map((month, index) => (
-          <button
-            key={month}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors border ${
-              currentMonth === index 
-                ? "bg-[#005696] text-white border-[#005696] hover:bg-[#004375]" 
-                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-            }`}
-            onClick={() => setCurrentMonth(index)}
+      <div className="flex justify-center w-full mb-6">
+        <div className="w-full border border-[#005696] rounded-md bg-[#f0f4f4] py-3 flex items-center justify-center gap-3">
+          <span className="font-bold text-[#005696] text-sm">Cenário de Análise:</span>
+          <select 
+            value={currentMonth}
+            onChange={(e) => setCurrentMonth(Number(e.target.value))}
+            className="border border-[#005696] rounded-md text-[#005696] font-bold text-sm px-3 py-1.5 bg-white outline-none focus:ring-2 focus:ring-[#005696]/20 cursor-pointer w-48 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23005696%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-no-repeat bg-[position:right_12px_center]"
           >
-            {month}
-          </button>
-        ))}
+            {months.map((month, index) => (
+              <option key={month} value={index}>{month}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
