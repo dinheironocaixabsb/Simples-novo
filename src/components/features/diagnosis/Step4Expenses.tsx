@@ -58,19 +58,77 @@ export function Step4Expenses() {
       category: manualCategoria,
       fileName: 'Lançamento Manual',
       xmlType: 'NFSe',
+      isConsultingCnpj: false,
       deducoes: { icms: 0, pisCofins: 0, desconto: 0, iss: 0 }
     };
     
     addXmlDespesa(manualExpense);
     setShowManualModal(false);
     
-    // reset
+    // Clear form
     setManualNumNota('');
     setManualData('');
     setManualCnpj('');
     setManualProvider('');
     setManualDesc('');
     setManualValor('');
+  };
+
+  const handleExportExcel = (tipoCst: string, label: string) => {
+    let csvContent = "\uFEFF"; // BOM for UTF-8
+    csvContent += "Nota Fiscal;Data Emissao;Tomador;Produto;NCM;CFOP;CST;Valor Bruto (R$);ICMS (R$);PIS/COFINS (R$);Desconto (R$);Valor Liquido (R$);Classificacao\n";
+    
+    let foundAny = false;
+    const currentXmls = xmlDespesas.filter(x => x.monthIndex === currentMonth);
+    
+    currentXmls.forEach(n => {
+      // Basic matching logic based on the old system
+      let include = false;
+      const isCredit = n.tipoDespesa === "Gera Crédito de IBS/CBS" || n.tipoDespesa === "Gera crédito" || n.tipoDespesa === "Gera crédito de IBS/CBS" || n.tipoDespesa === 'true';
+      
+      if (tipoCst === 'despesaGeral' && isCredit) include = true;
+      if (tipoCst === 'icms_compras' && n.deducoes?.icms) include = true;
+      if (tipoCst === 'pis_cofins_compras' && n.deducoes?.pisCofins) include = true;
+      if (tipoCst === 'desconto_incondicional' && n.deducoes?.desconto) include = true;
+      
+      if (include) {
+        foundAny = true;
+        const nome = (n.descricao || n.category || "Item Único").replace(/;/g, ",");
+        const tomador = (n.fornecedor || "").replace(/;/g, ",");
+        const bruto = n.valor || 0;
+        
+        const icms = tipoCst === 'icms_compras' ? (n.deducoes?.icms || 0) : 0;
+        const pisCofins = tipoCst === 'pis_cofins_compras' ? (n.deducoes?.pisCofins || 0) : 0;
+        const desconto = tipoCst === 'desconto_incondicional' ? (n.deducoes?.desconto || 0) : 0;
+        const liquido = bruto - icms - pisCofins - desconto;
+        
+        csvContent += `${n.numero || ""};${n.data || ""};${tomador};${nome};;;;"${bruto.toLocaleString('pt-BR', {minimumFractionDigits: 2})}";"${icms.toLocaleString('pt-BR', {minimumFractionDigits: 2})}";"${pisCofins.toLocaleString('pt-BR', {minimumFractionDigits: 2})}";"${desconto.toLocaleString('pt-BR', {minimumFractionDigits: 2})}";"${liquido.toLocaleString('pt-BR', {minimumFractionDigits: 2})}";${label}\n`;
+      }
+    });
+
+    // If no XMLs matched, but there is a manual value in the store, export the global value
+    const manualValue = monthlyExpenses[currentMonth]?.[tipoCst as keyof typeof monthlyExpenses] as number || 0;
+    if (!foundAny && manualValue > 0) {
+      foundAny = true;
+      const valFmt = manualValue.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+      const zero = "0,00";
+      csvContent += `-;-;-;-;-;-;-;"${valFmt}";"${zero}";"${zero}";"${zero}";"${valFmt}";${label} (Lançamento Global)\n`;
+    }
+
+    if (!foundAny) {
+      alert("Nenhum produto ou valor encontrado com esta classificação neste mês.");
+      return;
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Detalhamento_${SHORT_MONTHS[currentMonth].toLowerCase()}_${tipoCst}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const currentMonthXmls = xmlDespesas.filter(x => x.monthIndex === currentMonth);
@@ -577,7 +635,7 @@ export function Step4Expenses() {
               className="border border-[#cbd5e1] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
               placeholder="0,00"
             />
-            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+            <button onClick={() => handleExportExcel('despesaGeral', 'Despesa Geral (Normal)')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
           </div>
 
           {/* Produtos Tribut. Normal */}
@@ -590,7 +648,7 @@ export function Step4Expenses() {
               className="border border-red-300 rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
               placeholder="0,00"
             />
-            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+            <button onClick={() => handleExportExcel('despesaCreditoIntegral', 'Produtos Tribut. Normal (Crédito 100%)')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
           </div>
 
           {/* Anexo I: Alimentos */}
@@ -603,7 +661,7 @@ export function Step4Expenses() {
               className="border border-[#bfdbfe] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
               placeholder="0,00"
             />
-            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+            <button onClick={() => handleExportExcel('despesaAnexo1', 'Anexo I: Alimentos (Zero)')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
           </div>
 
           {/* Anexo XV: Hortifruti */}
@@ -616,7 +674,7 @@ export function Step4Expenses() {
               className="border border-[#bfdbfe] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
               placeholder="0,00"
             />
-            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+            <button onClick={() => handleExportExcel('despesaAnexo15', 'Anexo XV: Hortifruti (100%)')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
           </div>
 
           {/* Anexo VII: Alimentos (60%) */}
@@ -629,7 +687,7 @@ export function Step4Expenses() {
               className="border border-[#bfdbfe] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
               placeholder="0,00"
             />
-            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+            <button onClick={() => handleExportExcel('despesaAnexo7', 'Anexo VII: Alimentos (60%)')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
           </div>
 
           {/* Anexo VIII: Higiene (60%) */}
@@ -642,7 +700,7 @@ export function Step4Expenses() {
               className="border border-[#bfdbfe] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
               placeholder="0,00"
             />
-            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+            <button onClick={() => handleExportExcel('despesaAnexo8', 'Anexo VIII: Higiene (60%)')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
           </div>
         </div>
 
@@ -658,7 +716,7 @@ export function Step4Expenses() {
               className="border border-red-300 rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
               placeholder="0,00"
             />
-            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+            <button onClick={() => handleExportExcel('icms_compras', 'ICMS / ISS Destac. Compras/Serviços')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
           </div>
 
           {/* PIS/COFINS */}
@@ -671,7 +729,7 @@ export function Step4Expenses() {
               className="border border-red-300 rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
               placeholder="0,00"
             />
-            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+            <button onClick={() => handleExportExcel('pis_cofins_compras', 'PIS/COFINS Destac. Compras/Serviços')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
           </div>
 
           {/* Descontos Incondicionais */}
@@ -684,7 +742,7 @@ export function Step4Expenses() {
               className="border border-red-300 rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
               placeholder="0,00"
             />
-            <button className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
+            <button onClick={() => handleExportExcel('desconto_incondicional', 'Desconto Incond. Compras/Serviços')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
           </div>
         </div>
       </div>
