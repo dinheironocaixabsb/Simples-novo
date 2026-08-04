@@ -76,7 +76,7 @@ export function Sidebar() {
   };
 
   const handleDelete = () => {
-    if (activeClientId && confirm('Deseja realmente excluir este diagnóstico?')) {
+    if (activeClientId && window.confirm('Deseja realmente excluir este diagnóstico?')) {
       deleteClient(activeClientId);
       newClient(); // Clear the form after deletion
     }
@@ -133,9 +133,11 @@ export function Sidebar() {
             ))}
           </select>
           <button 
+            type="button"
             onClick={handleDelete}
             disabled={!activeClientId}
-            className="w-[34px] h-[34px] flex items-center justify-center bg-[#ffe4e6] text-[#e11d48] rounded border border-[#fecdd3] hover:bg-[#fecdd3] transition-colors disabled:opacity-40"
+            title={activeClientId ? "Excluir diagnóstico selecionado" : "Selecione um diagnóstico para excluir"}
+            className="w-[34px] h-[34px] flex items-center justify-center bg-[#ffe4e6] text-[#e11d48] rounded border border-[#fecdd3] hover:bg-[#fecdd3] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Trash2 className="w-4 h-4" />
           </button>
