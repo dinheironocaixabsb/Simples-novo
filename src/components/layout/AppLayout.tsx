@@ -14,14 +14,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-x-hidden">
         <main className="flex-1 p-8">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-[1400px] w-full mx-auto">
             {children}
           </div>
         </main>
         
         {/* Global Footer */}
         <footer className="mt-auto px-8 pb-4">
-          <div className="max-w-5xl mx-auto flex justify-between items-end border-t border-gray-200 pt-6">
+          <div className="max-w-[1400px] w-full mx-auto flex justify-between items-end border-t border-gray-200 pt-6">
             <div className="text-left text-gray-500">
               <strong className="block text-[13px] text-gray-800">{firmData.nome || 'S&L Contabilidade Consultoria e Auditoria SS'}</strong>
               <div className="text-[11px] leading-relaxed">
