@@ -107,7 +107,7 @@ export function Step4Expenses() {
     });
 
     // If no XMLs matched, but there is a manual value in the store, export the global value
-    const manualValue = monthlyExpenses[currentMonth]?.[tipoCst as keyof typeof monthlyExpenses] as number || 0;
+    const manualValue = (monthlyExpenses[currentMonth] as any)?.[tipoCst] as number || 0;
     if (!foundAny && manualValue > 0) {
       foundAny = true;
       const valFmt = manualValue.toLocaleString('pt-BR', {minimumFractionDigits: 2});
