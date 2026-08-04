@@ -16,15 +16,22 @@ const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', '
 
 export function Step5Dashboard() {
   const { revenueData, currentMonth, setCurrentMonth, calculationResults, runCalculation, setStep, xmlDespesas } = useDiagnosisStore();
+  const { 
+    calculationResults, 
+    currentMonth, 
+    setCurrentMonth,
+    revenueData,
+    xmlFaturamento,
+    simulationParams,
+    runCalculation,
+    setStep, 
+    xmlDespesas 
+  } = useDiagnosisStore();
 
   React.useEffect(() => {
     // Cálculo automático / real-time
     runCalculation();
   }, [currentMonth, revenueData, xmlDespesas, runCalculation]);
-
-  const handleCalculate = () => {
-    runCalculation();
-  };
 
   const results = calculationResults[currentMonth] || {
     rbaTotal: 0,
@@ -50,6 +57,30 @@ export function Step5Dashboard() {
   const breakEvenPercentage = results && results.metaDespesas > 0 
     ? Math.min(100, (currentExpenses / results.metaDespesas) * 100) 
     : 0;
+
+  const clientesMap = React.useMemo(() => {
+    const map: Record<string, { nome: string; cnpj: string; faturamentoAtual: number; regime: string }> = {};
+    const salesNotes = xmlFaturamento.filter(x => x.monthIndex === currentMonth);
+    
+    salesNotes.forEach(note => {
+      if (!note.tomador) return;
+      const key = note.cnpj || note.tomador;
+      if (!map[key]) {
+        map[key] = {
+          nome: note.tomador,
+          cnpj: note.cnpj,
+          faturamentoAtual: 0,
+          regime: note.regime || 'Simples Nacional'
+        };
+      }
+      map[key].faturamentoAtual += (note.valor || 0);
+    });
+    return Object.values(map).sort((a, b) => b.faturamentoAtual - a.faturamentoAtual);
+  }, [xmlFaturamento, currentMonth]);
+
+  const aliqIbs = simulationParams.faturamentoAliquotaIBS / 100;
+  const aliqCbs = simulationParams.faturamentoAliquotaCBS / 100;
+  const ivaTotalEfetivo = aliqIbs + aliqCbs;
 
   return (
     <div className="space-y-6">
@@ -340,6 +371,149 @@ export function Step5Dashboard() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Impacto por Cliente Table */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 border-t-4 border-t-[#005696] overflow-hidden mt-6">
+          <div className="p-6 border-b border-gray-100">
+            <h3 className="text-xl font-bold text-[#005696]">Impacto por Cliente (Inteligência Comercial)</h3>
+            <p className="text-sm text-[#005696] opacity-80 mt-1">Análise de variação do custo efetivo repassado aos principais tomadores (Break-even)</p>
+          </div>
+          <div className="overflow-x-auto max-h-[400px]">
+            <table className="w-full text-left border-collapse min-w-[1200px]">
+              <thead className="bg-[#f1f5f9] sticky top-0 z-20 shadow-sm">
+                <tr className="text-[10px] uppercase text-center border-b border-gray-300">
+                  <th colSpan={3} className="px-4 py-2 text-[#334155] border-r border-gray-300">Cenário Atual (Cenário 1)</th>
+                  <th colSpan={7} className="px-4 py-2 bg-[#f0fdf4] text-[#166534] border-r border-[#bbf7d0]">Cálculo da Nova Carga Tributária</th>
+                  <th colSpan={3} className="px-4 py-2 bg-[#eff6ff] text-[#1e40af] border-r border-[#bfdbfe]">Impacto Aproveitando Crédito (B2B)</th>
+                  <th colSpan={3} className="px-4 py-2 bg-[#fff7ed] text-[#9a3412]">Impacto Não Aproveitando (PF/Simples)</th>
+                </tr>
+                <tr className="text-[11px] text-[#475569] bg-[#f8fafc] border-b border-gray-200 text-right">
+                  <th className="px-4 py-3 text-left sticky left-0 bg-[#f8fafc] border-r border-gray-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] z-30">Cliente / Tomador</th>
+                  <th className="px-4 py-3 text-left">Regime</th>
+                  <th className="px-4 py-3 border-r border-gray-300">Faturamento Atual</th>
+                  <th className="px-4 py-3">Carga Trib. Atual</th>
+                  <th className="px-4 py-3">Tributos "Dentro"</th>
+                  <th className="px-4 py-3">Custo S/ Tributos</th>
+                  <th className="px-4 py-3">Carga S/ Crédito</th>
+                  <th className="px-4 py-3">Novo Custo "Dentro"</th>
+                  <th className="px-4 py-3">IVA (Por Fora)</th>
+                  <th className="px-4 py-3 font-bold bg-[#f0fdf4] text-[#0f172a] border-r border-[#bbf7d0]">Nova NF Cheia</th>
+                  <th className="px-4 py-3">Crédito IBS</th>
+                  <th className="px-4 py-3 border-r border-[#bfdbfe]">Crédito CBS</th>
+                  <th className="px-4 py-3 bg-[#eff6ff]">Novo Custo Efetivo</th>
+                  <th className="px-4 py-3 bg-[#eff6ff]">Variação (R$)</th>
+                  <th className="px-4 py-3 bg-[#eff6ff] border-r border-[#bfdbfe]">Variação (%)</th>
+                  <th className="px-4 py-3 bg-[#fff7ed]">Novo Custo Efetivo</th>
+                  <th className="px-4 py-3 bg-[#fff7ed]">Variação (R$)</th>
+                  <th className="px-4 py-3 bg-[#fff7ed]">Variação (%)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {clientesMap.length === 0 ? (
+                  <tr>
+                    <td colSpan={18} className="px-4 py-8 text-center text-gray-500">Nenhum tomador identificado nas notas para este mês.</td>
+                  </tr>
+                ) : (
+                  clientesMap.map((c, idx) => {
+                    const pctTributarioC1 = results.aliqEfetivaPadrao;
+                    const pctC2SemIva = results.aliqEfetivaPorFora;
+                    
+                    const creditoIbsCbsDentro = c.faturamentoAtual * (pctTributarioC1 - pctC2SemIva > 0 ? pctTributarioC1 - pctC2SemIva : 0);
+                    const impostoAtualNoCliente = c.faturamentoAtual * pctTributarioC1;
+                    const lucroLiquidoAtual = c.faturamentoAtual - impostoAtualNoCliente;
+                    const custoEfetivoAtual = (c.regime === 'Lucro Real' || c.regime === 'Lucro Presumido') ? (c.faturamentoAtual - creditoIbsCbsDentro) : c.faturamentoAtual;
+                    
+                    let baseNova = lucroLiquidoAtual;
+                    if (pctC2SemIva < 1) {
+                        baseNova = lucroLiquidoAtual / (1 - pctC2SemIva);
+                    }
+                    
+                    const valorIbsDestacado = baseNova * aliqIbs;
+                    const valorCbsDestacado = baseNova * aliqCbs;
+                    const valorIvaDestacado = valorIbsDestacado + valorCbsDestacado;
+                    const novoFaturamentoIvaPorFora = baseNova + valorIvaDestacado;
+                    
+                    const creditoAproveitando = valorIvaDestacado;
+                    const custoEfetivoAproveitando = novoFaturamentoIvaPorFora - creditoAproveitando;
+                    const varReaisAproveitando = custoEfetivoAproveitando - custoEfetivoAtual;
+                    const varPctAproveitando = custoEfetivoAtual > 0 ? (varReaisAproveitando / custoEfetivoAtual) * 100 : 0;
+
+                    const custoEfetivoNaoAproveitando = novoFaturamentoIvaPorFora;
+                    const varReaisNaoAproveitando = custoEfetivoNaoAproveitando - custoEfetivoAtual;
+                    const varPctNaoAproveitando = custoEfetivoAtual > 0 ? (varReaisNaoAproveitando / custoEfetivoAtual) * 100 : 0;
+
+                    return (
+                      <tr key={idx} className="hover:bg-gray-50 text-right text-[12px] text-gray-600 transition-colors">
+                        <td className="px-4 py-3 text-left sticky left-0 bg-white group-hover:bg-gray-50 border-r border-gray-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] z-10">
+                          <div className="font-semibold text-gray-800 truncate max-w-[150px]" title={c.nome}>{c.nome}</div>
+                          <div className="text-[10px] text-gray-500 font-mono">{c.cnpj || 'CPF/Outros'}</div>
+                        </td>
+                        <td className="px-4 py-3 text-left">
+                          <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-[10px] font-semibold whitespace-nowrap">{c.regime}</span>
+                        </td>
+                        <td className="px-4 py-3 font-semibold text-gray-900 border-r border-gray-100 whitespace-nowrap">{formatCurrency(c.faturamentoAtual)}</td>
+                        
+                        <td className="px-4 py-3 whitespace-nowrap">{formatPercent4(pctTributarioC1)}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">{formatCurrency(impostoAtualNoCliente)}</td>
+                        <td className="px-4 py-3 font-medium whitespace-nowrap">{formatCurrency(lucroLiquidoAtual)}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">{formatPercent4(pctC2SemIva)}</td>
+                        <td className="px-4 py-3 font-medium whitespace-nowrap">{formatCurrency(baseNova)}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">{formatPercent4(ivaTotalEfetivo)}</td>
+                        <td className="px-4 py-3 font-bold text-gray-900 bg-[#f0fdf4] border-r border-[#bbf7d0] whitespace-nowrap">{formatCurrency(novoFaturamentoIvaPorFora)}</td>
+                        <td className="px-4 py-3 font-semibold text-green-600 whitespace-nowrap">{formatCurrency(valorIbsDestacado)}</td>
+                        <td className="px-4 py-3 font-semibold text-green-600 border-r border-[#bfdbfe] whitespace-nowrap">{formatCurrency(valorCbsDestacado)}</td>
+                        
+                        <td className="px-4 py-3 font-semibold text-blue-800 bg-[#eff6ff] whitespace-nowrap">{formatCurrency(custoEfetivoAproveitando)}</td>
+                        <td className={`px-4 py-3 font-bold bg-[#eff6ff] whitespace-nowrap ${varReaisAproveitando > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {varReaisAproveitando > 0 ? '+' : ''}{formatCurrency(varReaisAproveitando)}
+                        </td>
+                        <td className={`px-4 py-3 font-bold bg-[#eff6ff] border-r border-[#bfdbfe] whitespace-nowrap ${varReaisAproveitando > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {varReaisAproveitando > 0 ? '+' : ''}{varPctAproveitando.toFixed(2).replace('.', ',')}%
+                        </td>
+
+                        <td className="px-4 py-3 font-semibold text-orange-800 bg-[#fff7ed] whitespace-nowrap">{formatCurrency(custoEfetivoNaoAproveitando)}</td>
+                        <td className={`px-4 py-3 font-bold bg-[#fff7ed] whitespace-nowrap ${varReaisNaoAproveitando > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {varReaisNaoAproveitando > 0 ? '+' : ''}{formatCurrency(varReaisNaoAproveitando)}
+                        </td>
+                        <td className={`px-4 py-3 font-bold bg-[#fff7ed] whitespace-nowrap ${varReaisNaoAproveitando > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {varReaisNaoAproveitando > 0 ? '+' : ''}{varPctNaoAproveitando.toFixed(2).replace('.', ',')}%
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        {/* Bottom Actions */}
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8 pt-6 border-t border-gray-200">
+          <button 
+            className="px-6 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-md shadow-sm transition-colors text-sm font-medium w-full sm:w-auto"
+            onClick={() => setStep(4)}
+          >
+            Voltar
+          </button>
+          <button 
+            className="px-6 py-2 bg-[#005696] hover:bg-[#004375] text-white rounded-md shadow-sm transition-colors text-sm font-medium w-full sm:w-auto"
+            onClick={() => window.print()}
+          >
+            Imprimir Comparativo
+          </button>
+          <button 
+            className="px-6 py-2 bg-[#e53935] hover:bg-[#c62828] text-white rounded-md shadow-sm transition-colors text-sm font-medium w-full sm:w-auto"
+            onClick={() => alert("Função de exclusão em desenvolvimento.")}
+          >
+            Excluir Dados
+          </button>
+          <button 
+            className="px-6 py-2 bg-[#005696] hover:bg-[#004375] text-white rounded-md shadow-sm transition-colors text-sm font-medium w-full sm:w-auto"
+            onClick={() => setStep(6)}
+          >
+            Avançar para Relatório em Excel
+          </button>
         </div>
       </div>
     </div>
