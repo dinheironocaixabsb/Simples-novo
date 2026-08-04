@@ -4,6 +4,7 @@ import { parseSalesXml } from '../../../services/xml/xml-parser';
 import { consultarCnpj } from '../../../services/cnpj-service';
 import { UploadCloud, FileType, Trash2, CheckCircle2, AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
 import { ParsedXmlSales } from '../../../domain/types/xml.types';
+import JSZip from 'jszip';
 
 const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
@@ -98,54 +99,78 @@ export function Step3SalesXml() {
 
     const files = Array.from(fileList);
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (!file.name.toLowerCase().endsWith('.xml')) {
-        errors.push(`${file.name}: Não é um arquivo XML.`);
-        continue;
+    const parseAndAddXml = async (text: string, filename: string) => {
+      const parser = new DOMParser();
+      let xmlDoc = parser.parseFromString(text, "text/xml");
+      const parseError = xmlDoc.getElementsByTagName("parsererror");
+      
+      // We assume text is already properly decoded here, or we'd handle fallback before this.
+      // But for simplicity, we pass raw text. If there's parsererror, we can't easily fallback to utf8 here unless we pass the original file/blob.
+      // JSZip handles decoding, so we will pass strings directly.
+      
+      const parsed = parseSalesXml(xmlDoc, filename, companyData.cnpj);
+      parsed.isConsultingCnpj = false;
+
+      const generateUniqueKey = (xml: ParsedXmlSales) => {
+        if (xml.xmlType === 'NFe' && xml.chave) return xml.chave;
+        const cleanCnpj = xml.cnpj ? xml.cnpj.replace(/\D/g, '') : '';
+        return `${xml.numero}-${cleanCnpj}-${xml.data}`;
+      };
+      
+      const currentKey = generateUniqueKey(parsed);
+      if (newXmls.some(xml => generateUniqueKey(xml) === currentKey)) {
+        return; // Pula silenciosamente a duplicada
+      }
+      
+      if (cnpjCache[parsed.cnpj]) {
+        parsed.regime = cnpjCache[parsed.cnpj];
       }
 
+      newXmls.push(parsed);
+      justAdded.push(parsed);
+    };
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const name = file.name.toLowerCase();
+
       try {
-        const text = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target?.result as string);
-          reader.onerror = () => reject(new Error(`Erro ao ler ${file.name}`));
-          reader.readAsText(file, 'ISO-8859-1');
-        });
-
-        const parser = new DOMParser();
-        let xmlDoc = parser.parseFromString(text, "text/xml");
-        const parseError = xmlDoc.getElementsByTagName("parsererror");
-        
-        if (parseError.length > 0) {
-          const textUtf8 = await new Promise<string>((resolve) => {
-            const r = new FileReader();
-            r.onload = (e) => resolve(e.target?.result as string);
-            r.readAsText(file, 'UTF-8');
+        if (name.endsWith('.zip')) {
+          const zip = await JSZip.loadAsync(file);
+          for (const relativePath in zip.files) {
+            const zipEntry = zip.files[relativePath];
+            if (!zipEntry.dir && relativePath.toLowerCase().endsWith('.xml')) {
+              try {
+                // JSZip can return text directly
+                const text = await zipEntry.async("string");
+                await parseAndAddXml(text, zipEntry.name);
+              } catch (err: any) {
+                errors.push(`${zipEntry.name}: ${err.message}`);
+              }
+            }
+          }
+        } else if (name.endsWith('.xml')) {
+          let text = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target?.result as string);
+            reader.onerror = () => reject(new Error(`Erro ao ler ${file.name}`));
+            reader.readAsText(file, 'ISO-8859-1'); // Default fallback
           });
-          xmlDoc = parser.parseFromString(textUtf8, "text/xml");
-        }
 
-        const parsed = parseSalesXml(xmlDoc, file.name, companyData.cnpj);
-        parsed.isConsultingCnpj = false;
+          // Check if ISO-8859-1 parsing fails, fallback to UTF-8
+          const parser = new DOMParser();
+          if (parser.parseFromString(text, "text/xml").getElementsByTagName("parsererror").length > 0) {
+            text = await new Promise<string>((resolve) => {
+              const r = new FileReader();
+              r.onload = (e) => resolve(e.target?.result as string);
+              r.readAsText(file, 'UTF-8');
+            });
+          }
 
-        const generateUniqueKey = (xml: ParsedXmlSales) => {
-          if (xml.xmlType === 'NFe' && xml.chave) return xml.chave;
-          const cleanCnpj = xml.cnpj ? xml.cnpj.replace(/\D/g, '') : '';
-          return `${xml.numero}-${cleanCnpj}-${xml.data}`;
-        };
-        
-        const currentKey = generateUniqueKey(parsed);
-        if (newXmls.some(xml => generateUniqueKey(xml) === currentKey)) {
-          continue; // Pula silenciosamente a duplicada
+          await parseAndAddXml(text, file.name);
+        } else {
+          errors.push(`${file.name}: Formato não suportado.`);
         }
-        
-        if (cnpjCache[parsed.cnpj]) {
-          parsed.regime = cnpjCache[parsed.cnpj];
-        }
-
-        newXmls.push(parsed);
-        justAdded.push(parsed);
       } catch (err: any) {
         errors.push(`${file.name}: ${err.message}`);
       }
@@ -228,7 +253,7 @@ export function Step3SalesXml() {
         onDrop={handleDrop}
       >
         <UploadCloud className="w-12 h-12 text-[#005696] mx-auto mb-4" />
-        <p className="text-gray-700 font-medium text-lg">Arraste os arquivos XML (NFe/NFSe) aqui</p>
+        <p className="text-gray-700 font-medium text-lg">Arraste os arquivos XML (NFe/NFSe) ou arquivos .ZIP aqui</p>
         <p className="text-gray-500 text-sm mt-1">
           A leitura detectará automaticamente o mês pela <strong className="font-semibold text-gray-700">Data de Saída</strong> ou <strong className="font-semibold text-gray-700">Data de Emissão</strong>.
         </p>
@@ -237,7 +262,7 @@ export function Step3SalesXml() {
           <input 
             type="file" 
             multiple 
-            accept=".xml" 
+            accept=".xml,.zip" 
             className="hidden" 
             onChange={(e) => {
               if (e.target.files) processFiles(e.target.files);

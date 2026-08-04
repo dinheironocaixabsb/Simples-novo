@@ -7,6 +7,7 @@ import { UploadCloud, Trash2, Edit2, FileText, Search, FilePlus } from 'lucide-r
 import { parseExpenseXml } from '../../../services/xml/xml-parser';
 import { consultarCnpj } from '../../../services/cnpj-service';
 import { ParsedXmlExpense } from '../../../domain/types/xml.types';
+import JSZip from 'jszip';
 import InputMask from 'react-input-mask';
 
 const FULL_MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
@@ -224,13 +225,33 @@ export function Step4Expenses() {
       const files = Array.from(e.target.files);
       const parsedXmls: ParsedXmlExpense[] = [];
       
-      for (const file of files) {
-        const text = await file.text();
+      const parseAndAdd = async (text: string, filename: string) => {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(text, "application/xml");
-        const parsed = parseExpenseXml(xmlDoc, file.name, companyData.cnpj);
+        const parsed = parseExpenseXml(xmlDoc, filename, companyData.cnpj);
         parsed.isConsultingCnpj = false;
         parsedXmls.push(parsed);
+      };
+
+      for (const file of files) {
+        const name = file.name.toLowerCase();
+        if (name.endsWith('.zip')) {
+          const zip = await JSZip.loadAsync(file);
+          for (const relativePath in zip.files) {
+            const zipEntry = zip.files[relativePath];
+            if (!zipEntry.dir && relativePath.toLowerCase().endsWith('.xml')) {
+              try {
+                const text = await zipEntry.async("string");
+                await parseAndAdd(text, zipEntry.name);
+              } catch (err: any) {
+                console.error(`Erro ao processar ${zipEntry.name}:`, err);
+              }
+            }
+          }
+        } else if (name.endsWith('.xml')) {
+          const text = await file.text();
+          await parseAndAdd(text, file.name);
+        }
       }
       
       const generateUniqueKey = (xml: ParsedXmlExpense) => {
@@ -351,14 +372,14 @@ export function Step4Expenses() {
         <input 
           type="file" 
           multiple 
-          accept=".xml" 
+          accept=".xml,.zip" 
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
           onChange={handleXmlUpload} 
         />
         <div className="flex flex-col items-center justify-center gap-3">
           <FilePlus className="w-8 h-8 text-[#005696]" strokeWidth={1.5} />
-          <p className="text-[14px] text-gray-700">Arraste os XMLs de Compras/Fretes aqui ou <span className="text-[#005696] font-bold">clique para buscar</span></p>
-          <p className="text-[11px] text-gray-400 font-medium">Suporta arquivos XML de NF-e, NFS-e e CT-e</p>
+          <p className="text-[14px] text-gray-700">Arraste os XMLs ou .ZIP de Compras/Fretes aqui ou <span className="text-[#005696] font-bold">clique para buscar</span></p>
+          <p className="text-[11px] text-gray-400 font-medium">Suporta arquivos XML/ZIP de NF-e, NFS-e e CT-e</p>
         </div>
       </div>
 
