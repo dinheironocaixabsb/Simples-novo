@@ -267,18 +267,19 @@ export function Step4Expenses() {
     }
   };
 
-  const InputCard = ({ title, highlight, value }: { title: string, highlight?: boolean, value: string }) => (
+  const InputCard = ({ title, highlight, field, exportKey }: { title: string, highlight?: boolean, field: string, exportKey: string }) => (
     <div className="flex flex-col">
       <label className="text-[11px] font-semibold text-gray-800 leading-tight mb-1 min-h-[32px] flex items-end">
         {title}
       </label>
-      <input 
-        type="text" 
-        value={value} 
-        readOnly
-        className={`w-full px-3 py-1.5 text-sm rounded outline-none border ${highlight ? 'border-red-300 text-gray-600 bg-white' : 'border-blue-200 text-gray-600 bg-white'}`}
+      <CurrencyInput
+        value={(monthlyExpenses[currentMonth] as any)?.[field] || 0}
+        onValueChange={(val) => updateMonthlyExpenses(currentMonth, { [field]: Number((val || '0').replace(/\D/g, '')) / 100 })}
+        decimalsLimit={2} decimalSeparator="," groupSeparator="."
+        className={`w-full px-3 py-1.5 text-[13px] rounded outline-none border ${highlight ? 'border-red-300 text-gray-600 bg-white' : 'border-[#cbd5e1] text-gray-600 bg-white'} focus:border-[#005696]`}
+        placeholder="0,00"
       />
-      <button className="mt-1 bg-[#eef3f7] hover:bg-[#e2eaf1] text-[10px] font-bold text-[#005696] py-1 rounded w-full text-left px-2 transition-colors">
+      <button onClick={() => handleExportExcel(exportKey, title)} className="mt-1 bg-[#eef3f7] hover:bg-[#e2eaf1] text-[10px] font-bold text-[#005696] py-1 rounded w-full text-left px-2 transition-colors">
         Ver Produtos
       </button>
     </div>
@@ -319,19 +320,19 @@ export function Step4Expenses() {
         
         {/* Row 1 */}
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-6 mb-6">
-          <InputCard title="Despesa Geral (Normal)" highlight={false} value={monthlyExpenses[currentMonth]?.despesaGeral?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || "0,00"} />
-          <InputCard title="Produtos Tribut. Normal (Crédito 100%)" highlight={true} value={monthlyExpenses[currentMonth]?.despesaCreditoIntegral?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || "0,00"} />
-          <InputCard title="Anexo I: Alimentos (Zero)" highlight={false} value={monthlyExpenses[currentMonth]?.despesaAnexo1?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || "0,00"} />
-          <InputCard title="Anexo XV: Hortifruti (100%)" highlight={false} value={monthlyExpenses[currentMonth]?.despesaAnexo15?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || "0,00"} />
-          <InputCard title="Anexo VII: Alimentos (60%)" highlight={false} value={monthlyExpenses[currentMonth]?.despesaAnexo7?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || "0,00"} />
-          <InputCard title="Anexo VIII: Higiene (60%)" highlight={false} value={monthlyExpenses[currentMonth]?.despesaAnexo8?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || "0,00"} />
+          <InputCard title="Despesa Geral (Normal)" highlight={false} field="despesaGeral" exportKey="despesaGeral" />
+          <InputCard title="Produtos Tribut. Normal (Crédito 100%)" highlight={true} field="despesaCreditoIntegral" exportKey="despesaCreditoIntegral" />
+          <InputCard title="Anexo I: Alimentos (Zero)" highlight={false} field="despesaAnexo1" exportKey="despesaAnexo1" />
+          <InputCard title="Anexo XV: Hortifruti (100%)" highlight={false} field="despesaAnexo15" exportKey="despesaAnexo15" />
+          <InputCard title="Anexo VII: Alimentos (60%)" highlight={false} field="despesaAnexo7" exportKey="despesaAnexo7" />
+          <InputCard title="Anexo VIII: Higiene (60%)" highlight={false} field="despesaAnexo8" exportKey="despesaAnexo8" />
         </div>
         
         {/* Row 2 */}
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-6">
-          <InputCard title="(-) ICMS / ISS Destac. Compras/Serviços" highlight={true} value={monthlyExpenses[currentMonth]?.deducaoIcmsIss?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || "0,00"} />
-          <InputCard title="(-) PIS/COFINS Destac. Compras/Serviços" highlight={true} value={monthlyExpenses[currentMonth]?.deducaoPisCofins?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || "0,00"} />
-          <InputCard title="(-) Desconto Incond. Compras/Serviços" highlight={true} value={monthlyExpenses[currentMonth]?.deducaoDescontos?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || "0,00"} />
+          <InputCard title="(-) ICMS / ISS Destac. Compras/Serviços" highlight={true} field="deducaoIcmsIss" exportKey="icms_compras" />
+          <InputCard title="(-) PIS/COFINS Destac. Compras/Serviços" highlight={true} field="deducaoPisCofins" exportKey="pis_cofins_compras" />
+          <InputCard title="(-) Desconto Incond. Compras/Serviços" highlight={true} field="deducaoDescontos" exportKey="desconto_incondicional" />
         </div>
       </div>
 
@@ -616,136 +617,6 @@ export function Step4Expenses() {
           </div>
         </div>
       )}
-
-      {/* Detalhamento Manual das Despesas Elegíveis LC 214 */}
-      <div className="mt-6 border border-[#e2e8f0] rounded bg-white overflow-hidden p-5 shadow-sm">
-        <h3 className="text-[#005696] font-bold text-[15px] mb-6">
-          Despesas Elegíveis LC 214: Mês de {['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][currentMonth]}
-        </h3>
-
-        {/* Linha 1 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-          {/* Despesa Geral (Normal) */}
-          <div className="flex flex-col">
-            <label className="text-[#334155] text-[11px] font-bold mb-1 h-8">Despesa Geral (Normal)</label>
-            <CurrencyInput
-              value={monthlyExpenses[currentMonth]?.despesaGeral || 0}
-              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { despesaGeral: Number((val || '0').replace(/\D/g, '')) / 100 })}
-              decimalsLimit={2} decimalSeparator="," groupSeparator="."
-              className="border border-[#cbd5e1] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
-              placeholder="0,00"
-            />
-            <button onClick={() => handleExportExcel('despesaGeral', 'Despesa Geral (Normal)')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
-          </div>
-
-          {/* Produtos Tribut. Normal */}
-          <div className="flex flex-col">
-            <label className="text-[#334155] text-[11px] font-bold mb-1 h-8">Produtos Tribut. Normal<br/>(Crédito 100%)</label>
-            <CurrencyInput
-              value={monthlyExpenses[currentMonth]?.despesaCreditoIntegral || 0}
-              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { despesaCreditoIntegral: Number((val || '0').replace(/\D/g, '')) / 100 })}
-              decimalsLimit={2} decimalSeparator="," groupSeparator="."
-              className="border border-red-300 rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
-              placeholder="0,00"
-            />
-            <button onClick={() => handleExportExcel('despesaCreditoIntegral', 'Produtos Tribut. Normal (Crédito 100%)')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
-          </div>
-
-          {/* Anexo I: Alimentos */}
-          <div className="flex flex-col">
-            <label className="text-[#334155] text-[11px] font-bold mb-1 h-8">Anexo I: Alimentos (Zero)</label>
-            <CurrencyInput
-              value={monthlyExpenses[currentMonth]?.despesaAnexo1 || 0}
-              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { despesaAnexo1: Number((val || '0').replace(/\D/g, '')) / 100 })}
-              decimalsLimit={2} decimalSeparator="," groupSeparator="."
-              className="border border-[#bfdbfe] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
-              placeholder="0,00"
-            />
-            <button onClick={() => handleExportExcel('despesaAnexo1', 'Anexo I: Alimentos (Zero)')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
-          </div>
-
-          {/* Anexo XV: Hortifruti */}
-          <div className="flex flex-col">
-            <label className="text-[#334155] text-[11px] font-bold mb-1 h-8">Anexo XV: Hortifruti (100%)</label>
-            <CurrencyInput
-              value={monthlyExpenses[currentMonth]?.despesaAnexo15 || 0}
-              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { despesaAnexo15: Number((val || '0').replace(/\D/g, '')) / 100 })}
-              decimalsLimit={2} decimalSeparator="," groupSeparator="."
-              className="border border-[#bfdbfe] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
-              placeholder="0,00"
-            />
-            <button onClick={() => handleExportExcel('despesaAnexo15', 'Anexo XV: Hortifruti (100%)')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
-          </div>
-
-          {/* Anexo VII: Alimentos (60%) */}
-          <div className="flex flex-col">
-            <label className="text-[#334155] text-[11px] font-bold mb-1 h-8">Anexo VII: Alimentos (60%)</label>
-            <CurrencyInput
-              value={monthlyExpenses[currentMonth]?.despesaAnexo7 || 0}
-              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { despesaAnexo7: Number((val || '0').replace(/\D/g, '')) / 100 })}
-              decimalsLimit={2} decimalSeparator="," groupSeparator="."
-              className="border border-[#bfdbfe] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
-              placeholder="0,00"
-            />
-            <button onClick={() => handleExportExcel('despesaAnexo7', 'Anexo VII: Alimentos (60%)')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
-          </div>
-
-          {/* Anexo VIII: Higiene (60%) */}
-          <div className="flex flex-col">
-            <label className="text-[#334155] text-[11px] font-bold mb-1 h-8">Anexo VIII: Higiene (60%)</label>
-            <CurrencyInput
-              value={monthlyExpenses[currentMonth]?.despesaAnexo8 || 0}
-              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { despesaAnexo8: Number((val || '0').replace(/\D/g, '')) / 100 })}
-              decimalsLimit={2} decimalSeparator="," groupSeparator="."
-              className="border border-[#bfdbfe] rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
-              placeholder="0,00"
-            />
-            <button onClick={() => handleExportExcel('despesaAnexo8', 'Anexo VIII: Higiene (60%)')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
-          </div>
-        </div>
-
-        {/* Linha 2 (Deduções) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {/* ICMS/ISS */}
-          <div className="flex flex-col">
-            <label className="text-[#475569] text-[11px] font-bold mb-1 h-8">(-) ICMS / ISS Destac.<br/>Compras/Serviços</label>
-            <CurrencyInput
-              value={monthlyExpenses[currentMonth]?.deducaoIcmsIss || 0}
-              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { deducaoIcmsIss: Number((val || '0').replace(/\D/g, '')) / 100 })}
-              decimalsLimit={2} decimalSeparator="," groupSeparator="."
-              className="border border-red-300 rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
-              placeholder="0,00"
-            />
-            <button onClick={() => handleExportExcel('icms_compras', 'ICMS / ISS Destac. Compras/Serviços')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
-          </div>
-
-          {/* PIS/COFINS */}
-          <div className="flex flex-col">
-            <label className="text-[#475569] text-[11px] font-bold mb-1 h-8">(-) PIS/COFINS Destac.<br/>Compras/Serviços</label>
-            <CurrencyInput
-              value={monthlyExpenses[currentMonth]?.deducaoPisCofins || 0}
-              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { deducaoPisCofins: Number((val || '0').replace(/\D/g, '')) / 100 })}
-              decimalsLimit={2} decimalSeparator="," groupSeparator="."
-              className="border border-red-300 rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
-              placeholder="0,00"
-            />
-            <button onClick={() => handleExportExcel('pis_cofins_compras', 'PIS/COFINS Destac. Compras/Serviços')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
-          </div>
-
-          {/* Descontos Incondicionais */}
-          <div className="flex flex-col">
-            <label className="text-[#475569] text-[11px] font-bold mb-1 h-8">(-) Desconto Incond.<br/>Compras/Serviços</label>
-            <CurrencyInput
-              value={monthlyExpenses[currentMonth]?.deducaoDescontos || 0}
-              onValueChange={(val) => updateMonthlyExpenses(currentMonth, { deducaoDescontos: Number((val || '0').replace(/\D/g, '')) / 100 })}
-              decimalsLimit={2} decimalSeparator="," groupSeparator="."
-              className="border border-red-300 rounded p-2 text-[13px] outline-none focus:border-blue-500 mb-1"
-              placeholder="0,00"
-            />
-            <button onClick={() => handleExportExcel('desconto_incondicional', 'Desconto Incond. Compras/Serviços')} className="bg-[#f1f5f9] text-[#005696] text-[11px] font-bold py-1.5 rounded hover:bg-[#e2e8f0] transition-colors text-left px-3">Ver Produtos</button>
-          </div>
-        </div>
-      </div>
 
       {/* Actions */}
       <div className="flex flex-wrap gap-2 justify-end pt-4 mt-8 border-t border-gray-200">
