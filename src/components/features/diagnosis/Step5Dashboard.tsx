@@ -229,53 +229,116 @@ export function Step5Dashboard() {
           </div>
         </div>
 
-        {/* Veredito */}
-        <div className={`rounded-xl shadow-lg border-l-8 ${results.diferenca >= 0 ? 'border-l-green-500 bg-green-50/50' : 'border-l-red-500 bg-red-50/50'}`}>
-          <div className="p-6">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className={`p-4 rounded-full ${results.diferenca >= 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                  {results.diferenca >= 0 ? <CheckCircle2 className="w-8 h-8" /> : <XCircle className="w-8 h-8" />}
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">Veredito do Mês</h3>
-                  <p className="text-gray-600">
-                    O cenário {results.diferenca >= 0 ? <strong className="text-green-700">Por Fora (Cenário 2)</strong> : <strong className="text-red-700">Por Dentro (Cenário 1)</strong>} é mais vantajoso.
-                  </p>
-                </div>
-              </div>
-              <div className="text-center md:text-right">
-                <div className="text-sm text-gray-500 mb-1">Economia Projetada</div>
-                <div className={`text-3xl font-black ${results.diferenca >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {results.diferenca >= 0 ? '+' : ''}{formatCurrency(Math.abs(results.diferenca))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Break-even */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-6 pb-2">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-blue-600" />
-              Análise de Break-even (Meta de Despesas)
-            </h3>
-          </div>
-          <div className="p-6 pt-4 space-y-6">
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>Despesas Atuais (Estimadas): {formatCurrency(currentExpenses)}</span>
-              <span className="font-bold text-blue-600">Meta Necessária: {formatCurrency(results.metaDespesas)}</span>
-            </div>
-            <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
-              <div 
-                className="bg-blue-600 h-4 rounded-full transition-all duration-500"
-                style={{ width: `${breakEvenPercentage}%` }}
-              ></div>
-            </div>
-            <p className="text-sm text-gray-500">
-              Para que o regime "Por Fora" seja mais vantajoso, suas despesas com direito a crédito devem atingir a meta acima.
+        {/* Veredito e Break-even Grid */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Veredito */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
+            <h3 className="text-xl font-bold text-gray-900 text-center mb-2">Veredito: Qual a melhor opção?</h3>
+            <p className="text-sm text-gray-500 text-center mb-4">
+              O <strong>Cenário {results.diferenca >= 0 ? '2 (Nova Regra - Por Fora)' : '1 (Regra Atual - Por Dentro)'}</strong> é mais vantajoso! Ficar no cenário {results.diferenca >= 0 ? '1' : '2'} geraria um prejuízo de:
             </p>
+            
+            <div className="flex justify-center mb-8">
+              <div className={`px-6 py-2 rounded-md ${results.diferenca >= 0 ? 'bg-green-600' : 'bg-[#e53935]'} text-white text-2xl font-bold`}>
+                {formatCurrency(Math.abs(results.diferenca))}
+              </div>
+            </div>
+
+            {/* Gráfico de Barras */}
+            <div className="mt-2 mb-8 px-4 flex justify-center">
+              <div className="flex items-end h-32 gap-12 border-b border-gray-200 pb-2 relative w-[80%] max-w-[300px]">
+                {/* Linhas de fundo do gráfico simuladas */}
+                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20 z-0">
+                  <div className="border-t border-gray-400 w-full"></div>
+                  <div className="border-t border-gray-400 w-full"></div>
+                  <div className="border-t border-gray-400 w-full"></div>
+                  <div className="border-t border-gray-400 w-full"></div>
+                </div>
+
+                {/* Bar 1: Custo Atual */}
+                <div className="flex flex-col items-center justify-end h-full z-10 flex-1">
+                  <span className="text-[#005696] font-bold text-[11px] mb-1 whitespace-nowrap">{formatCurrency(results.valorDasPadraoTotal)}</span>
+                  <div 
+                    className="w-12 bg-[#004375] rounded-t-sm transition-all duration-500" 
+                    style={{ height: `${Math.max(10, (results.valorDasPadraoTotal / Math.max(results.valorDasPadraoTotal, results.custoEfetivoPorFora || 1)) * 100)}%` }}
+                  ></div>
+                  <span className="text-gray-500 text-[10px] mt-2 whitespace-nowrap font-medium">Custo Atual (Dentro)</span>
+                </div>
+
+                {/* Bar 2: Custo Novo */}
+                <div className="flex flex-col items-center justify-end h-full z-10 flex-1">
+                  <span className="text-[#005696] font-bold text-[11px] mb-1 whitespace-nowrap">{formatCurrency(results.custoEfetivoPorFora)}</span>
+                  <div 
+                    className="w-12 bg-[#005696] rounded-t-sm transition-all duration-500"
+                    style={{ height: `${Math.max(10, (results.custoEfetivoPorFora / Math.max(results.valorDasPadraoTotal, results.custoEfetivoPorFora || 1)) * 100)}%` }}
+                  ></div>
+                  <span className="text-gray-500 text-[10px] mt-2 whitespace-nowrap font-medium">Custo Novo (Fora)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Análise Financeira */}
+            <div className="mt-auto bg-[#f8f9fa] border border-gray-200 border-l-4 border-l-[#004375] p-4 rounded-md">
+              <p className="text-[12px] text-gray-700 leading-relaxed mb-3">
+                <strong>Análise Financeira:</strong> A carga tributária efetiva sofreria um <strong className="uppercase">
+                  {results.diferenca >= 0 ? 'REDUÇÃO' : 'AUMENTO'} de {formatPercent4(Math.abs(results.aliqEfetivaPorFora - results.aliqEfetivaPadrao))}
+                </strong> ao migrar para a Nova Regra (Por Fora).
+              </p>
+              <p className="text-[12px] text-gray-500 leading-relaxed">
+                {results.diferenca >= 0 
+                  ? 'Isso indica que sua operação possui um volume de despesas com direito a crédito alto o suficiente para abater o imposto devido, fazendo com que o regime Por Fora seja a opção mais vantajosa para o seu caixa.' 
+                  : 'Isso indica que sua operação não possui volume de despesas com direito a crédito suficiente para compensar o IVA "cheio", fazendo com que o DAS unificado (Por Dentro) continue sendo a opção de menor impacto para o seu caixa.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Break-even */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-1">
+              <span className="text-red-500">🎯</span> Meta de Despesas (Ponto de Equilíbrio)
+            </h3>
+            <p className="text-[11px] text-gray-400 mb-6 leading-relaxed">
+              Volume de despesas Elegíveis que a empresa precisa comprovar para que o regime "Por Fora" não gere prejuízo.
+            </p>
+            
+            <div className="bg-[#f8f9fa] border border-gray-200 p-5 rounded-md mb-4">
+              <div className="flex justify-between items-end mb-4">
+                <div>
+                  <div className="text-[10px] text-gray-500 font-bold mb-1">DESPESAS ATUAIS (CRÉDITO)</div>
+                  <div className="text-[#005696] font-bold text-xl">{formatCurrency(currentExpenses)}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[10px] text-gray-500 font-bold mb-1">META (BREAK-EVEN)</div>
+                  <div className="text-gray-700 font-bold text-xl">{formatCurrency(results.metaDespesas)}</div>
+                </div>
+              </div>
+              
+              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden mb-2">
+                <div 
+                  className={`${breakEvenPercentage >= 100 ? 'bg-green-500' : 'bg-[#e53935]'} h-3 rounded-full transition-all duration-500`}
+                  style={{ width: `${breakEvenPercentage}%` }}
+                ></div>
+              </div>
+              <div className="text-center text-[11px] text-gray-800 font-bold">
+                {breakEvenPercentage.toFixed(1).replace('.', ',')}% da meta atingida
+              </div>
+            </div>
+
+            {breakEvenPercentage < 100 ? (
+              <div className="bg-red-50 border border-red-200 border-l-4 border-l-[#e53935] p-4 rounded-md flex gap-3">
+                <span className="text-[#e53935] text-lg">⚠️</span>
+                <p className="text-[12px] text-[#b71c1c] leading-relaxed">
+                  <strong>Alerta de Prejuízo:</strong> Faltam <strong>{formatCurrency(results.metaDespesas - currentExpenses)}</strong> em despesas elegíveis para empatar o jogo. Caso não seja possível realocar fornecedores ou aumentar os créditos, a recomendação matemática é manter o IBS/CBS <strong>POR DENTRO</strong>.
+                </p>
+              </div>
+            ) : (
+              <div className="bg-green-50 border border-green-200 border-l-4 border-l-green-500 p-4 rounded-md flex gap-3">
+                <span className="text-green-600 text-lg">✅</span>
+                <p className="text-[12px] text-green-800 leading-relaxed">
+                  <strong>Meta Atingida!</strong> Suas despesas elegíveis atuais já superam o ponto de equilíbrio, garantindo que o cenário <strong>POR FORA</strong> é matematicamente mais rentável.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
