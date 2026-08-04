@@ -380,32 +380,32 @@ export function Step5Dashboard() {
           </div>
           <div className="overflow-x-auto max-h-[400px]">
             <table className="w-full text-left border-collapse min-w-[1200px]">
-              <thead className="bg-[#f1f5f9] sticky top-0 z-20 shadow-sm">
-                <tr className="text-[10px] uppercase text-center border-b border-gray-300">
-                  <th colSpan={3} className="px-4 py-2 text-[#334155] border-r border-gray-300">Cenário Atual (Cenário 1)</th>
-                  <th colSpan={7} className="px-4 py-2 bg-[#f0fdf4] text-[#166534] border-r border-[#bbf7d0]">Cálculo da Nova Carga Tributária</th>
-                  <th colSpan={3} className="px-4 py-2 bg-[#eff6ff] text-[#1e40af] border-r border-[#bfdbfe]">Impacto Aproveitando Crédito (B2B)</th>
-                  <th colSpan={3} className="px-4 py-2 bg-[#fff7ed] text-[#9a3412]">Impacto Não Aproveitando (PF/Simples)</th>
+              <thead className="sticky top-0 z-20 shadow-sm bg-white">
+                <tr className="text-[10px] uppercase text-center border-b border-gray-200">
+                  <th colSpan={3} className="px-4 py-2 bg-[#f8fafc] text-[#334155] border-r-2 border-gray-300 font-bold">Cenário Atual (Cenário 1)</th>
+                  <th colSpan={9} className="px-4 py-2 bg-[#f0fdf4] text-[#166534] border-r-2 border-[#bbf7d0] font-bold">Cálculo da Nova Carga Tributária</th>
+                  <th colSpan={3} className="px-4 py-2 bg-[#eff6ff] text-[#1e40af] border-r-2 border-[#bfdbfe] font-bold">Impacto Aproveitando Crédito (B2B)</th>
+                  <th colSpan={3} className="px-4 py-2 bg-[#fff7ed] text-[#9a3412] font-bold">Impacto Não Aproveitando (PF/Simples)</th>
                 </tr>
-                <tr className="text-[11px] text-[#475569] bg-[#f8fafc] border-b border-gray-200 text-right">
-                  <th className="px-4 py-3 text-left sticky left-0 bg-[#f8fafc] border-r border-gray-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] z-30">Cliente / Tomador</th>
-                  <th className="px-4 py-3 text-left">Regime</th>
-                  <th className="px-4 py-3 border-r border-gray-300">Faturamento Atual</th>
-                  <th className="px-4 py-3">Carga Trib. Atual</th>
-                  <th className="px-4 py-3">Tributos "Dentro"</th>
-                  <th className="px-4 py-3">Custo S/ Tributos</th>
-                  <th className="px-4 py-3">Carga S/ Crédito</th>
-                  <th className="px-4 py-3">Novo Custo "Dentro"</th>
-                  <th className="px-4 py-3">IVA (Por Fora)</th>
-                  <th className="px-4 py-3 font-bold bg-[#f0fdf4] text-[#0f172a] border-r border-[#bbf7d0]">Nova NF Cheia</th>
-                  <th className="px-4 py-3">Crédito IBS</th>
-                  <th className="px-4 py-3 border-r border-[#bfdbfe]">Crédito CBS</th>
-                  <th className="px-4 py-3 bg-[#eff6ff]">Novo Custo Efetivo</th>
-                  <th className="px-4 py-3 bg-[#eff6ff]">Variação (R$)</th>
-                  <th className="px-4 py-3 bg-[#eff6ff] border-r border-[#bfdbfe]">Variação (%)</th>
-                  <th className="px-4 py-3 bg-[#fff7ed]">Novo Custo Efetivo</th>
-                  <th className="px-4 py-3 bg-[#fff7ed]">Variação (R$)</th>
-                  <th className="px-4 py-3 bg-[#fff7ed]">Variação (%)</th>
+                <tr className="text-[11px] text-[#475569] border-b border-gray-200 text-center bg-white">
+                  <th className="px-4 py-3 sticky left-0 bg-[#f8fafc] border-r border-gray-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] z-30 whitespace-nowrap">Cliente / Tomador</th>
+                  <th className="px-4 py-3 bg-[#f8fafc] whitespace-nowrap">Regime</th>
+                  <th className="px-4 py-3 bg-[#f8fafc] border-r-2 border-gray-300 whitespace-nowrap">Faturamento Atual</th>
+                  <th className="px-4 py-3 whitespace-nowrap">Carga Trib. Atual</th>
+                  <th className="px-4 py-3 whitespace-nowrap">Tributos "Dentro"</th>
+                  <th className="px-4 py-3 whitespace-nowrap">Custo S/ Tributos</th>
+                  <th className="px-4 py-3 whitespace-nowrap">Carga S/ Crédito</th>
+                  <th className="px-4 py-3 whitespace-nowrap">Novo Custo "Dentro"</th>
+                  <th className="px-4 py-3 whitespace-nowrap">IVA (Por Fora)</th>
+                  <th className="px-4 py-3 font-bold bg-[#f0fdf4] text-[#0f172a] whitespace-nowrap">Nova NF Cheia</th>
+                  <th className="px-4 py-3 whitespace-nowrap">Crédito IBS</th>
+                  <th className="px-4 py-3 border-r-2 border-[#bbf7d0] whitespace-nowrap">Crédito CBS</th>
+                  <th className="px-4 py-3 bg-[#eff6ff] whitespace-nowrap">Novo Custo Efetivo</th>
+                  <th className="px-4 py-3 bg-[#eff6ff] whitespace-nowrap">Variação (R$)</th>
+                  <th className="px-4 py-3 bg-[#eff6ff] border-r-2 border-[#bfdbfe] whitespace-nowrap">Variação (%)</th>
+                  <th className="px-4 py-3 bg-[#fff7ed] whitespace-nowrap">Novo Custo Efetivo</th>
+                  <th className="px-4 py-3 bg-[#fff7ed] whitespace-nowrap">Variação (R$)</th>
+                  <th className="px-4 py-3 bg-[#fff7ed] whitespace-nowrap">Variação (%)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -442,40 +442,50 @@ export function Step5Dashboard() {
                     const varReaisNaoAproveitando = custoEfetivoNaoAproveitando - custoEfetivoAtual;
                     const varPctNaoAproveitando = custoEfetivoAtual > 0 ? (varReaisNaoAproveitando / custoEfetivoAtual) * 100 : 0;
 
+                    const formatNum = (num: number) => num.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
                     return (
-                      <tr key={idx} className="hover:bg-gray-50 text-right text-[12px] text-gray-600 transition-colors">
+                      <tr key={idx} className="hover:bg-gray-50 text-right text-[12px] text-gray-600 transition-colors bg-white border-b border-gray-100">
                         <td className="px-4 py-3 text-left sticky left-0 bg-white group-hover:bg-gray-50 border-r border-gray-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] z-10">
                           <div className="font-semibold text-gray-800 truncate max-w-[150px]" title={c.nome}>{c.nome}</div>
-                          <div className="text-[10px] text-gray-500 font-mono">{c.cnpj || 'CPF/Outros'}</div>
+                          <div className="text-[10px] text-gray-500 font-mono mt-0.5">{c.cnpj || 'CPF/Outros'}</div>
                         </td>
-                        <td className="px-4 py-3 text-left">
-                          <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-[10px] font-semibold whitespace-nowrap">{c.regime}</span>
+                        <td className="px-4 py-3 text-center">
+                          <span className="bg-[#f1f5f9] text-[#475569] px-2 py-1 rounded text-[10px] font-semibold whitespace-nowrap">{c.regime}</span>
                         </td>
-                        <td className="px-4 py-3 font-semibold text-gray-900 border-r border-gray-100 whitespace-nowrap">{formatCurrency(c.faturamentoAtual)}</td>
+                        <td className="px-4 py-3 font-semibold text-gray-900 border-r-2 border-gray-300 whitespace-nowrap">
+                          <span className="text-[10px] text-gray-400 font-normal mr-1">R$</span>{formatNum(c.faturamentoAtual)}
+                        </td>
                         
-                        <td className="px-4 py-3 whitespace-nowrap">{formatPercent4(pctTributarioC1)}</td>
-                        <td className="px-4 py-3 whitespace-nowrap">{formatCurrency(impostoAtualNoCliente)}</td>
-                        <td className="px-4 py-3 font-medium whitespace-nowrap">{formatCurrency(lucroLiquidoAtual)}</td>
-                        <td className="px-4 py-3 whitespace-nowrap">{formatPercent4(pctC2SemIva)}</td>
-                        <td className="px-4 py-3 font-medium whitespace-nowrap">{formatCurrency(baseNova)}</td>
-                        <td className="px-4 py-3 whitespace-nowrap">{formatPercent4(ivaTotalEfetivo)}</td>
-                        <td className="px-4 py-3 font-bold text-gray-900 bg-[#f0fdf4] border-r border-[#bbf7d0] whitespace-nowrap">{formatCurrency(novoFaturamentoIvaPorFora)}</td>
-                        <td className="px-4 py-3 font-semibold text-green-600 whitespace-nowrap">{formatCurrency(valorIbsDestacado)}</td>
-                        <td className="px-4 py-3 font-semibold text-green-600 border-r border-[#bfdbfe] whitespace-nowrap">{formatCurrency(valorCbsDestacado)}</td>
-                        
-                        <td className="px-4 py-3 font-semibold text-blue-800 bg-[#eff6ff] whitespace-nowrap">{formatCurrency(custoEfetivoAproveitando)}</td>
-                        <td className={`px-4 py-3 font-bold bg-[#eff6ff] whitespace-nowrap ${varReaisAproveitando > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                          {varReaisAproveitando > 0 ? '+' : ''}{formatCurrency(varReaisAproveitando)}
+                        <td className="px-4 py-3 whitespace-nowrap text-gray-500">{formatPercent4(pctTributarioC1)}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-gray-500">{formatNum(impostoAtualNoCliente)}</td>
+                        <td className="px-4 py-3 font-medium whitespace-nowrap text-[#475569]">{formatNum(lucroLiquidoAtual)}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-gray-500">{formatPercent4(pctC2SemIva)}</td>
+                        <td className="px-4 py-3 font-medium whitespace-nowrap text-[#475569]">{formatNum(baseNova)}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-gray-500">{formatPercent4(ivaTotalEfetivo)}</td>
+                        <td className="px-4 py-3 font-bold text-gray-900 bg-[#f0fdf4] whitespace-nowrap">
+                          <span className="text-[10px] text-gray-400 font-normal mr-1">R$</span>{formatNum(novoFaturamentoIvaPorFora)}
                         </td>
-                        <td className={`px-4 py-3 font-bold bg-[#eff6ff] border-r border-[#bfdbfe] whitespace-nowrap ${varReaisAproveitando > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        <td className="px-4 py-3 font-semibold text-[#16a34a] whitespace-nowrap">{formatNum(valorIbsDestacado)}</td>
+                        <td className="px-4 py-3 font-semibold text-[#16a34a] border-r-2 border-[#bbf7d0] whitespace-nowrap">{formatNum(valorCbsDestacado)}</td>
+                        
+                        <td className="px-4 py-3 font-semibold text-[#1e40af] bg-[#eff6ff] whitespace-nowrap">
+                          <span className="text-[10px] text-blue-300 font-normal mr-1">R$</span>{formatNum(custoEfetivoAproveitando)}
+                        </td>
+                        <td className={`px-4 py-3 font-bold bg-[#eff6ff] whitespace-nowrap ${varReaisAproveitando > 0 ? 'text-[#dc2626]' : 'text-[#16a34a]'}`}>
+                          {varReaisAproveitando > 0 ? '+' : ''}{formatNum(varReaisAproveitando)}
+                        </td>
+                        <td className={`px-4 py-3 font-bold bg-[#eff6ff] border-r-2 border-[#bfdbfe] whitespace-nowrap ${varReaisAproveitando > 0 ? 'text-[#dc2626]' : 'text-[#16a34a]'}`}>
                           {varReaisAproveitando > 0 ? '+' : ''}{varPctAproveitando.toFixed(2).replace('.', ',')}%
                         </td>
 
-                        <td className="px-4 py-3 font-semibold text-orange-800 bg-[#fff7ed] whitespace-nowrap">{formatCurrency(custoEfetivoNaoAproveitando)}</td>
-                        <td className={`px-4 py-3 font-bold bg-[#fff7ed] whitespace-nowrap ${varReaisNaoAproveitando > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                          {varReaisNaoAproveitando > 0 ? '+' : ''}{formatCurrency(varReaisNaoAproveitando)}
+                        <td className="px-4 py-3 font-semibold text-[#9a3412] bg-[#fff7ed] whitespace-nowrap">
+                          <span className="text-[10px] text-orange-300 font-normal mr-1">R$</span>{formatNum(custoEfetivoNaoAproveitando)}
                         </td>
-                        <td className={`px-4 py-3 font-bold bg-[#fff7ed] whitespace-nowrap ${varReaisNaoAproveitando > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        <td className={`px-4 py-3 font-bold bg-[#fff7ed] whitespace-nowrap ${varReaisNaoAproveitando > 0 ? 'text-[#dc2626]' : 'text-[#16a34a]'}`}>
+                          {varReaisNaoAproveitando > 0 ? '+' : ''}{formatNum(varReaisNaoAproveitando)}
+                        </td>
+                        <td className={`px-4 py-3 font-bold bg-[#fff7ed] whitespace-nowrap ${varReaisNaoAproveitando > 0 ? 'text-[#dc2626]' : 'text-[#16a34a]'}`}>
                           {varReaisNaoAproveitando > 0 ? '+' : ''}{varPctNaoAproveitando.toFixed(2).replace('.', ',')}%
                         </td>
                       </tr>
