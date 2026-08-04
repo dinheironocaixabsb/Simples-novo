@@ -86,7 +86,11 @@ export function Sidebar() {
       {/* Header / Logo */}
       <div className="p-4 flex flex-col items-center border-b border-gray-200">
         {firmData.logo ? (
-          <div className="w-full max-w-[160px] h-[60px] flex items-center justify-center mb-3">
+          <div 
+            className="w-full max-w-[160px] h-[60px] flex items-center justify-center mb-3 cursor-pointer"
+            onClick={() => setIsWhiteLabelModalOpen(true)}
+            title="Clique para alterar a logo"
+          >
             <img 
               src={firmData.logo} 
               alt="Logo Consultoria" 
@@ -94,7 +98,11 @@ export function Sidebar() {
             />
           </div>
         ) : (
-          <div className="bg-[#f1f5f9] w-full max-w-[160px] h-[60px] rounded flex items-center justify-center text-slate-500 text-sm mb-3">
+          <div 
+            onClick={() => setIsWhiteLabelModalOpen(true)}
+            className="bg-[#f1f5f9] hover:bg-[#e2e8f0] transition-colors cursor-pointer w-full max-w-[160px] h-[60px] rounded flex items-center justify-center text-slate-500 text-sm mb-3"
+            title="Clique para adicionar sua logo"
+          >
             Sua Logo Aqui
           </div>
         )}
