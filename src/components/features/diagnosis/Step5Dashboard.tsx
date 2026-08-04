@@ -499,7 +499,7 @@ export function Step5Dashboard() {
         </div>
         
         {/* Bottom Actions */}
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8 pt-6 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row justify-end items-center gap-4 mt-8 pt-6 border-t border-gray-200">
           <button 
             className="px-6 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-md shadow-sm transition-colors text-sm font-medium w-full sm:w-auto"
             onClick={() => setStep(4)}

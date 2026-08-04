@@ -199,7 +199,7 @@ export function Step2RevenueData() {
       </div>
 
       {/* Rodapé de Ações */}
-      <div className="mt-8 flex flex-wrap gap-3 justify-center pt-6 mb-4">
+      <div className="mt-8 flex flex-wrap gap-3 justify-end pt-6 mb-4">
         <button 
           onClick={() => setStep(1)}
           className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-[13px] py-2 px-6 rounded transition-colors shadow-sm"
@@ -223,7 +223,7 @@ export function Step2RevenueData() {
         </button>
         <button 
           onClick={() => setStep(3)}
-          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-6 rounded transition-colors shadow-sm ml-auto"
+          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-6 rounded transition-colors shadow-sm"
         >
           Avançar para Configuração
         </button>

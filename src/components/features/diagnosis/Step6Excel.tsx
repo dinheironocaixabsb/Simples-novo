@@ -224,7 +224,7 @@ export function Step6Excel() {
         </button>
         <button 
           onClick={() => setStep(7)}
-          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-5 rounded transition-colors shadow-sm ml-auto"
+          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-5 rounded transition-colors shadow-sm"
         >
           Avançar para Relatório Oficial
         </button>
