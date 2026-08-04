@@ -134,10 +134,17 @@ export function Sidebar() {
           </select>
           <button 
             type="button"
-            onClick={handleDelete}
-            disabled={!activeClientId}
-            title={activeClientId ? "Excluir diagnóstico selecionado" : "Selecione um diagnóstico para excluir"}
-            className="w-[34px] h-[34px] flex items-center justify-center bg-[#ffe4e6] text-[#e11d48] rounded border border-[#fecdd3] hover:bg-[#fecdd3] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            onClick={() => {
+              if (activeClientId) {
+                handleDelete();
+              } else {
+                if (window.confirm('Deseja limpar todos os dados não salvos da tela?')) {
+                  useDiagnosisStore.getState().newClient();
+                }
+              }
+            }}
+            title={activeClientId ? "Excluir diagnóstico selecionado" : "Limpar dados da tela"}
+            className="w-[34px] h-[34px] flex items-center justify-center bg-[#ffe4e6] text-[#e11d48] rounded border border-[#fecdd3] hover:bg-[#fecdd3] transition-colors"
           >
             <Trash2 className="w-4 h-4" />
           </button>
