@@ -77,11 +77,11 @@ export const Step3Config: React.FC = () => {
         <div className="lg:w-1/3">
           <div className="h-full border-l-4 border-[#005696] bg-white p-5 border-t border-r border-b border-gray-200 rounded-r-md">
             <h3 className="font-bold text-[#005696] mb-2 text-sm">Entendendo o Novo IVA Dual (LC 214)</h3>
-            <p className="text-[13px] text-gray-600 mb-4 leading-relaxed">
+            <p className="text-[15px] text-gray-600 mb-4 leading-relaxed">
               Com a Reforma Tributária, as empresas do Simples Nacional podem optar por recolher o <strong>IBS</strong> e a <strong>CBS</strong> de forma isolada ("Por Fora" do DAS).
             </p>
             <h3 className="font-bold text-gray-800 mb-1 text-sm">Vantagem Estratégica:</h3>
-            <p className="text-[13px] text-gray-600 leading-relaxed">
+            <p className="text-[15px] text-gray-600 leading-relaxed">
               Ao preencher estas alíquotas e apurar pelo regime regular, sua empresa passará a transferir o <strong>Crédito Integral (100%)</strong> na Nota Fiscal para os seus clientes Pessoa Jurídica, tornando seus preços muito mais competitivos em negociações B2B.
             </p>
           </div>
@@ -93,7 +93,7 @@ export const Step3Config: React.FC = () => {
             <h3 className="font-bold text-gray-800 mb-4 text-sm">Alíquotas Aplicáveis</h3>
             
             <div className="mb-4">
-              <label className="block text-[12px] font-bold text-gray-700 mb-1">
+              <label className="block text-[14px] font-bold text-gray-700 mb-1">
                 Ano de Simulação (Resolução CGSN 06/2026):
               </label>
               <select
@@ -118,7 +118,7 @@ export const Step3Config: React.FC = () => {
                   onChange={(e) => handleChange('ultrapassouSublimite', e.target.checked)}
                   className="w-4 h-4 text-[#005696] rounded border-gray-300 focus:ring-[#005696]"
                 />
-                <span className="ml-2 text-[12px] text-gray-700">
+                <span className="ml-2 text-[14px] text-gray-700">
                   Empresa ultrapassou o sublimite de R$ 3,6M no ano-calendário (ICMS/IBS recolhidos por fora)
                 </span>
               </label>
@@ -126,7 +126,7 @@ export const Step3Config: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1">
+                <label className="block text-[14px] font-bold text-gray-700 mb-1">
                   ALÍQ. IBS (%)
                 </label>
                 <input
@@ -138,7 +138,7 @@ export const Step3Config: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1">
+                <label className="block text-[14px] font-bold text-gray-700 mb-1">
                   ALÍQ. CBS (%)
                 </label>
                 <input
@@ -152,7 +152,7 @@ export const Step3Config: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-[12px] font-bold text-gray-700 mb-1">
+              <label className="block text-[14px] font-bold text-gray-700 mb-1">
                 Crédito Presumido de Estoque (Transição LC 214) <span className="text-[#005696] ml-1">🛈</span>
               </label>
               <CurrencyInput
@@ -170,7 +170,7 @@ export const Step3Config: React.FC = () => {
             </div>
 
             <div className="mb-6">
-              <label className="block text-[12px] font-bold text-gray-700 mb-1">
+              <label className="block text-[14px] font-bold text-gray-700 mb-1">
                 Redutor de Alíquota IBS/CBS (LC 214):
               </label>
               <select
@@ -183,17 +183,17 @@ export const Step3Config: React.FC = () => {
                 <option value={0.6}>Redução de 60%</option>
                 <option value={1}>Isenção (100%)</option>
               </select>
-              <p className="text-[10px] text-gray-500 leading-tight mb-1">
+              <p className="text-[12px] text-gray-500 leading-tight mb-1">
                 * A redução se aplica <strong>diretamente sobre a alíquota</strong> (ex: se 26,5% com redução de 30%, a alíquota efetiva vira 18,55%).
               </p>
-              <p className="text-[10px] text-gray-500 leading-tight">
+              <p className="text-[12px] text-gray-500 leading-tight">
                 * <strong>Atenção:</strong> Cada redução possui requisitos específicos na LC 214. A redução de 30% aplica-se a serviços de profissões regulamentadas (ex: advogados, médicos, engenheiros, contadores, arquitetos). A redução de 60% foca em serviços de saúde, educação, entre outros. A isenção (100%) aplica-se a casos muito específicos, como o transporte público coletivo de passageiros.
               </p>
             </div>
 
             {/* Caixa Amarela */}
             <div className="bg-[#FFFDF0] border border-[#FBEFA3] rounded-md p-4 mt-auto">
-              <label className="block text-[12px] font-bold text-gray-700 mb-1">
+              <label className="block text-[14px] font-bold text-gray-700 mb-1">
                 Créditos de Fornecedores do Simples Nacional:
               </label>
               <select
@@ -207,7 +207,7 @@ export const Step3Config: React.FC = () => {
 
               {simulationParams.regimeCreditoSn === 'porDentro' ? (
                 <div>
-                  <label className="block text-[12px] font-bold text-gray-700 mb-1">
+                  <label className="block text-[14px] font-bold text-gray-700 mb-1">
                     Alíquota Média Estimada (%)
                   </label>
                   <input
@@ -221,7 +221,7 @@ export const Step3Config: React.FC = () => {
               ) : (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[12px] font-bold text-gray-700 mb-1">
+                    <label className="block text-[14px] font-bold text-gray-700 mb-1">
                       Alíq. IBS Fornecedor (%)
                     </label>
                     <input
@@ -233,7 +233,7 @@ export const Step3Config: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[12px] font-bold text-gray-700 mb-1">
+                    <label className="block text-[14px] font-bold text-gray-700 mb-1">
                       Alíq. CBS Fornecedor (%)
                     </label>
                     <input
@@ -258,11 +258,11 @@ export const Step3Config: React.FC = () => {
         <div className="lg:w-1/3">
           <div className="h-full border-l-4 border-[#005696] bg-white p-5 border-t border-r border-b border-gray-200 rounded-r-md">
             <h3 className="font-bold text-[#005696] mb-2 text-sm">Direito ao Crédito (Não-Cumulatividade)</h3>
-            <p className="text-[13px] text-gray-600 mb-4 leading-relaxed">
+            <p className="text-[15px] text-gray-600 mb-4 leading-relaxed">
               No regime regular ("Por Fora"), sua empresa tem o direito constitucional de <strong>descontar o imposto pago nas aquisições e despesas</strong> do valor do imposto devido sobre o faturamento, evitando a tributação em cascata.
             </p>
             <h3 className="font-bold text-gray-800 mb-1 text-sm">Como funciona o cálculo?</h3>
-            <p className="text-[13px] text-gray-600 leading-relaxed">
+            <p className="text-[15px] text-gray-600 leading-relaxed">
               As alíquotas preenchidas abaixo simularão a recuperação de impostos sobre os gastos estritamente vinculados à sua atividade (insumos, manutenção, prestadores). Vale ressaltar que a maior despesa de muitas empresas, <strong>a folha de pagamento (salários e encargos), NÃO gera Crédito</strong> no novo IVA, o que exige atenção no planejamento.
             </p>
           </div>
@@ -275,7 +275,7 @@ export const Step3Config: React.FC = () => {
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1">
+                <label className="block text-[14px] font-bold text-gray-700 mb-1">
                   ALÍQ. IBS (%)
                 </label>
                 <input
@@ -287,7 +287,7 @@ export const Step3Config: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-[12px] font-bold text-gray-700 mb-1">
+                <label className="block text-[14px] font-bold text-gray-700 mb-1">
                   ALÍQ. CBS (%)
                 </label>
                 <input

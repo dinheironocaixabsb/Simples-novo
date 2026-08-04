@@ -233,7 +233,7 @@ export function Step3SalesXml() {
             <button
               key={m}
               onClick={() => setCurrentXmlMonth(idx)}
-              className={`flex-1 min-w-[70px] py-2 px-1 text-[12px] font-bold rounded-md transition-colors ${
+              className={`flex-1 min-w-[70px] py-2 px-1 text-[14px] font-bold rounded-md transition-colors ${
                 currentXmlMonth === idx 
                   ? 'bg-[#005696] text-white shadow-sm' 
                   : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
@@ -286,7 +286,7 @@ export function Step3SalesXml() {
             <button 
               onClick={handleReconsultCnpjs}
               disabled={filteredXmls.length === 0 || isReconsultando}
-              className={`flex items-center gap-2 text-white font-bold text-[13px] py-2 px-4 rounded transition-colors shadow-sm ${
+              className={`flex items-center gap-2 text-white font-bold text-[15px] py-2 px-4 rounded transition-colors shadow-sm ${
                 isReconsultando ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#005696] hover:bg-[#004a82]'
               }`}
             >
@@ -296,7 +296,7 @@ export function Step3SalesXml() {
             <button 
               onClick={handleClearMonth}
               disabled={filteredXmls.length === 0}
-              className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold text-[13px] py-2 px-4 rounded transition-colors shadow-sm"
+              className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold text-[15px] py-2 px-4 rounded transition-colors shadow-sm"
             >
               Limpar Tudo
             </button>
@@ -304,7 +304,7 @@ export function Step3SalesXml() {
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full text-[13px] text-left">
+          <table className="w-full text-[15px] text-left">
             <thead className="bg-[#003B5C] text-white tracking-wide">
               <tr>
                 <th className="px-4 py-3 font-bold">Nº Nota</th>
@@ -329,15 +329,15 @@ export function Step3SalesXml() {
                     <td className="px-4 py-3 font-semibold text-gray-900">{xml.numero}</td>
                     <td className="px-4 py-3 text-gray-600">{xml.data}</td>
                     <td className="px-4 py-3">
-                      <div className="font-bold text-[#003b6e] text-[13px] truncate max-w-[250px]" title={xml.tomador}>
+                      <div className="font-bold text-[#003b6e] text-[15px] truncate max-w-[250px]" title={xml.tomador}>
                         {xml.tomador || 'Não Identificado'}
                       </div>
-                      <div className="text-[12px] text-gray-500 font-medium">CNPJ: {xml.cnpj ? formatCpfCnpj(xml.cnpj) : 'Sem CNPJ'}</div>
-                      {xml.cnpj && <div className="text-[11px] font-medium text-[#10b981] italic mt-0.5">{getNaturezaJuridica(xml.tomador, xml.cnpj)}</div>}
+                      <div className="text-[14px] text-gray-500 font-medium">CNPJ: {xml.cnpj ? formatCpfCnpj(xml.cnpj) : 'Sem CNPJ'}</div>
+                      {xml.cnpj && <div className="text-[13px] font-medium text-[#10b981] italic mt-0.5">{getNaturezaJuridica(xml.tomador, xml.cnpj)}</div>}
                     </td>
                     <td className="px-4 py-3">
                       {xml.isConsultingCnpj ? (
-                        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-1 bg-yellow-100 text-yellow-700 rounded border border-yellow-200">
+                        <span className="inline-flex items-center gap-1.5 text-[13px] font-bold px-2 py-1 bg-yellow-100 text-yellow-700 rounded border border-yellow-200">
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
                           Consultando...
                         </span>
@@ -345,7 +345,7 @@ export function Step3SalesXml() {
                         <select 
                           value={xml.regime} 
                           onChange={(e) => updateXmlSalesStatus(xml.id, { regime: e.target.value })}
-                          className="text-[12px] font-medium border border-gray-300 rounded px-1.5 py-1 outline-none text-[#003b6e] bg-white w-full max-w-[140px] shadow-sm"
+                          className="text-[14px] font-medium border border-gray-300 rounded px-1.5 py-1 outline-none text-[#003b6e] bg-white w-full max-w-[140px] shadow-sm"
                         >
                           <option value="Lucro Presumido">Lucro Presumido</option>
                           <option value="Simples Nacional">Simples Nacional</option>
@@ -356,7 +356,7 @@ export function Step3SalesXml() {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-[12px] text-gray-700 line-clamp-2" title={xml.descricao}>
+                      <div className="text-[14px] text-gray-700 line-clamp-2" title={xml.descricao}>
                         {xml.descricao}
                       </div>
                     </td>
@@ -390,25 +390,25 @@ export function Step3SalesXml() {
       {filteredXmls.length > 0 && (
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white border border-gray-200 rounded p-4 shadow-sm">
-            <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Lucro Presumido</div>
+            <div className="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-1">Lucro Presumido</div>
             <div className="text-lg font-bold text-[#005696]">
               {formatCurrency(filteredXmls.filter(x => x.regime === 'Lucro Presumido').reduce((acc, curr) => acc + curr.valor, 0))}
             </div>
           </div>
           <div className="bg-white border border-gray-200 rounded p-4 shadow-sm">
-            <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Lucro Real</div>
+            <div className="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-1">Lucro Real</div>
             <div className="text-lg font-bold text-[#005696]">
               {formatCurrency(filteredXmls.filter(x => x.regime === 'Lucro Real').reduce((acc, curr) => acc + curr.valor, 0))}
             </div>
           </div>
           <div className="bg-white border border-gray-200 rounded p-4 shadow-sm">
-            <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Simples Nacional</div>
+            <div className="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-1">Simples Nacional</div>
             <div className="text-lg font-bold text-[#005696]">
               {formatCurrency(filteredXmls.filter(x => x.regime === 'Simples Nacional').reduce((acc, curr) => acc + curr.valor, 0))}
             </div>
           </div>
           <div className="bg-white border border-gray-200 rounded p-4 shadow-sm">
-            <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Isento / Pessoa Física</div>
+            <div className="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-1">Isento / Pessoa Física</div>
             <div className="text-lg font-bold text-[#005696]">
               {formatCurrency(filteredXmls.filter(x => x.regime === 'Isento / Não Informado' || x.regime.includes('Física') || x.regime.includes('Isento')).reduce((acc, curr) => acc + curr.valor, 0))}
             </div>

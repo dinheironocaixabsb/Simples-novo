@@ -63,51 +63,51 @@ export function WhiteLabelModal({ isOpen, onClose }: Props) {
               </p>
 
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1">Nome da Consultoria / Escritório</label>
+                <label className="block text-[15px] font-medium text-gray-700 mb-1">Nome da Consultoria / Escritório</label>
                 <input 
                   type="text" 
                   value={firmData.nome}
                   onChange={(e) => updateFirmData({ nome: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696]" 
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696]" 
                   placeholder="Sua Empresa Contábil" 
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1">E-mail de Contato</label>
+                <label className="block text-[15px] font-medium text-gray-700 mb-1">E-mail de Contato</label>
                 <input 
                   type="email" 
                   value={firmData.email}
                   onChange={(e) => updateFirmData({ email: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696]" 
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696]" 
                   placeholder="contato@empresa.com.br" 
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1">Telefone / WhatsApp</label>
+                <label className="block text-[15px] font-medium text-gray-700 mb-1">Telefone / WhatsApp</label>
                 <input 
                   type="text" 
                   value={firmData.telefone}
                   onChange={(e) => updateFirmData({ telefone: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696]" 
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696]" 
                   placeholder="(00) 00000-0000" 
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1">Endereço Completo</label>
+                <label className="block text-[15px] font-medium text-gray-700 mb-1">Endereço Completo</label>
                 <input 
                   type="text" 
                   value={firmData.endereco}
                   onChange={(e) => updateFirmData({ endereco: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696]" 
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696]" 
                   placeholder="Rua Exemplo, 100 - Bairro" 
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1">Logomarca (Recomendado PNG/JPG até 2MB)</label>
+                <label className="block text-[15px] font-medium text-gray-700 mb-1">Logomarca (Recomendado PNG/JPG até 2MB)</label>
                 <div className="flex items-center gap-4">
                   {firmData.logo ? (
                     <div className="relative border p-2 rounded bg-gray-50 flex items-center justify-center w-32 h-16">
@@ -156,34 +156,34 @@ export function WhiteLabelModal({ isOpen, onClose }: Props) {
               </p>
 
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1">Nome Completo</label>
+                <label className="block text-[15px] font-medium text-gray-700 mb-1">Nome Completo</label>
                 <input 
                   type="text" 
                   value={professionalData.nome}
                   onChange={(e) => updateProfessionalData({ nome: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696]" 
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696]" 
                   placeholder="João da Silva" 
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1">Cargo / Função</label>
+                <label className="block text-[15px] font-medium text-gray-700 mb-1">Cargo / Função</label>
                 <input 
                   type="text" 
                   value={professionalData.cargo}
                   onChange={(e) => updateProfessionalData({ cargo: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696]" 
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696]" 
                   placeholder="Contador Responsável" 
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1">Registro Profissional (Ex: CRC / OAB)</label>
+                <label className="block text-[15px] font-medium text-gray-700 mb-1">Registro Profissional (Ex: CRC / OAB)</label>
                 <input 
                   type="text" 
                   value={professionalData.crc}
                   onChange={(e) => updateProfessionalData({ crc: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696]" 
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696]" 
                   placeholder="CRC/SP 123456/O" 
                 />
               </div>

@@ -109,7 +109,7 @@ export function Sidebar() {
         )}
         <button 
           onClick={() => setIsWhiteLabelModalOpen(true)}
-          className="w-full bg-[#005696] hover:bg-[#004a82] text-white text-[11px] font-medium py-1.5 px-3 rounded flex items-center justify-center gap-1.5 transition-colors"
+          className="w-full bg-[#005696] hover:bg-[#004a82] text-white text-[13px] font-medium py-1.5 px-3 rounded flex items-center justify-center gap-1.5 transition-colors"
         >
           <Settings className="w-3.5 h-3.5" />
           Configurações do Sistema
@@ -118,12 +118,12 @@ export function Sidebar() {
 
       {/* Client Manager */}
       <div className="p-4 pt-0 mb-4">
-        <label className="text-[10px] font-bold text-[#005696] uppercase tracking-wider mb-2 block text-center">
+        <label className="text-[12px] font-bold text-[#005696] uppercase tracking-wider mb-2 block text-center">
           DIAGNÓSTICO DE CLIENTES
         </label>
         <div className="flex gap-2 mb-2">
           <select 
-            className="flex-1 text-[11px] border border-gray-300 rounded px-2 py-2 bg-white outline-none font-medium text-gray-700"
+            className="flex-1 text-[13px] border border-gray-300 rounded px-2 py-2 bg-white outline-none font-medium text-gray-700"
             value={activeClientId || '__new__'}
             onChange={handleClientChange}
           >
@@ -152,19 +152,19 @@ export function Sidebar() {
         <div className="flex gap-2 mb-4">
           <button 
             onClick={handleSave}
-            className="flex-1 bg-[#005696] hover:bg-[#004a82] text-white text-[11px] font-bold py-1.5 rounded transition-colors shadow-sm"
+            className="flex-1 bg-[#005696] hover:bg-[#004a82] text-white text-[13px] font-bold py-1.5 rounded transition-colors shadow-sm"
           >
             Salvar Atual
           </button>
           <button 
             onClick={handleNewClient}
-            className="flex-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 text-[11px] font-bold py-1.5 rounded transition-colors"
+            className="flex-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 text-[13px] font-bold py-1.5 rounded transition-colors"
           >
             Novo Cliente +
           </button>
         </div>
         
-        <div className="flex items-center gap-2 bg-[#f0fdf4] text-[#166534] text-[10px] font-medium px-3 py-2 rounded border border-[#bbf7d0]">
+        <div className="flex items-center gap-2 bg-[#f0fdf4] text-[#166534] text-[12px] font-medium px-3 py-2 rounded border border-[#bbf7d0]">
           <div className="bg-[#22c55e] rounded-sm text-white w-3 h-3 flex items-center justify-center">
             <Check className="w-2.5 h-2.5 stroke-[3]" />
           </div>
@@ -200,7 +200,7 @@ export function Sidebar() {
       <div className="p-4 mt-auto">
         <button 
           onClick={() => setIsImportModalOpen(true)}
-          className="w-full bg-[#f0f9ff] hover:bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd] text-[10px] font-bold py-3 px-2 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-colors text-center shadow-sm"
+          className="w-full bg-[#f0f9ff] hover:bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd] text-[12px] font-bold py-3 px-2 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-colors text-center shadow-sm"
         >
           <Upload className="w-4 h-4" />
           IMPORTAR EXTRATO DO<br/>SIMPLES NACIONAL - PGDAS-D

@@ -290,17 +290,17 @@ export function Step4Expenses() {
 
   const InputCard = ({ title, highlight, field, exportKey }: { title: string, highlight?: boolean, field: string, exportKey: string }) => (
     <div className="flex flex-col">
-      <label className="text-[11px] font-semibold text-gray-800 leading-tight mb-1 min-h-[32px] flex items-end">
+      <label className="text-[13px] font-semibold text-gray-800 leading-tight mb-1 min-h-[32px] flex items-end">
         {title}
       </label>
       <CurrencyInput
         value={(monthlyExpenses[currentMonth] as any)?.[field] || 0}
         onValueChange={(val) => updateMonthlyExpenses(currentMonth, { [field]: Number((val || '0').replace(/\D/g, '')) / 100 })}
         decimalsLimit={2} decimalSeparator="," groupSeparator="."
-        className={`w-full px-3 py-1.5 text-[13px] rounded outline-none border ${highlight ? 'border-red-300 text-gray-600 bg-white' : 'border-[#cbd5e1] text-gray-600 bg-white'} focus:border-[#005696]`}
+        className={`w-full px-3 py-1.5 text-[15px] rounded outline-none border ${highlight ? 'border-red-300 text-gray-600 bg-white' : 'border-[#cbd5e1] text-gray-600 bg-white'} focus:border-[#005696]`}
         placeholder="0,00"
       />
-      <button onClick={() => handleExportExcel(exportKey, title)} className="mt-1 bg-[#eef3f7] hover:bg-[#e2eaf1] text-[10px] font-bold text-[#005696] py-1 rounded w-full text-left px-2 transition-colors">
+      <button onClick={() => handleExportExcel(exportKey, title)} className="mt-1 bg-[#eef3f7] hover:bg-[#e2eaf1] text-[12px] font-bold text-[#005696] py-1 rounded w-full text-left px-2 transition-colors">
         Ver Produtos
       </button>
     </div>
@@ -312,18 +312,18 @@ export function Step4Expenses() {
       {/* Título */}
       <div className="mb-8">
         <h1 className="text-[28px] font-bold text-[#001736] mb-1">Despesas e Levantamento de Créditos</h1>
-        <p className="text-gray-500 text-[13px]">Informe as despesas para calcular os Créditos de IBS e CBS separados.</p>
+        <p className="text-gray-500 text-[15px]">Informe as despesas para calcular os Créditos de IBS e CBS separados.</p>
       </div>
 
       {/* Month Selector */}
       <div className="mb-6">
-        <div className="text-[12px] font-bold text-gray-800 mb-2">Despesas: Mês de {FULL_MONTHS[currentMonth]}</div>
+        <div className="text-[14px] font-bold text-gray-800 mb-2">Despesas: Mês de {FULL_MONTHS[currentMonth]}</div>
         <div className="flex flex-wrap gap-2">
           {FULL_MONTHS.map((month, idx) => (
             <button
               key={month}
               onClick={() => setCurrentMonth(idx)}
-              className={`min-w-[90px] py-2 px-4 text-[12px] font-bold rounded transition-colors border ${
+              className={`min-w-[90px] py-2 px-4 text-[14px] font-bold rounded transition-colors border ${
                 currentMonth === idx 
                   ? 'bg-[#005696] border-[#005696] text-white shadow-sm' 
                   : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
@@ -362,7 +362,7 @@ export function Step4Expenses() {
         <h2 className="text-[#003b6e] font-bold text-[15px] mb-0.5">
           Importar Notas Fiscais de Compras/Gastos (XML)
         </h2>
-        <p className="text-[12px] text-gray-500">
+        <p className="text-[14px] text-gray-500">
           Arraste os arquivos XML das Notas Fiscais de Mercadorias (NF-e), Serviços Tomados (NFS-e) ou Conhecimentos de Frete (CT-e) para esta área. Os dados serão extraídos automaticamente.
         </p>
       </div>
@@ -378,8 +378,8 @@ export function Step4Expenses() {
         />
         <div className="flex flex-col items-center justify-center gap-3">
           <FilePlus className="w-8 h-8 text-[#005696]" strokeWidth={1.5} />
-          <p className="text-[14px] text-gray-700">Arraste os XMLs ou .ZIP de Compras/Fretes aqui ou <span className="text-[#005696] font-bold">clique para buscar</span></p>
-          <p className="text-[11px] text-gray-400 font-medium">Suporta arquivos XML/ZIP de NF-e, NFS-e e CT-e</p>
+          <p className="text-[16px] text-gray-700">Arraste os XMLs ou .ZIP de Compras/Fretes aqui ou <span className="text-[#005696] font-bold">clique para buscar</span></p>
+          <p className="text-[13px] text-gray-400 font-medium">Suporta arquivos XML/ZIP de NF-e, NFS-e e CT-e</p>
         </div>
       </div>
 
@@ -387,24 +387,24 @@ export function Step4Expenses() {
       <div className="bg-white border border-gray-200 rounded shadow-sm mb-6">
         <div className="p-3 border-b border-gray-200 flex flex-wrap items-center gap-3">
           <div className="flex-1 min-w-[200px] relative">
-            <input type="text" placeholder="Buscar por número, fornecedor ou CNPJ..." className="w-full text-[13px] border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500" />
+            <input type="text" placeholder="Buscar por número, fornecedor ou CNPJ..." className="w-full text-[15px] border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500" />
           </div>
-          <select className="text-[13px] border border-gray-300 rounded px-2 py-1.5 outline-none text-gray-700 bg-white">
+          <select className="text-[15px] border border-gray-300 rounded px-2 py-1.5 outline-none text-gray-700 bg-white">
             <option>Todos os Regimes</option>
           </select>
-          <select className="text-[13px] border border-gray-300 rounded px-2 py-1.5 outline-none text-gray-700 bg-white">
+          <select className="text-[15px] border border-gray-300 rounded px-2 py-1.5 outline-none text-gray-700 bg-white">
             <option>Crédito: Todos</option>
           </select>
           <button 
             onClick={() => setShowManualModal(true)}
-            className="text-[13px] font-bold bg-white border border-[#005696] text-[#005696] hover:bg-blue-50 px-4 py-1.5 rounded transition-colors"
+            className="text-[15px] font-bold bg-white border border-[#005696] text-[#005696] hover:bg-blue-50 px-4 py-1.5 rounded transition-colors"
           >
             Lançar Nota Manual
           </button>
           <button 
             onClick={handleReconsultar}
             disabled={isReconsultando}
-            className={`text-[13px] font-bold text-white px-4 py-1.5 rounded transition-colors ${
+            className={`text-[15px] font-bold text-white px-4 py-1.5 rounded transition-colors ${
               isReconsultando ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#004a82] hover:bg-[#003d6b]'
             }`}
           >
@@ -412,14 +412,14 @@ export function Step4Expenses() {
           </button>
           <button 
             onClick={() => setXmlDespesas(xmlDespesas.filter(x => x.monthIndex !== currentMonth))}
-            className="text-[13px] font-bold bg-[#dc2626] hover:bg-[#b91c1c] text-white px-4 py-1.5 rounded transition-colors"
+            className="text-[15px] font-bold bg-[#dc2626] hover:bg-[#b91c1c] text-white px-4 py-1.5 rounded transition-colors"
           >
             Limpar Tudo
           </button>
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full text-[12px] text-left">
+          <table className="w-full text-[14px] text-left">
             <thead className="bg-[#003b6e] text-white">
               <tr>
                 <th className="px-3 py-2.5 font-bold whitespace-nowrap">Nº Nota</th>
@@ -441,23 +441,23 @@ export function Step4Expenses() {
                 </tr>
               ) : currentMonthXmls.map(xml => (
                 <tr key={xml.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="px-3 py-2 font-medium text-[13px]">{xml.numero}</td>
-                  <td className="px-3 py-2 text-[13px] text-gray-500">{xml.data}</td>
+                  <td className="px-3 py-2 font-medium text-[15px]">{xml.numero}</td>
+                  <td className="px-3 py-2 text-[15px] text-gray-500">{xml.data}</td>
                   <td className="px-3 py-2">
-                    <div className="font-bold text-[#003b6e] text-[13px] truncate max-w-[250px]">{xml.fornecedor}</div>
-                    <div className="text-[12px] text-gray-500 font-medium">CNPJ: {xml.cnpj ? formatCpfCnpj(xml.cnpj) : 'Não informado'}</div>
-                    {xml.cnpj && <div className="text-[11px] font-medium text-[#10b981] italic mt-0.5">{getNaturezaJuridica(xml.fornecedor, xml.cnpj)}</div>}
+                    <div className="font-bold text-[#003b6e] text-[15px] truncate max-w-[250px]">{xml.fornecedor}</div>
+                    <div className="text-[14px] text-gray-500 font-medium">CNPJ: {xml.cnpj ? formatCpfCnpj(xml.cnpj) : 'Não informado'}</div>
+                    {xml.cnpj && <div className="text-[13px] font-medium text-[#10b981] italic mt-0.5">{getNaturezaJuridica(xml.fornecedor, xml.cnpj)}</div>}
                   </td>
                   <td className="px-3 py-2">
                     {xml.isConsultingCnpj ? (
-                      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-1 bg-yellow-100 text-yellow-700 rounded border border-yellow-200 w-full max-w-[140px] justify-center">
+                      <span className="inline-flex items-center gap-1.5 text-[13px] font-bold px-2 py-1 bg-yellow-100 text-yellow-700 rounded border border-yellow-200 w-full max-w-[140px] justify-center">
                         Consultando...
                       </span>
                     ) : (
                       <select 
                         value={xml.regime} 
                         onChange={(e) => handleUpdateRegime(xml.id, e.target.value)}
-                        className="text-[12px] font-medium border border-gray-300 rounded px-1.5 py-1 outline-none text-[#003b6e] bg-white w-full max-w-[140px] shadow-sm"
+                        className="text-[14px] font-medium border border-gray-300 rounded px-1.5 py-1 outline-none text-[#003b6e] bg-white w-full max-w-[140px] shadow-sm"
                       >
                         <option value="Lucro Presumido">Lucro Presumido</option>
                         <option value="Simples Nacional">Simples Nacional</option>
@@ -482,7 +482,7 @@ export function Step4Expenses() {
           </table>
         </div>
         
-        <div className="p-4 bg-[#f9fafb] border-t border-gray-200 text-right text-[14px] font-bold text-[#003b6e]">
+        <div className="p-4 bg-[#f9fafb] border-t border-gray-200 text-right text-[16px] font-bold text-[#003b6e]">
           Total Acumulado (Filtrado): R$ {totalAcumulado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
         </div>
       </div>
@@ -491,9 +491,9 @@ export function Step4Expenses() {
       {currentMonthXmls.length > 0 && (
         <div className="mt-6 border border-dashed border-gray-300 rounded-lg bg-white overflow-hidden p-4">
           <div className="mb-4 pb-2 border-b border-gray-200">
-            <h3 className="text-[13px] font-bold text-[#334155]">Detalhamento das Despesas Elegíveis (Composição do Crédito)</h3>
+            <h3 className="text-[15px] font-bold text-[#334155]">Detalhamento das Despesas Elegíveis (Composição do Crédito)</h3>
           </div>
-          <div className="text-[12px] text-[#475569] flex flex-col gap-2">
+          <div className="text-[14px] text-[#475569] flex flex-col gap-2">
             {Object.entries(
               currentMonthXmls
                 .filter(xml => xml.tipoDespesa === "Gera crédito de IBS/CBS" || xml.tipoDespesa === "Gera Crédito de IBS/CBS" || xml.tipoDespesa === "Gera crédito" || xml.tipoDespesa === 'true')
@@ -558,37 +558,37 @@ export function Step4Expenses() {
             <div className="p-6 space-y-4 flex-1 overflow-y-auto">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-700 mb-1">Número da Nota</label>
-                  <input type="text" value={manualNumNota} onChange={e=>setManualNumNota(e.target.value)} className="w-full text-[13px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="Ex: 17" />
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Número da Nota</label>
+                  <input type="text" value={manualNumNota} onChange={e=>setManualNumNota(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="Ex: 17" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-700 mb-1">Data de Emissão</label>
-                  <InputMask mask="99/99/9999" value={manualData} onChange={(e: any)=>setManualData(e.target.value)} className="w-full text-[13px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="DD/MM/AAAA" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[11px] font-bold text-gray-700 mb-1">CNPJ do Fornecedor</label>
-                  <InputMask mask="99.999.999/9999-99" value={manualCnpj} onChange={(e: any)=>setManualCnpj(e.target.value)} className="w-full text-[13px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="00.000.000/0000-00" />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-gray-700 mb-1">Fornecedor (Razão Social)</label>
-                  <input type="text" value={manualProvider} onChange={e=>setManualProvider(e.target.value)} className="w-full text-[13px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="Nome do Fornecedor" />
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Data de Emissão</label>
+                  <InputMask mask="99/99/9999" value={manualData} onChange={(e: any)=>setManualData(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="DD/MM/AAAA" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-700 mb-1">Regime Tributário</label>
-                  <select value={manualRegime} onChange={e=>setManualRegime(e.target.value)} className="w-full text-[13px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500 bg-white">
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">CNPJ do Fornecedor</label>
+                  <InputMask mask="99.999.999/9999-99" value={manualCnpj} onChange={(e: any)=>setManualCnpj(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="00.000.000/0000-00" />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Fornecedor (Razão Social)</label>
+                  <input type="text" value={manualProvider} onChange={e=>setManualProvider(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="Nome do Fornecedor" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Regime Tributário</label>
+                  <select value={manualRegime} onChange={e=>setManualRegime(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500 bg-white">
                     <option value="Lucro Presumido">Lucro Presumido</option>
                     <option value="Simples Nacional">Simples Nacional</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-700 mb-1">Tipo de Crédito</label>
-                  <select value={manualTipoCredito} onChange={e=>setManualTipoCredito(e.target.value)} className="w-full text-[13px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500 bg-white">
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Tipo de Crédito</label>
+                  <select value={manualTipoCredito} onChange={e=>setManualTipoCredito(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500 bg-white">
                     <option value="Gera Crédito de IBS/CBS">Gera Crédito de IBS/CBS</option>
                     <option value="Sem Crédito">Sem Crédito</option>
                   </select>
@@ -596,9 +596,9 @@ export function Step4Expenses() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-gray-700 mb-1">Categoria da Despesa</label>
+                <label className="block text-[13px] font-bold text-gray-700 mb-1">Categoria da Despesa</label>
                 <div className="flex gap-2">
-                  <select value={manualCategoria} onChange={e=>setManualCategoria(e.target.value)} className="flex-1 text-[13px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500 bg-white">
+                  <select value={manualCategoria} onChange={e=>setManualCategoria(e.target.value)} className="flex-1 text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500 bg-white">
                     <option value="Aquisição de Insumos / Materiais Aplicados">Aquisição de Insumos / Materiais Aplicados</option>
                     <option value="Serviços de Limpeza, Conservação e Manutenção">Serviços de Limpeza, Conservação e Manutenção</option>
                     <option value="Vale-Transporte e Refeição">Vale-Transporte e Refeição</option>
@@ -612,12 +612,12 @@ export function Step4Expenses() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-gray-700 mb-1">Descrição / Serviço</label>
-                <input type="text" value={manualDesc} onChange={e=>setManualDesc(e.target.value)} className="w-full text-[13px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="Ex: Serviços de Consultoria de T.I." />
+                <label className="block text-[13px] font-bold text-gray-700 mb-1">Descrição / Serviço</label>
+                <input type="text" value={manualDesc} onChange={e=>setManualDesc(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="Ex: Serviços de Consultoria de T.I." />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-gray-700 mb-1">Valor da Nota (R$)</label>
+                <label className="block text-[13px] font-bold text-gray-700 mb-1">Valor da Nota (R$)</label>
                 <CurrencyInput
                   value={manualValor}
                   onValueChange={(val) => setManualValor(val || '')}
@@ -625,15 +625,15 @@ export function Step4Expenses() {
                   decimalsLimit={2}
                   decimalSeparator=","
                   groupSeparator="."
-                  className="w-full text-[13px] font-bold text-[#005696] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500"
+                  className="w-full text-[15px] font-bold text-[#005696] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500"
                   placeholder="R$ 0,00"
                 />
               </div>
             </div>
             
             <div className="p-4 bg-gray-50 flex justify-end gap-3 rounded-b-lg border-t border-gray-200">
-              <button onClick={() => setShowManualModal(false)} className="px-5 py-2 text-[13px] font-bold text-gray-600 hover:text-gray-800 bg-white border border-gray-300 rounded shadow-sm">Cancelar</button>
-              <button onClick={handleAddManual} className="px-5 py-2 text-[13px] font-bold text-white bg-[#005696] hover:bg-[#004a82] rounded shadow-sm">Salvar Despesa</button>
+              <button onClick={() => setShowManualModal(false)} className="px-5 py-2 text-[15px] font-bold text-gray-600 hover:text-gray-800 bg-white border border-gray-300 rounded shadow-sm">Cancelar</button>
+              <button onClick={handleAddManual} className="px-5 py-2 text-[15px] font-bold text-white bg-[#005696] hover:bg-[#004a82] rounded shadow-sm">Salvar Despesa</button>
             </div>
           </div>
         </div>
@@ -641,11 +641,11 @@ export function Step4Expenses() {
 
       {/* Actions */}
       <div className="flex flex-wrap gap-2 justify-end pt-4 mt-8 border-t border-gray-200">
-        <button onClick={() => setStep(3)} className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-[13px] py-2 px-5 rounded shadow-sm">Voltar</button>
-        <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-5 rounded shadow-sm">Imprimir</button>
-        <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-5 rounded shadow-sm">Salvar Diagnóstico</button>
-        <button className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold text-[13px] py-2 px-5 rounded shadow-sm">Excluir Dados</button>
-        <button onClick={() => setStep(5)} className="bg-[#004a82] hover:bg-[#003d6b] text-white font-bold text-[13px] py-2 px-5 rounded shadow-sm">Ver Resultados / Dashboard</button>
+        <button onClick={() => setStep(3)} className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-[15px] py-2 px-5 rounded shadow-sm">Voltar</button>
+        <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2 px-5 rounded shadow-sm">Imprimir</button>
+        <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2 px-5 rounded shadow-sm">Salvar Diagnóstico</button>
+        <button className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold text-[15px] py-2 px-5 rounded shadow-sm">Excluir Dados</button>
+        <button onClick={() => setStep(5)} className="bg-[#004a82] hover:bg-[#003d6b] text-white font-bold text-[15px] py-2 px-5 rounded shadow-sm">Ver Resultados / Dashboard</button>
       </div>
 
     </div>

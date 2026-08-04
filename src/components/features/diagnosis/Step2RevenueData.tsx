@@ -44,7 +44,7 @@ export function Step2RevenueData() {
       <div className="flex gap-1 mb-6 border-b-2 border-gray-200">
         <button 
           onClick={() => setActiveTab('extrato')}
-          className={`px-6 py-3 font-bold text-[14px] transition-colors rounded-t-lg
+          className={`px-6 py-3 font-bold text-[16px] transition-colors rounded-t-lg
             ${activeTab === 'extrato' ? 'bg-white text-[#005696] border-t-2 border-l-2 border-r-2 border-[#005696] mb-[-2px]' : 'bg-[#e5e7eb] text-gray-600 hover:bg-gray-200'}
           `}
         >
@@ -52,7 +52,7 @@ export function Step2RevenueData() {
         </button>
         <button 
           onClick={() => setActiveTab('xml')}
-          className={`px-6 py-3 font-bold text-[14px] transition-colors rounded-t-lg
+          className={`px-6 py-3 font-bold text-[16px] transition-colors rounded-t-lg
             ${activeTab === 'xml' ? 'bg-white text-[#005696] border-t-2 border-l-2 border-r-2 border-[#005696] mb-[-2px]' : 'bg-[#e5e7eb] text-gray-600 hover:bg-gray-200'}
           `}
         >
@@ -72,17 +72,17 @@ export function Step2RevenueData() {
                     </h3>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[12px] font-bold text-gray-700">Competência</label>
+                    <label className="text-[14px] font-bold text-gray-700">Competência</label>
                     <input 
                       type="text" 
                       value={monthData.competencia || ''}
                       onChange={(e) => updateRevenueData(monthIndex, { competencia: e.target.value })}
                       placeholder="MM/AAAA"
-                      className="border border-[#d1d5db] rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
+                      className="border border-[#d1d5db] rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[12px] font-bold text-gray-700">RBT12 (Receita Bruta 12 Meses)</label>
+                    <label className="text-[14px] font-bold text-gray-700">RBT12 (Receita Bruta 12 Meses)</label>
                     <CurrencyInput
                       value={monthData.rbt12}
                       decimalsLimit={2}
@@ -90,12 +90,12 @@ export function Step2RevenueData() {
                       decimalSeparator=","
                       groupSeparator="."
                       onValueChange={(value, name, values) => updateRevenueData(monthIndex, { rbt12: values?.float || 0 })}
-                      className="border border-[#d1d5db] rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
+                      className="border border-[#d1d5db] rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
                       placeholder="0,00" 
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[12px] font-bold text-gray-700">RBA (Receita Bruta Acumulada)</label>
+                    <label className="text-[14px] font-bold text-gray-700">RBA (Receita Bruta Acumulada)</label>
                     <CurrencyInput
                       value={monthData.rba}
                       decimalsLimit={2}
@@ -103,12 +103,12 @@ export function Step2RevenueData() {
                       decimalSeparator=","
                       groupSeparator="."
                       onValueChange={(value, name, values) => updateRevenueData(monthIndex, { rba: values?.float || 0 })}
-                      className="border border-[#d1d5db] rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
+                      className="border border-[#d1d5db] rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
                       placeholder="0,00" 
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[12px] font-bold text-gray-700">RBAA (Receita Ano Anterior)</label>
+                    <label className="text-[14px] font-bold text-gray-700">RBAA (Receita Ano Anterior)</label>
                     <CurrencyInput
                       value={monthData.rbaa}
                       decimalsLimit={2}
@@ -116,19 +116,19 @@ export function Step2RevenueData() {
                       decimalSeparator=","
                       groupSeparator="."
                       onValueChange={(value, name, values) => updateRevenueData(monthIndex, { rbaa: values?.float || 0 })}
-                      className="border border-[#d1d5db] rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
+                      className="border border-[#d1d5db] rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
                       placeholder="0,00" 
                     />
                   </div>
                 </div>
 
                 <div className="mt-6">
-                  <label className="text-[13px] font-bold text-[#374151] mb-3 block">
+                  <label className="text-[15px] font-bold text-[#374151] mb-3 block">
                     Selecione as Atividades (Anexos) do Mês:
                   </label>
                   <div className="flex flex-wrap gap-5">
                     {[1, 2, 3, 4, 5].map((num) => (
-                      <label key={num} className="flex items-center gap-2 cursor-pointer text-[13px] font-medium text-gray-700">
+                      <label key={num} className="flex items-center gap-2 cursor-pointer text-[15px] font-medium text-gray-700">
                         <input 
                           type="checkbox" 
                           checked={monthData.anexosAtivos.includes(num.toString() as AnexoId)}
@@ -150,13 +150,13 @@ export function Step2RevenueData() {
                     return (
                       <div key={anexo} className="pt-4 border-t border-gray-100">
                         <div className="mb-3 inline-block border-b-2 border-[#005696] pb-1">
-                          <h4 className="text-[#005696] font-bold text-[14px]">
+                          <h4 className="text-[#005696] font-bold text-[16px]">
                             Receitas - Anexo {anexoName}
                           </h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="flex flex-col gap-1.5">
-                            <label className="text-[12px] font-bold text-gray-700">Mercado Interno (R$)</label>
+                            <label className="text-[14px] font-bold text-gray-700">Mercado Interno (R$)</label>
                             <CurrencyInput
                               value={monthData.anexosData[anexo as AnexoId].mercadoInterno}
                               decimalsLimit={2}
@@ -164,12 +164,12 @@ export function Step2RevenueData() {
                               decimalSeparator=","
                               groupSeparator="."
                               onValueChange={(value, name, values) => handleAnexoDataChange(monthIndex, anexo as AnexoId, 'mercadoInterno', values?.float || 0)}
-                              className="border border-[#d1d5db] rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
+                              className="border border-[#d1d5db] rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
                               placeholder="0,00" 
                             />
                           </div>
                           <div className="flex flex-col gap-1.5">
-                            <label className="text-[12px] font-bold text-gray-700">Mercado Externo (R$)</label>
+                            <label className="text-[14px] font-bold text-gray-700">Mercado Externo (R$)</label>
                             <CurrencyInput
                               value={monthData.anexosData[anexo as AnexoId].mercadoExterno}
                               decimalsLimit={2}
@@ -177,7 +177,7 @@ export function Step2RevenueData() {
                               decimalSeparator=","
                               groupSeparator="."
                               onValueChange={(value, name, values) => handleAnexoDataChange(monthIndex, anexo as AnexoId, 'mercadoExterno', values?.float || 0)}
-                              className="border border-[#d1d5db] rounded px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
+                              className="border border-[#d1d5db] rounded px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
                               placeholder="0,00" 
                             />
                           </div>
@@ -202,28 +202,28 @@ export function Step2RevenueData() {
       <div className="mt-8 flex flex-wrap gap-3 justify-end pt-6 mb-4">
         <button 
           onClick={() => setStep(1)}
-          className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-[13px] py-2 px-6 rounded transition-colors shadow-sm"
+          className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-[15px] py-2 px-6 rounded transition-colors shadow-sm"
         >
           Voltar
         </button>
         <button 
-          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-6 rounded transition-colors shadow-sm"
+          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2 px-6 rounded transition-colors shadow-sm"
         >
           Imprimir
         </button>
         <button 
-          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-6 rounded transition-colors shadow-sm"
+          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2 px-6 rounded transition-colors shadow-sm"
         >
           Salvar Diagnóstico
         </button>
         <button 
-          className="bg-[#cc0000] hover:bg-[#a30000] text-white font-bold text-[13px] py-2 px-6 rounded transition-colors shadow-sm"
+          className="bg-[#cc0000] hover:bg-[#a30000] text-white font-bold text-[15px] py-2 px-6 rounded transition-colors shadow-sm"
         >
           Excluir Dados
         </button>
         <button 
           onClick={() => setStep(3)}
-          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-6 rounded transition-colors shadow-sm"
+          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2 px-6 rounded transition-colors shadow-sm"
         >
           Avançar para Configuração
         </button>

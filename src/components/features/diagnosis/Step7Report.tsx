@@ -301,7 +301,7 @@ Diretrizes para Redação do Relatório Estratégico Tributário:
       <div className="mt-8 flex flex-wrap gap-3 justify-end pt-4 border-t border-gray-200">
         <button 
           onClick={() => setStep(6)}
-          className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-[13px] py-2 px-5 rounded transition-colors shadow-sm"
+          className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-[15px] py-2 px-5 rounded transition-colors shadow-sm"
         >
           Voltar
         </button>

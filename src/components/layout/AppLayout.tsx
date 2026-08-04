@@ -23,8 +23,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <footer className="mt-auto px-8 pb-4">
           <div className="max-w-[1400px] w-full mx-auto flex justify-between items-end border-t border-gray-200 pt-6">
             <div className="text-left text-gray-500">
-              <strong className="block text-[13px] text-gray-800">{firmData.nome || 'S&L Contabilidade Consultoria e Auditoria SS'}</strong>
-              <div className="text-[11px] leading-relaxed">
+              <strong className="block text-[15px] text-gray-800">{firmData.nome || 'S&L Contabilidade Consultoria e Auditoria SS'}</strong>
+              <div className="text-[13px] leading-relaxed">
                 {firmData.endereco || 'CNPJ 12... | Conjunto J Casa 20'}<br/>
                 {firmData.telefone || '6192887181'}<br/>
                 {firmData.email || 'isaac.leo44@gmail.com'}
@@ -32,8 +32,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
             
             <div className="text-right text-gray-500">
-              <strong className="block text-[13px] text-gray-800">Profissional Responsável</strong>
-              <div className="text-[11px] leading-relaxed">
+              <strong className="block text-[15px] text-gray-800">Profissional Responsável</strong>
+              <div className="text-[13px] leading-relaxed">
                 {professionalData.nome || 'Isaac Leonidas de Assunção Lopes'}<br/>
                 {professionalData.cargo || 'Contador'}<br/>
                 {professionalData.crc || 'CRC/DF 015889-05'}

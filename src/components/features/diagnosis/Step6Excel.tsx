@@ -175,7 +175,7 @@ export function Step6Excel() {
           <strong className="text-[#005696] text-[14.5px] block mb-4 border-b border-[#eaeaea] pb-2">Opções de Exportação:</strong>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[13px] font-bold text-gray-500 mb-1.5">Período (Mês):</label>
+              <label className="block text-[15px] font-bold text-gray-500 mb-1.5">Período (Mês):</label>
               <select value={period} onChange={e => setPeriod(e.target.value)} className="w-full p-2.5 border border-[#e5e7eb] rounded-md text-[13.5px] text-[#005696] bg-white outline-none focus:border-[#75b743]">
                 <option value="all">Ano Completo (Relatório Anual)</option>
                 <option value="jan">Janeiro</option>
@@ -193,7 +193,7 @@ export function Step6Excel() {
               </select>
             </div>
             <div>
-              <label className="block text-[13px] font-bold text-gray-500 mb-1.5">Ano:</label>
+              <label className="block text-[15px] font-bold text-gray-500 mb-1.5">Ano:</label>
               <select value={year} onChange={e => setYear(e.target.value)} className="w-full p-2.5 border border-[#e5e7eb] rounded-md text-[13.5px] text-[#005696] bg-white outline-none focus:border-[#75b743]">
                 <option value="2025">2025</option>
                 <option value="2026">2026</option>
@@ -215,16 +215,16 @@ export function Step6Excel() {
       <div className="mt-8 flex flex-wrap gap-3 justify-end pt-4 border-t border-gray-200">
         <button 
           onClick={() => setStep(5)}
-          className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-[13px] py-2 px-5 rounded transition-colors shadow-sm"
+          className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-[15px] py-2 px-5 rounded transition-colors shadow-sm"
         >
           Voltar
         </button>
-        <button className="bg-[#ef4444] hover:bg-[#dc2626] text-white font-bold text-[13px] py-2 px-5 rounded transition-colors shadow-sm">
+        <button className="bg-[#ef4444] hover:bg-[#dc2626] text-white font-bold text-[15px] py-2 px-5 rounded transition-colors shadow-sm">
           Excluir Dados
         </button>
         <button 
           onClick={() => setStep(7)}
-          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2 px-5 rounded transition-colors shadow-sm"
+          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2 px-5 rounded transition-colors shadow-sm"
         >
           Avançar para Relatório Oficial
         </button>

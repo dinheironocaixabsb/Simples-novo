@@ -133,7 +133,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
             <span className="block text-gray-700 font-medium text-[15px] mb-1">
               Arraste os arquivos aqui ou <strong>clique para buscar</strong>
             </span>
-            <span className="text-[11px] text-gray-400">
+            <span className="text-[13px] text-gray-400">
               Suporta: .pdf, .xls, .xlsx, .csv
             </span>
             <input 
@@ -165,12 +165,12 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
         {/* Footer */}
         <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
           <button 
-            className="px-4 py-2 text-[13px] font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-[15px] font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
             onClick={onClose}
           >
             Cancelar
           </button>
-          <div className="text-[11px] text-gray-400 text-right w-[60%] leading-tight">
+          <div className="text-[13px] text-gray-400 text-right w-[60%] leading-tight">
             Ao importar, os dados preenchidos na tela correspondente serão <strong>substituídos</strong> pelos novos valores.
           </div>
         </div>

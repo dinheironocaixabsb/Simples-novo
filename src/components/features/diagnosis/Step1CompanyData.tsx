@@ -105,67 +105,67 @@ export function Step1CompanyData() {
           
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[12px] font-bold text-gray-700">Razão Social / Nome</label>
+              <label className="text-[14px] font-bold text-gray-700">Razão Social / Nome</label>
               <input 
                 type="text" 
                 value={companyData.razaoSocial || ''}
                 onChange={(e) => updateCompanyData({ razaoSocial: e.target.value })}
-                className="border border-gray-200 rounded-md px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
+                className="border border-gray-200 rounded-md px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
                 placeholder="" 
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[12px] font-bold text-gray-700">Responsável perante a Receita Federal</label>
+              <label className="text-[14px] font-bold text-gray-700">Responsável perante a Receita Federal</label>
               <input 
                 type="text" 
                 value={companyData.responsavelReceita || ''}
                 onChange={(e) => updateCompanyData({ responsavelReceita: e.target.value })}
-                className="border border-gray-200 rounded-md px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
+                className="border border-gray-200 rounded-md px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
                 placeholder="" 
               />
             </div>
 
             <div className="grid grid-cols-3 gap-5">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12px] font-bold text-gray-700">CNPJ {isFetching && <span className="text-[#005696] font-normal animate-pulse">Buscando...</span>}</label>
+                <label className="text-[14px] font-bold text-gray-700">CNPJ {isFetching && <span className="text-[#005696] font-normal animate-pulse">Buscando...</span>}</label>
                 <input 
                   type="text" 
                   value={companyData.cnpj || ''}
                   onChange={handleCnpjChange}
-                  className="border border-gray-200 rounded-md px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
+                  className="border border-gray-200 rounded-md px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
                   placeholder="" 
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12px] font-bold text-gray-700">Inscrição Estadual/Municipal</label>
+                <label className="text-[14px] font-bold text-gray-700">Inscrição Estadual/Municipal</label>
                 <input 
                   type="text" 
                   value={companyData.inscricaoEstadual || ''}
                   onChange={(e) => updateCompanyData({ inscricaoEstadual: e.target.value })}
-                  className="border border-gray-200 rounded-md px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
+                  className="border border-gray-200 rounded-md px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
                   placeholder="" 
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[12px] font-bold text-gray-700">CEP</label>
+                <label className="text-[14px] font-bold text-gray-700">CEP</label>
                 <input 
                   type="text" 
                   value={companyData.cep || ''}
                   onChange={(e) => updateCompanyData({ cep: e.target.value })}
-                  className="border border-gray-200 rounded-md px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
+                  className="border border-gray-200 rounded-md px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
                   placeholder="" 
                 />
               </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[12px] font-bold text-gray-700">Endereço</label>
+              <label className="text-[14px] font-bold text-gray-700">Endereço</label>
               <input 
                 type="text" 
                 value={companyData.endereco || ''}
                 onChange={(e) => updateCompanyData({ endereco: e.target.value })}
-                className="border border-gray-200 rounded-md px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
+                className="border border-gray-200 rounded-md px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
                 placeholder="" 
               />
             </div>
@@ -181,18 +181,18 @@ export function Step1CompanyData() {
           
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[12px] font-bold text-gray-700">CNAE Principal</label>
+              <label className="text-[14px] font-bold text-gray-700">CNAE Principal</label>
               <input 
                 type="text" 
                 value={companyData.cnaePrincipal || ''}
                 onChange={(e) => updateCompanyData({ cnaePrincipal: e.target.value })}
-                className="border border-gray-200 rounded-md px-3 py-2 text-[14px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
+                className="border border-gray-200 rounded-md px-3 py-2 text-[16px] focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696] w-full" 
                 placeholder="" 
               />
             </div>
             
             <div className="flex flex-col gap-1.5">
-              <label className="text-[12px] font-bold text-gray-700">CNAEs Secundários (Até 14)</label>
+              <label className="text-[14px] font-bold text-gray-700">CNAEs Secundários (Até 14)</label>
               <div className="grid grid-cols-7 gap-3">
                 {Array.from({ length: 14 }).map((_, idx) => (
                   <input 
@@ -200,7 +200,7 @@ export function Step1CompanyData() {
                     type="text" 
                     value={(companyData.cnaesSecundarios || [])[idx] || ''}
                     onChange={(e) => updateCnaeSecundario(idx, e.target.value)}
-                    className="border border-gray-200 rounded-md px-2 py-1.5 text-[12px] text-center focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
+                    className="border border-gray-200 rounded-md px-2 py-1.5 text-[14px] text-center focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]" 
                     placeholder={idx === 0 ? "0000-0/00" : `${idx + 1}º CNAE Secundário`}
                   />
                 ))}
@@ -212,24 +212,24 @@ export function Step1CompanyData() {
 
       {/* Rodapé de Ações */}
       <div className="mt-12 flex justify-end gap-3 pb-8">
-        <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2.5 px-6 rounded-md transition-colors shadow-sm">
+        <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2.5 px-6 rounded-md transition-colors shadow-sm">
           Imprimir
         </button>
         <button 
           onClick={handleSave}
-          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2.5 px-6 rounded-md transition-colors shadow-sm"
+          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2.5 px-6 rounded-md transition-colors shadow-sm"
         >
           Salvar Diagnóstico
         </button>
         <button 
           onClick={handleClear}
-          className="bg-[#e11d48] hover:bg-[#be123c] text-white font-bold text-[13px] py-2.5 px-6 rounded-md transition-colors shadow-sm"
+          className="bg-[#e11d48] hover:bg-[#be123c] text-white font-bold text-[15px] py-2.5 px-6 rounded-md transition-colors shadow-sm"
         >
           Excluir Dados
         </button>
         <button 
           onClick={() => setStep(2)}
-          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[13px] py-2.5 px-6 rounded-md transition-colors shadow-sm"
+          className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2.5 px-6 rounded-md transition-colors shadow-sm"
         >
           Avançar para Receitas
         </button>
