@@ -416,18 +416,19 @@ export const useDiagnosisStore = create<DiagnosisState>()(
         const idx = monthIndex !== undefined ? monthIndex : state.currentMonth;
         const monthData = state.revenueData[idx];
         const expenseData = state.monthlyExpenses[idx];
-        if (!monthData || monthData.rbt12 <= 0) return null;
+        
+        const rbt12 = monthData?.rbt12 || 0;
 
         const anexos: TaxCalculatorParams['anexos'] = {};
         for (let i = 1; i <= 5; i++) {
           const key = i.toString();
-          const ad = monthData.anexosData[key as AnexoId];
+          const ad = monthData?.anexosData?.[key as AnexoId];
           anexos[key] = {
-            active: monthData.anexosAtivos.includes(key as AnexoId),
-            receitaMercadoInterno: ad.mercadoInterno,
-            receitaMercadoExterno: ad.mercadoExterno,
-            isIcmsStSegregado: ad.isIcmsStSegregado,
-            receitaComIcmsSt: ad.receitaComIcmsSt,
+            active: monthData?.anexosAtivos?.includes(key as AnexoId) || false,
+            receitaMercadoInterno: ad?.mercadoInterno || 0,
+            receitaMercadoExterno: ad?.mercadoExterno || 0,
+            isIcmsStSegregado: ad?.isIcmsStSegregado || false,
+            receitaComIcmsSt: ad?.receitaComIcmsSt || 0,
           };
         }
 
@@ -442,7 +443,7 @@ export const useDiagnosisStore = create<DiagnosisState>()(
         const totalCreditoSimplesNacionalReduzido30 = expenseData.despesaSimplesNacionalReduzido30 || 0;
 
         const params: TaxCalculatorParams = {
-          rbt12: monthData.rbt12,
+          rbt12: rbt12,
           activeYear: state.simulationParams.anoSimulacao as TaxCalculatorParams['activeYear'],
           ultrapassouSublimiteAnual: state.simulationParams.ultrapassouSublimite,
           redutorIbsCbs: state.simulationParams.redutorIbsCbs,
