@@ -73,14 +73,13 @@ export const Step3Config: React.FC = () => {
 
       {/* LINHA 1: DÉBITOS */}
       <div className="flex flex-col lg:flex-row gap-6 mb-8">
-        {/* Lado Esquerdo: Informativo */}
         <div className="lg:w-1/3">
-          <div className="h-full border-l-4 border-[#005696] bg-white p-5 border-t border-r border-b border-gray-200 rounded-r-md">
-            <h3 className="font-bold text-[#005696] mb-2 text-sm">Entendendo o Novo IVA Dual (LC 214)</h3>
-            <p className="text-[15px] text-gray-600 mb-4 leading-relaxed">
+          <div className="h-full border-l-4 border-[#005696] bg-white p-6 border-t border-r border-b border-gray-200 rounded-r-md flex flex-col justify-center text-center">
+            <h3 className="font-bold text-[#005696] mb-3 text-[16px]">Entendendo o Novo IVA Dual (LC 214)</h3>
+            <p className="text-[15px] text-gray-600 mb-5 leading-relaxed">
               Com a Reforma Tributária, as empresas do Simples Nacional podem optar por recolher o <strong>IBS</strong> e a <strong>CBS</strong> de forma isolada ("Por Fora" do DAS).
             </p>
-            <h3 className="font-bold text-gray-800 mb-1 text-sm">Vantagem Estratégica:</h3>
+            <h3 className="font-bold text-gray-800 mb-2 text-[16px]">Vantagem Estratégica:</h3>
             <p className="text-[15px] text-gray-600 leading-relaxed">
               Ao preencher estas alíquotas e apurar pelo regime regular, sua empresa passará a transferir o <strong>Crédito Integral (100%)</strong> na Nota Fiscal para os seus clientes Pessoa Jurídica, tornando seus preços muito mais competitivos em negociações B2B.
             </p>
