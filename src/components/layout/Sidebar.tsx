@@ -78,6 +78,7 @@ export function Sidebar() {
   const handleDelete = () => {
     if (activeClientId && confirm('Deseja realmente excluir este diagnóstico?')) {
       deleteClient(activeClientId);
+      newClient(); // Clear the form after deletion
     }
   };
 
