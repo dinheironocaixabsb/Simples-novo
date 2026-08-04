@@ -15,7 +15,6 @@ const formatPercent4 = (value: number) => {
 const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
 export function Step5Dashboard() {
-  const { revenueData, currentMonth, setCurrentMonth, calculationResults, runCalculation, setStep, xmlDespesas } = useDiagnosisStore();
   const { 
     calculationResults, 
     currentMonth, 
