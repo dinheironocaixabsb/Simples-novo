@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useDiagnosisStore } from '../../store/useDiagnosisStore';
-import { Check, Settings, Trash2, Upload } from 'lucide-react';
-import { ImportModal } from '../features/diagnosis/ImportModal';
-import { WhiteLabelModal } from '../features/diagnosis/WhiteLabelModal';
+import { Check, Settings, Trash2, Upload, ArrowLeft } from 'lucide-react';
+import { ImportModal } from '../features/simples-nacional/ImportModal';
+import { WhiteLabelModal } from '../features/simples-nacional/WhiteLabelModal';
 
 const STEPS = [
   { id: 1, title: '1. Dados Cadastrais' },
@@ -17,6 +18,11 @@ const STEPS = [
 ];
 
 export function Sidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const isSimplesNacional = pathname?.startsWith('/simples-nacional');
+  const isHome = pathname === '/';
+
   const currentStep = useDiagnosisStore(state => state.currentStep);
   const setStep = useDiagnosisStore(state => state.setStep);
   const savedClients = useDiagnosisStore(state => state.savedClients);
@@ -116,11 +122,24 @@ export function Sidebar() {
         </button>
       </div>
 
-      {/* Client Manager */}
-      <div className="p-4 pt-0 mb-4">
-        <label className="text-[14px] font-bold text-[#005696] uppercase tracking-wider mb-2 block text-center">
-          DIAGNÓSTICO DE CLIENTES
-        </label>
+      {!isHome && (
+        <div className="px-4 pt-4">
+          <button 
+            onClick={() => router.push('/')}
+            className="w-full bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 text-[14px] font-bold py-2 px-3 rounded flex items-center justify-center gap-2 transition-colors mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Voltar ao Início
+          </button>
+        </div>
+      )}
+
+      {/* Client Manager (Only for Simples Nacional right now) */}
+      {isSimplesNacional && (
+        <div className="p-4 pt-0 mb-4">
+          <label className="text-[14px] font-bold text-[#005696] uppercase tracking-wider mb-2 block text-center">
+            DIAGNÓSTICO DE CLIENTES
+          </label>
         <div className="flex gap-2 mb-2">
           <select 
             className="flex-1 text-[15px] border border-gray-300 rounded px-2 py-2 bg-white outline-none font-medium text-gray-700"
@@ -171,41 +190,46 @@ export function Sidebar() {
           Alterações salvas<br/>automaticamente
         </div>
       </div>
+      )}
 
       {/* Navigation */}
-      <nav className="flex-1 px-4">
-        <ul className="space-y-1.5">
-          {STEPS.map((step) => {
-            const isActive = currentStep === step.id;
-            
-            return (
-              <li key={step.id}>
-                <button
-                  onClick={() => setStep(step.id)}
-                  className={`w-full text-left px-4 py-3 text-[15px] rounded-md transition-colors
-                    ${isActive 
-                      ? 'bg-[#005696] text-white font-bold' 
-                      : 'text-[#4b5563] hover:bg-gray-100'}
-                  `}
-                >
-                  {step.title}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      {isSimplesNacional && (
+        <nav className="flex-1 px-4">
+          <ul className="space-y-1.5">
+            {STEPS.map((step) => {
+              const isActive = currentStep === step.id;
+              
+              return (
+                <li key={step.id}>
+                  <button
+                    onClick={() => setStep(step.id)}
+                    className={`w-full text-left px-4 py-3 text-[15px] rounded-md transition-colors
+                      ${isActive 
+                        ? 'bg-[#005696] text-white font-bold' 
+                        : 'text-[#4b5563] hover:bg-gray-100'}
+                    `}
+                  >
+                    {step.title}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      )}
 
       {/* Footer */}
-      <div className="p-4 mt-auto">
-        <button 
-          onClick={() => setIsImportModalOpen(true)}
-          className="w-full bg-[#f0f9ff] hover:bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd] text-[14px] font-bold py-3 px-2 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-colors text-center shadow-sm"
-        >
-          <Upload className="w-4 h-4" />
-          IMPORTAR EXTRATO DO<br/>SIMPLES NACIONAL - PGDAS-D
-        </button>
-      </div>
+      {isSimplesNacional && (
+        <div className="p-4 mt-auto">
+          <button 
+            onClick={() => setIsImportModalOpen(true)}
+            className="w-full bg-[#f0f9ff] hover:bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd] text-[14px] font-bold py-3 px-2 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-colors text-center shadow-sm"
+          >
+            <Upload className="w-4 h-4" />
+            IMPORTAR EXTRATO DO<br/>SIMPLES NACIONAL - PGDAS-D
+          </button>
+        </div>
+      )}
 
       <ImportModal 
         isOpen={isImportModalOpen} 
