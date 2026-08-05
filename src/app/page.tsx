@@ -31,7 +31,7 @@ export default function HomeDashboard() {
               </div>
               <h2 className="text-xl font-bold mb-2 text-gray-800">Lucro Presumido</h2>
               <p className="text-gray-500 text-sm">
-                Cálculo de presunção, IRPJ, CSLL, PIS e COFINS com base na receita bruta e regime cumulativo. (Em desenvolvimento)
+                Cálculo de presunção, IRPJ, CSLL, PIS e COFINS com base na receita bruta, regime cumulativo e comparativo com o IVA Dual da Reforma Tributária.
               </p>
             </div>
           </Link>

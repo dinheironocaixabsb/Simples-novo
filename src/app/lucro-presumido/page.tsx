@@ -1,11 +1,33 @@
-import Link from 'next/link';
+'use client';
+
+import { AppLayout } from '@/components/layout/AppLayout';
+import { useLucroPresumidoStore } from '@/store/useLucroPresumidoStore';
+import { Step1Config } from '@/components/features/lucro-presumido/Step1Config';
+import { Step2Receitas } from '@/components/features/lucro-presumido/Step2Receitas';
+import { Step3Despesas } from '@/components/features/lucro-presumido/Step3Despesas';
+import { Step4Resultados } from '@/components/features/lucro-presumido/Step4Resultados';
 
 export default function LucroPresumidoPage() {
+  const currentStep = useLucroPresumidoStore((state) => state.currentStep);
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return <Step1Config />;
+      case 2:
+        return <Step2Receitas />;
+      case 3:
+        return <Step3Despesas />;
+      case 4:
+        return <Step4Resultados />;
+      default:
+        return <Step1Config />;
+    }
+  };
+
   return (
-    <div className='p-8'>
-      <h1 className='text-2xl font-bold mb-4'>Lucro Presumido</h1>
-      <p>Módulo em desenvolvimento...</p>
-      <Link href='/' className='text-blue-500 hover:underline mt-4 inline-block'>Voltar ao Início</Link>
-    </div>
+    <AppLayout>
+      {renderStep()}
+    </AppLayout>
   );
 }

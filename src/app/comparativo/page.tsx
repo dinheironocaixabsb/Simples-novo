@@ -1,11 +1,12 @@
-import Link from 'next/link';
+import { AppLayout } from '@/components/layout/AppLayout';
 
 export default function ComparativoPage() {
   return (
-    <div className='p-8'>
-      <h1 className='text-2xl font-bold mb-4'>Planejamento Comparativo</h1>
-      <p>MÛdulo em desenvolvimento...</p>
-      <Link href='/' className='text-blue-500 hover:underline mt-4 inline-block'>Voltar ao InÌcio</Link>
-    </div>
+    <AppLayout>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <h2 className="text-2xl font-bold text-[#005696] mb-4">M√≥dulo Planejamento Comparativo</h2>
+        <p className="text-gray-600">Este m√≥dulo cruzar√° os dados da empresa nos 3 regimes para encontrar o modelo mais vantajoso no ano fiscal.</p>
+      </div>
+    </AppLayout>
   );
 }
