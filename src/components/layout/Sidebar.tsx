@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useDiagnosisStore } from '../../store/useDiagnosisStore';
+import { useClientStore } from '../../store/useClientStore';
+import { useLucroPresumidoStore } from '../../store/useLucroPresumidoStore';
 import { Check, Settings, Trash2, Upload, ArrowLeft } from 'lucide-react';
 import { ImportModal } from '../features/simples-nacional/ImportModal';
 import { WhiteLabelModal } from '../features/simples-nacional/WhiteLabelModal';
@@ -10,8 +12,8 @@ import { WhiteLabelModal } from '../features/simples-nacional/WhiteLabelModal';
 const STEPS = [
   { id: 1, title: '1. Dados Cadastrais' },
   { id: 2, title: '2. Dados de Receitas' },
-  { id: 3, title: '3. Configuração de Alíquotas - Débitos (IBS/CBS)' },
-  { id: 4, title: '4. Despesas e Créditos' },
+  { id: 3, title: '3. Despesas e Créditos (IBS/CBS)' },
+  { id: 4, title: '4. Configuração de Alíquotas (Débitos IBS/CBS)' },
   { id: 5, title: '5. Cenários Tributários' },
   { id: 6, title: '6. Relatório em Excel' },
   { id: 7, title: '7. Relatório Oficial' },
@@ -21,18 +23,34 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const isSimplesNacional = pathname?.startsWith('/simples-nacional');
+  const isLucroPresumido = pathname?.startsWith('/lucro-presumido');
+  const isLucroReal = pathname?.startsWith('/lucro-real');
   const isHome = pathname === '/';
 
-  const currentStep = useDiagnosisStore(state => state.currentStep);
-  const setStep = useDiagnosisStore(state => state.setStep);
-  const savedClients = useDiagnosisStore(state => state.savedClients);
-  const activeClientId = useDiagnosisStore(state => state.activeClientId);
-  const companyData = useDiagnosisStore(state => state.companyData);
-  const firmData = useDiagnosisStore(state => state.firmData);
-  const saveClient = useDiagnosisStore(state => state.saveClient);
-  const loadClient = useDiagnosisStore(state => state.loadClient);
-  const deleteClient = useDiagnosisStore(state => state.deleteClient);
-  const newClient = useDiagnosisStore(state => state.newClient);
+  // Usa o store correto para a etapa e navegação
+  const { currentStep: stepSimples, setStep: setStepSimples, saveClient: saveSimples } = useDiagnosisStore();
+  const { currentStep: stepPresumido, setStep: setStepPresumido, saveClient: savePresumido } = useLucroPresumidoStore();
+  
+  const currentStep = isLucroPresumido ? stepPresumido : stepSimples;
+  const setStep = isLucroPresumido ? setStepPresumido : setStepSimples;
+  
+  const savedClients = useClientStore(state => state.clients);
+  const activeClientId = useClientStore(state => state.activeClientId);
+  const companyData = useClientStore(state => state.activeCompanyData);
+  const firmData = useClientStore(state => state.activeFirmData);
+  const loadClient = useClientStore(state => state.loadClient);
+  const deleteClient = useClientStore(state => state.deleteClient);
+  const newClient = useClientStore(state => state.newClient);
+
+  const saveClient = () => {
+    if (isSimplesNacional) saveSimples();
+    else if (isLucroPresumido) savePresumido();
+    else {
+       // Se for global, apenas salva os dados cadastrais
+       useClientStore.getState().saveClient({});
+    }
+  };
+
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isWhiteLabelModalOpen, setIsWhiteLabelModalOpen] = useState(false);
 
@@ -41,9 +59,7 @@ export function Sidebar() {
       alert('Por favor, cadastre a empresa (CNPJ) nos Dados Cadastrais antes de salvar.');
       return false;
     }
-    const cleanCnpj = companyData.cnpj.replace(/\D/g, '');
-    const name = companyData.razaoSocial || `Cliente ${companyData.cnpj}`;
-    saveClient(cleanCnpj, name);
+    saveClient();
     return true;
   };
 
@@ -134,8 +150,8 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* Client Manager (Only for Simples Nacional right now) */}
-      {isSimplesNacional && (
+      {/* Client Manager (For all regimes) */}
+      {!isHome && (
         <div className="p-4 pt-0 mb-4">
           <label className="text-[14px] font-bold text-[#005696] uppercase tracking-wider mb-2 block text-center">
             DIAGNÓSTICO DE CLIENTES
@@ -193,7 +209,7 @@ export function Sidebar() {
       )}
 
       {/* Navigation */}
-      {isSimplesNacional && (
+      {(isSimplesNacional || isLucroPresumido) && (
         <nav className="flex-1 px-4">
           <ul className="space-y-1.5">
             {STEPS.map((step) => {

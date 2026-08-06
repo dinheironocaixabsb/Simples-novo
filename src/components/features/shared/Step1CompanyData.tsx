@@ -1,11 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useDiagnosisStore } from '../../../store/useDiagnosisStore';
+import { useClientStore } from '../../../store/useClientStore';
 import { User, Folder } from 'lucide-react';
 
-export function Step1CompanyData() {
-  const { companyData, updateCompanyData, setStep, saveClient, newClient } = useDiagnosisStore();
+interface Step1CompanyDataProps {
+  onNext: () => void;
+  onSave: () => void;
+  onClear: () => void;
+}
+
+export function Step1CompanyData({ onNext, onSave, onClear }: Step1CompanyDataProps) {
+  const { activeCompanyData: companyData, updateActiveCompanyData: updateCompanyData } = useClientStore();
   const [isFetching, setIsFetching] = useState(false);
 
   const handleSave = () => {
@@ -13,15 +19,14 @@ export function Step1CompanyData() {
       alert('Por favor, cadastre a empresa (CNPJ) antes de salvar.');
       return;
     }
-    const cleanCnpj = companyData.cnpj.replace(/\D/g, '');
+    onSave();
     const name = companyData.razaoSocial || `Cliente ${companyData.cnpj}`;
-    saveClient(cleanCnpj, name);
     alert('Dados salvos com sucesso no cliente: ' + name);
   };
 
   const handleClear = () => {
     if (confirm('Deseja realmente excluir/limpar todos os dados não salvos?')) {
-      newClient();
+      onClear();
     }
   };
 
@@ -41,34 +46,66 @@ export function Step1CompanyData() {
     
     setIsFetching(true);
     try {
+      let data = null;
+      let fromBrasilApi = false;
       const response = await fetch(`https://publica.cnpj.ws/cnpj/${cleanCnpj}`);
       if (response.ok) {
-        const data = await response.json();
-        let responsavel = '';
-        if (data.socios && data.socios.length > 0) responsavel = data.socios[0].nome;
-        
-        let ie = '';
-        if (data.estabelecimento?.inscricoes_estaduais?.length > 0) {
-          const ativas = data.estabelecimento.inscricoes_estaduais.filter((i: any) => i.ativo);
-          ie = ativas.length > 0 ? ativas[0].inscricao_estadual : data.estabelecimento.inscricoes_estaduais[0].inscricao_estadual;
+        data = await response.json();
+      } else {
+        const resp2 = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cleanCnpj}`);
+        if (resp2.ok) {
+          data = await resp2.json();
+          fromBrasilApi = true;
         }
+      }
 
-        const secundarias = data.estabelecimento?.atividades_secundarias || [];
-        const cnaesArray = secundarias.slice(0, 14).map((c: any) => c.id || '');
-        const paddedCnaes = [...cnaesArray, ...Array(14 - cnaesArray.length).fill('')];
+      if (data) {
+        if (!fromBrasilApi) {
+          let responsavel = '';
+          if (data.socios && data.socios.length > 0) responsavel = data.socios[0].nome;
+          
+          let ie = '';
+          if (data.estabelecimento?.inscricoes_estaduais?.length > 0) {
+            const ativas = data.estabelecimento.inscricoes_estaduais.filter((i: any) => i.ativo);
+            ie = ativas.length > 0 ? ativas[0].inscricao_estadual : data.estabelecimento.inscricoes_estaduais[0].inscricao_estadual;
+          }
 
-        updateCompanyData({ 
-          razaoSocial: data.razao_social || data.estabelecimento?.nome_fantasia || '',
-          responsavelReceita: responsavel,
-          inscricaoEstadual: ie,
-          cnaePrincipal: data.estabelecimento?.atividade_principal?.id || '',
-          cnaesSecundarios: paddedCnaes,
-          cep: data.estabelecimento?.cep || '',
-          endereco: data.estabelecimento ? `${data.estabelecimento.tipo_logradouro} ${data.estabelecimento.logradouro}, ${data.estabelecimento.numero} - ${data.estabelecimento.bairro}, ${data.estabelecimento.cidade?.nome} - ${data.estabelecimento.estado?.sigla}` : ''
-        });
+          const secundarias = data.estabelecimento?.atividades_secundarias || [];
+          const cnaesArray = secundarias.slice(0, 14).map((c: any) => c.id || '');
+          const paddedCnaes = [...cnaesArray, ...Array(14 - cnaesArray.length).fill('')];
+
+          updateCompanyData({ 
+            razaoSocial: data.razao_social || data.estabelecimento?.nome_fantasia || '',
+            responsavelReceita: responsavel,
+            inscricaoEstadual: ie,
+            cnaePrincipal: data.estabelecimento?.atividade_principal?.id || '',
+            cnaesSecundarios: paddedCnaes,
+            cep: data.estabelecimento?.cep || '',
+            endereco: data.estabelecimento ? `${data.estabelecimento.tipo_logradouro} ${data.estabelecimento.logradouro}, ${data.estabelecimento.numero} - ${data.estabelecimento.bairro}, ${data.estabelecimento.cidade?.nome} - ${data.estabelecimento.estado?.sigla}` : ''
+          });
+        } else {
+          // Brasil API mapping
+          const cnaesArray = (data.cnaes_secundarios || []).slice(0, 14).map((c: any) => c.codigo || '');
+          const paddedCnaes = [...cnaesArray, ...Array(14 - cnaesArray.length).fill('')];
+          let responsavel = '';
+          if (data.qsa && data.qsa.length > 0) responsavel = data.qsa[0].nome_socio;
+
+          updateCompanyData({
+            razaoSocial: data.razao_social || data.nome_fantasia || '',
+            responsavelReceita: responsavel,
+            inscricaoEstadual: '',
+            cnaePrincipal: data.cnae_fiscal ? String(data.cnae_fiscal) : '',
+            cnaesSecundarios: paddedCnaes,
+            cep: data.cep || '',
+            endereco: data.logradouro ? `${data.descricao_tipo_de_logradouro || ''} ${data.logradouro}, ${data.numero} - ${data.bairro}, ${data.municipio} - ${data.uf}` : ''
+          });
+        }
+      } else {
+        alert('Atenção: Não foi possível buscar os dados do CNPJ automaticamente. Por favor, preencha manualmente.');
       }
     } catch (err) {
       console.error(err);
+      alert('Atenção: Erro ao buscar os dados do CNPJ. Verifique sua conexão ou tente novamente.');
     } finally {
       setIsFetching(false);
     }
@@ -212,7 +249,7 @@ export function Step1CompanyData() {
 
       {/* Rodapé de Ações */}
       <div className="mt-12 flex justify-end gap-3 pb-8">
-        <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2.5 px-6 rounded-md transition-colors shadow-sm">
+        <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2.5 px-6 rounded-md transition-colors shadow-sm" onClick={() => window.print()}>
           Imprimir
         </button>
         <button 
@@ -228,10 +265,10 @@ export function Step1CompanyData() {
           Excluir Dados
         </button>
         <button 
-          onClick={() => setStep(2)}
+          onClick={onNext}
           className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2.5 px-6 rounded-md transition-colors shadow-sm"
         >
-          Avançar para Receitas
+          Avançar
         </button>
       </div>
     </div>

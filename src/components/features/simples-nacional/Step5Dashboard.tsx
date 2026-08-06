@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useDiagnosisStore } from '../../../store/useDiagnosisStore';
+import { useClientStore } from '../../../store/useClientStore';
 import { CheckCircle2, XCircle, TrendingUp, Calculator } from 'lucide-react';
 
 const formatCurrency = (value: number) => {
@@ -20,12 +21,14 @@ export function Step5Dashboard() {
     currentMonth, 
     setCurrentMonth,
     revenueData,
-    xmlFaturamento,
     simulationParams,
     runCalculation,
     setStep, 
-    xmlDespesas 
   } = useDiagnosisStore();
+  const {
+    activeXmlFaturamento: xmlFaturamento,
+    activeXmlDespesas: xmlDespesas
+  } = useClientStore();
 
   React.useEffect(() => {
     // Cálculo automático / real-time

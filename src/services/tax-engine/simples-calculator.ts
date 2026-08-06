@@ -69,9 +69,9 @@ export function calculateAnexo(params: CalculationParams): CalculationResult {
   if (aliqEfetivaPadrao < 0) aliqEfetivaPadrao = 0;
 
   // Arredondar para 6 casas (4 percentuais)
-  let aliqEfetivaPadraoFull = Math.round(aliqEfetivaPadrao * 1000000) / 1000000;
+  const aliqEfetivaPadraoFull = Math.round(aliqEfetivaPadrao * 1000000) / 1000000;
 
-  let dist = { ...partilhaTributos[faixaIdx] };
+  const dist = { ...partilhaTributos[faixaIdx] };
 
   // Sublimite Faixa 6
   if (faixaIdx === 6 && !ultrapassouSublimite) {
@@ -98,9 +98,9 @@ export function calculateAnexo(params: CalculationParams): CalculationResult {
 
   if ((anexo === '1' || anexo === '2') && isIcmsStSegregado && percIcmsSt > 0) {
       percIcmsNormal = 1 - percIcmsSt;
-      let fractionIcmsTotal = dist['ICMS'] || 0;
+      const fractionIcmsTotal = dist['ICMS'] || 0;
       
-      let icmsDeduzido = fractionIcmsTotal * percIcmsSt;
+      const icmsDeduzido = fractionIcmsTotal * percIcmsSt;
       fractionPadrao -= icmsDeduzido;
       dist['ICMS'] = fractionIcmsTotal * percIcmsNormal;
   }
@@ -108,18 +108,18 @@ export function calculateAnexo(params: CalculationParams): CalculationResult {
   aliqEfetivaPadrao = Math.round(aliqEfetivaPadraoFull * fractionPadrao * 1000000) / 1000000;
 
   // Calculo de Créditos B2B
-  let aliqEfetivaIbsDentro = Math.round(aliqEfetivaPadraoFull * (dist['IBS'] || 0) * 1000000) / 1000000;
-  let aliqEfetivaCbsDentro = Math.round(aliqEfetivaPadraoFull * (dist['CBS'] || 0) * 1000000) / 1000000;
-  let creditoB2B_Ibs = rbaAnexo * aliqEfetivaIbsDentro;
-  let creditoB2B_Cbs = rbaAnexo * aliqEfetivaCbsDentro;
+  const aliqEfetivaIbsDentro = Math.round(aliqEfetivaPadraoFull * (dist['IBS'] || 0) * 1000000) / 1000000;
+  const aliqEfetivaCbsDentro = Math.round(aliqEfetivaPadraoFull * (dist['CBS'] || 0) * 1000000) / 1000000;
+  const creditoB2B_Ibs = rbaAnexo * aliqEfetivaIbsDentro;
+  const creditoB2B_Cbs = rbaAnexo * aliqEfetivaCbsDentro;
 
   let dasFractionPorFora = fractionPadrao - (dist['CBS'] || 0) - (dist['IBS'] || 0);
   dasFractionPorFora = Math.round(dasFractionPorFora * 1000000) / 1000000;
 
   const aliqEfetivaPorFora = Math.round(aliqEfetivaPadraoFull * dasFractionPorFora * 1000000) / 1000000;
   
-  let valorDasPadraoAnexo = Math.round(rbaAnexo * aliqEfetivaPadrao * 100) / 100;
-  let valorDasPorForaAnexo = Math.round(rbaAnexo * aliqEfetivaPorFora * 100) / 100;
+  const valorDasPadraoAnexo = Math.round(rbaAnexo * aliqEfetivaPadrao * 100) / 100;
+  const valorDasPorForaAnexo = Math.round(rbaAnexo * aliqEfetivaPorFora * 100) / 100;
 
   return {
       aliqNominal,

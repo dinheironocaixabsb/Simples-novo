@@ -3,13 +3,20 @@
 import React, { useState } from 'react';
 import { useDiagnosisStore } from '../../../store/useDiagnosisStore';
 import * as XLSX from 'xlsx';
+import { useClientStore } from '../../../store/useClientStore';
 
 export function Step6Excel() {
   const { 
-    setStep, companyData, revenueData, simulationParams, 
-    firmData, professionalData, xmlDespesas, xmlFaturamento,
+    setStep, revenueData, simulationParams, 
     calculationResults, monthlyExpenses
   } = useDiagnosisStore();
+  const { 
+    activeCompanyData: companyData, 
+    activeFirmData: firmData, 
+    activeProfessionalData: professionalData,
+    activeXmlDespesas: xmlDespesas, 
+    activeXmlFaturamento: xmlFaturamento 
+  } = useClientStore();
   const [period, setPeriod] = useState('all');
   const [year, setYear] = useState('2026');
 

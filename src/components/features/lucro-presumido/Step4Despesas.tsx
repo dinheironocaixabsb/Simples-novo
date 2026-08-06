@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useDiagnosisStore } from '../../../store/useDiagnosisStore';
+import { useLucroPresumidoStore } from '../../../store/useLucroPresumidoStore';
 import CurrencyInput from 'react-currency-input-field';
 import { UploadCloud, Trash2, Edit2, FileText, Search, FilePlus } from 'lucide-react';
 import { parseExpenseXml } from '../../../services/xml/xml-parser';
@@ -9,7 +10,7 @@ import { useClientStore } from '../../../store/useClientStore';
 import { consultarCnpj } from '../../../services/cnpj-service';
 import { ParsedXmlExpense, ExpenseCategory } from '../../../domain/types/xml.types';
 import JSZip from 'jszip';
-import { ProductDetailsModal } from './ProductDetailsModal';
+import { ProductDetailsModal } from '../simples-nacional/ProductDetailsModal';
 
 const FULL_MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 const SHORT_MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -28,13 +29,17 @@ const formatDate = (val: string) => {
           .replace(/^(\d{2})\/(\d{2})(\d)/, '$1/$2/$3');
 };
 
-export function Step4Expenses() {
+export function Step4Despesas() {
   const { 
-    monthlyExpenses, updateMonthlyExpenses, 
-    currentMonth, setCurrentMonth,
-    setStep,
     cnpjCache, addCnpjToCache 
   } = useDiagnosisStore();
+  
+  const { 
+    despesasMensais: monthlyExpenses, 
+    updateDespesaMes: updateMonthlyExpenses, 
+    currentMonth, setCurrentMonth,
+    setStep, saveClient
+  } = useLucroPresumidoStore();
   
   const {
     activeCompanyData: companyData,
@@ -69,6 +74,74 @@ export function Step4Expenses() {
   const [manualCategoria, setManualCategoria] = useState('Compras / Insumos / Mercadorias');
   const [manualDesc, setManualDesc] = useState('');
   const [manualValor, setManualValor] = useState('');
+  const [manualIcms, setManualIcms] = useState('');
+  const [manualPis, setManualPis] = useState('');
+  const [manualCofins, setManualCofins] = useState('');
+  const [manualDesconto, setManualDesconto] = useState('');
+  const [isConsultingManual, setIsConsultingManual] = useState(false);
+  
+  // Buscar informações do CNPJ automaticamente
+  React.useEffect(() => {
+    const checkManualCnpj = async () => {
+      if (manualCnpj.length === 18) {
+        setIsConsultingManual(true);
+        try {
+          const info = await consultarCnpj(manualCnpj);
+          if (info) {
+            setManualProvider(info.razaoSocial);
+            setManualRegime(info.regime);
+          }
+        } catch (err) {
+          // Silent fail on auto-fetch
+        } finally {
+          setIsConsultingManual(false);
+        }
+      }
+    };
+    checkManualCnpj();
+  }, [manualCnpj]);
+  
+  // Recalcular totais sempre que xmlDespesas mudar
+  React.useEffect(() => {
+    const fromXml = xmlDespesas.filter(x => x.monthIndex === currentMonth);
+    let geral = 0, integral = 0, anexo1 = 0, anexo15 = 0, anexo7 = 0, anexo8 = 0;
+    let icms = 0, pisCofins = 0, descontos = 0;
+
+    fromXml.forEach(x => {
+      let isCredit = x.tipoDespesa === "Gera Crédito de IBS/CBS" || x.tipoDespesa === "Gera crédito" || x.tipoDespesa === 'true';
+      if (!isCredit) return;
+
+      if (x.category?.toLowerCase().includes('anexo i') || x.category?.toLowerCase().includes('anexo 1') || x.category?.toLowerCase().includes('zero')) {
+        anexo1 += x.valor;
+      } else if (x.category?.toLowerCase().includes('anexo xv') || x.category?.toLowerCase().includes('anexo 15') || x.category?.toLowerCase().includes('hortifruti')) {
+        anexo15 += x.valor;
+      } else if (x.category?.toLowerCase().includes('anexo vii') || x.category?.toLowerCase().includes('anexo 7') || x.category?.toLowerCase().includes('alimento')) {
+        anexo7 += x.valor;
+      } else if (x.category?.toLowerCase().includes('anexo viii') || x.category?.toLowerCase().includes('anexo 8') || x.category?.toLowerCase().includes('higiene')) {
+        anexo8 += x.valor;
+      } else if (x.category?.toLowerCase().includes('normal') || x.category?.toLowerCase().includes('crédito 100%')) {
+        integral += x.valor;
+      } else {
+        geral += x.valor;
+      }
+
+      icms += x.deducoes?.icms || 0;
+      pisCofins += x.deducoes?.pisCofins || 0;
+      descontos += x.deducoes?.desconto || 0;
+    });
+
+    updateMonthlyExpenses(currentMonth, {
+      despesaGeral: geral,
+      despesaCreditoIntegral: integral,
+      despesaAnexo1: anexo1,
+      despesaAnexo15: anexo15,
+      despesaAnexo7: anexo7,
+      despesaAnexo8: anexo8,
+      deducaoIcmsIss: icms,
+      deducaoPisCofins: pisCofins,
+      deducaoDescontos: descontos
+    });
+  }, [xmlDespesas, currentMonth, updateMonthlyExpenses]);
   
   const handleAddManual = () => {
     if (!manualDesc || !manualValor || !manualProvider) {
@@ -76,6 +149,10 @@ export function Step4Expenses() {
       return;
     }
     const numericValue = parseFloat(manualValor.replace(/,/g, '.'));
+    const nIcms = parseFloat(manualIcms.replace(/,/g, '.')) || 0;
+    const nPis = parseFloat(manualPis.replace(/,/g, '.')) || 0;
+    const nCofins = parseFloat(manualCofins.replace(/,/g, '.')) || 0;
+    const nDesconto = parseFloat(manualDesconto.replace(/,/g, '.')) || 0;
     
     const manualExpense: ParsedXmlExpense = {
       id: 'manual-' + Date.now(),
@@ -93,7 +170,7 @@ export function Step4Expenses() {
       fileName: 'Lançamento Manual',
       xmlType: 'NFSe',
       isConsultingCnpj: false,
-      deducoes: { icms: 0, pisCofins: 0, desconto: 0, iss: 0 }
+      deducoes: { icms: nIcms, pisCofins: nPis + nCofins, desconto: nDesconto, iss: 0 }
     };
     
     addXmlDespesa(manualExpense);
@@ -106,6 +183,10 @@ export function Step4Expenses() {
     setManualProvider('');
     setManualDesc('');
     setManualValor('');
+    setManualIcms('');
+    setManualPis('');
+    setManualCofins('');
+    setManualDesconto('');
   };
 
   const handleAddCategory = () => {
@@ -643,8 +724,11 @@ export function Step4Expenses() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[13px] font-bold text-gray-700 mb-1">CNPJ do Fornecedor</label>
-                  <input type="text" value={manualCnpj} onChange={(e: any)=>setManualCnpj(formatCnpj(e.target.value))} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="00.000.000/0000-00" />
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">
+                    CNPJ do Fornecedor
+                    {isConsultingManual && <span className="text-[#005696] font-normal ml-2 text-[11px] animate-pulse">(Consultando...)</span>}
+                  </label>
+                  <input type="text" value={manualCnpj} onChange={(e: any)=>setManualCnpj(formatCnpj(e.target.value))} className={`w-full text-[15px] border rounded px-3 py-2 outline-none focus:border-blue-500 ${isConsultingManual ? 'border-[#005696] bg-blue-50' : 'border-gray-300'}`} placeholder="00.000.000/0000-00" />
                 </div>
                 <div>
                   <label className="block text-[13px] font-bold text-gray-700 mb-1">Fornecedor (Razão Social)</label>
@@ -685,23 +769,46 @@ export function Step4Expenses() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[13px] font-bold text-gray-700 mb-1">Descrição / Serviço</label>
-                <input type="text" value={manualDesc} onChange={e=>setManualDesc(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="Ex: Serviços de Consultoria de T.I." />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Descrição / Serviço</label>
+                  <input type="text" value={manualDesc} onChange={e=>setManualDesc(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="Ex: Serviços de T.I." />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Valor Bruto (R$)</label>
+                  <CurrencyInput
+                    value={manualValor}
+                    onValueChange={(val) => setManualValor(val || '')}
+                    prefix="R$ "
+                    decimalsLimit={2}
+                    decimalSeparator=","
+                    groupSeparator="."
+                    className="w-full text-[15px] font-bold text-[#005696] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500"
+                    placeholder="R$ 0,00"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-[13px] font-bold text-gray-700 mb-1">Valor da Nota (R$)</label>
-                <CurrencyInput
-                  value={manualValor}
-                  onValueChange={(val) => setManualValor(val || '')}
-                  prefix="R$ "
-                  decimalsLimit={2}
-                  decimalSeparator=","
-                  groupSeparator="."
-                  className="w-full text-[15px] font-bold text-[#005696] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500"
-                  placeholder="R$ 0,00"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Descontos Incondicionais</label>
+                  <CurrencyInput value={manualDesconto} onValueChange={val => setManualDesconto(val || '')} prefix="R$ " decimalsLimit={2} decimalSeparator="," groupSeparator="." className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="R$ 0,00" />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">ICMS Destacado</label>
+                  <CurrencyInput value={manualIcms} onValueChange={val => setManualIcms(val || '')} prefix="R$ " decimalsLimit={2} decimalSeparator="," groupSeparator="." className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="R$ 0,00" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">PIS Destacado</label>
+                  <CurrencyInput value={manualPis} onValueChange={val => setManualPis(val || '')} prefix="R$ " decimalsLimit={2} decimalSeparator="," groupSeparator="." className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="R$ 0,00" />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">COFINS Destacada</label>
+                  <CurrencyInput value={manualCofins} onValueChange={val => setManualCofins(val || '')} prefix="R$ " decimalsLimit={2} decimalSeparator="," groupSeparator="." className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="R$ 0,00" />
+                </div>
               </div>
             </div>
             
@@ -717,7 +824,7 @@ export function Step4Expenses() {
       <div className="flex flex-wrap gap-2 justify-end pt-4 mt-8 border-t border-gray-200">
         <button onClick={() => setStep(2)} className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-[15px] py-2 px-5 rounded shadow-sm">Voltar</button>
         <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2 px-5 rounded shadow-sm">Imprimir</button>
-        <button className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2 px-5 rounded shadow-sm">Salvar Diagnóstico</button>
+        <button onClick={saveClient} className="bg-[#005696] hover:bg-[#004a82] text-white font-bold text-[15px] py-2 px-5 rounded shadow-sm">Salvar Diagnóstico</button>
         <button className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold text-[15px] py-2 px-5 rounded shadow-sm">Excluir Dados</button>
         <button onClick={() => setStep(4)} className="bg-[#004a82] hover:bg-[#003d6b] text-white font-bold text-[15px] py-2 px-5 rounded shadow-sm">Configuração de Alíquotas</button>
       </div>

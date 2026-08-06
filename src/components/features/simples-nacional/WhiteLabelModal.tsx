@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { useDiagnosisStore } from '../../../store/useDiagnosisStore';
+import { useClientStore } from '../../../store/useClientStore';
 import { X, Upload, Trash2, Building, UserCheck } from 'lucide-react';
 
 interface Props {
@@ -8,7 +8,12 @@ interface Props {
 }
 
 export function WhiteLabelModal({ isOpen, onClose }: Props) {
-  const { firmData, professionalData, updateFirmData, updateProfessionalData } = useDiagnosisStore();
+  const { 
+    activeFirmData: firmData, 
+    activeProfessionalData: professionalData, 
+    updateActiveFirmData: updateFirmData, 
+    updateActiveProfessionalData: updateProfessionalData 
+  } = useClientStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;

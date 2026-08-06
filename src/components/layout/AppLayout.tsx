@@ -1,13 +1,16 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
-
-import { useDiagnosisStore } from '../../store/useDiagnosisStore';
+import { useClientStore } from '../../store/useClientStore';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
-  const firmData = useDiagnosisStore(state => state.firmData);
-  const professionalData = useDiagnosisStore(state => state.professionalData);
+  const pathname = usePathname();
+  const { 
+    activeFirmData: firmData, 
+    activeProfessionalData: professionalData 
+  } = useClientStore();
 
   return (
     <div className="flex min-h-screen bg-gray-50 text-gray-900">

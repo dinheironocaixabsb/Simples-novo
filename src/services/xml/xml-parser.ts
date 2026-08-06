@@ -3,10 +3,10 @@ import { ParsedXmlSales, ParsedXmlExpense, ProdutoDetalhado, Deducoes } from '..
 // Helpers
 function getXmlNodeCaseInsensitive(parentNode: Document | Element, tagName: string): Element | null {
     if (!parentNode || !parentNode.getElementsByTagName) return null;
-    let all = parentNode.getElementsByTagName("*");
-    let lowerTag = tagName.toLowerCase();
+    const all = parentNode.getElementsByTagName("*");
+    const lowerTag = tagName.toLowerCase();
     for (let i = 0; i < all.length; i++) {
-        let localName = all[i].localName || all[i].tagName.split(':').pop();
+        const localName = all[i].localName || all[i].tagName.split(':').pop();
         if (localName && localName.toLowerCase() === lowerTag) {
             return all[i];
         }
@@ -15,12 +15,12 @@ function getXmlNodeCaseInsensitive(parentNode: Document | Element, tagName: stri
 }
 
 function getXmlNodesCaseInsensitive(parentNode: Document | Element, tagName: string): Element[] {
-    let matches: Element[] = [];
+    const matches: Element[] = [];
     if (!parentNode || !parentNode.getElementsByTagName) return matches;
-    let all = parentNode.getElementsByTagName("*");
-    let lowerTag = tagName.toLowerCase();
+    const all = parentNode.getElementsByTagName("*");
+    const lowerTag = tagName.toLowerCase();
     for (let i = 0; i < all.length; i++) {
-        let localName = all[i].localName || all[i].tagName.split(':').pop();
+        const localName = all[i].localName || all[i].tagName.split(':').pop();
         if (localName && localName.toLowerCase() === lowerTag) {
             matches.push(all[i]);
         }
@@ -132,15 +132,101 @@ export function parseSalesXml(xmlDoc: Document, fileName: string, clientCnpjInpu
             valor = parseFloat(cleanValStr) || 0;
         }
         
-        let desc = "";
         const detList = getXmlNodesCaseInsensitive(nfeNode, "det");
         const items = [];
+        const produtosDetalhados: ProdutoDetalhado[] = [];
+        
         for (let i = 0; i < detList.length; i++) {
-            const prodName = getXmlTextCaseInsensitive(detList[i], "xProd");
+            const prodNode = getXmlNodeCaseInsensitive(detList[i], "prod");
+            if (!prodNode) continue;
+            
+            const prodName = getXmlTextCaseInsensitive(prodNode, "xProd");
             if (prodName) items.push(prodName);
+            
+            const cfop = getXmlTextCaseInsensitive(prodNode, "CFOP");
+            const ncm = getXmlTextCaseInsensitive(prodNode, "NCM");
+            
+            const vProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vProd") || "0").replace(',', '.')) || 0;
+            const vDescProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vDesc") || "0").replace(',', '.')) || 0;
+            const vFreteProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vFrete") || "0").replace(',', '.')) || 0;
+            const vOutroProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vOutro") || "0").replace(',', '.')) || 0;
+            const vSegProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vSeg") || "0").replace(',', '.')) || 0;
+            
+            let vItemBruto = vProd + vFreteProd + vSegProd + vOutroProd;
+            
+            let vICMSProd = 0;
+            let vPISProd = 0;
+            let vCOFINSProd = 0;
+            let vSTProd = 0;
+            let vIPIProd = 0;
+            let cstPis = "";
+            let cstCofins = "";
+            
+            const impostoNode = getXmlNodeCaseInsensitive(detList[i], "imposto");
+            if (impostoNode) {
+                const icmsNode = getXmlNodeCaseInsensitive(impostoNode, "ICMS");
+                if (icmsNode) {
+                    vICMSProd = parseFloat((getXmlTextCaseInsensitive(icmsNode, "vICMS") || "0").replace(',', '.')) || 0;
+                    vSTProd = parseFloat((getXmlTextCaseInsensitive(icmsNode, "vICMSST") || getXmlTextCaseInsensitive(icmsNode, "vST") || "0").replace(',', '.')) || 0;
+                }
+                
+                const pisNode = getXmlNodeCaseInsensitive(impostoNode, "PIS");
+                if (pisNode) {
+                    vPISProd = parseFloat((getXmlTextCaseInsensitive(pisNode, "vPIS") || "0").replace(',', '.')) || 0;
+                    cstPis = getXmlTextCaseInsensitive(pisNode, "CST");
+                }
+                
+                const cofinsNode = getXmlNodeCaseInsensitive(impostoNode, "COFINS");
+                if (cofinsNode) {
+                    vCOFINSProd = parseFloat((getXmlTextCaseInsensitive(cofinsNode, "vCOFINS") || "0").replace(',', '.')) || 0;
+                    cstCofins = getXmlTextCaseInsensitive(cofinsNode, "CST");
+                }
+                
+                const ipiNode = getXmlNodeCaseInsensitive(impostoNode, "IPI");
+                if (ipiNode) vIPIProd = parseFloat((getXmlTextCaseInsensitive(ipiNode, "vIPI") || "0").replace(',', '.')) || 0;
+            }
+            
+            vItemBruto = vProd + vFreteProd + vSegProd + vOutroProd + vSTProd + vIPIProd;
+            
+            const isRevenda = (cfop === "1102" || cfop === "2102" || cfop === "1403" || cfop === "2403" || cfop === "1113" || cfop === "2113" || cfop === "5102" || cfop === "6102" || cfop === "5405" || cfop === "6405");
+            const isFreteComp = (cfop === "1353" || cfop === "2353" || cfop === "1932" || cfop === "2932" || (prodName.toUpperCase().includes('FRETE') && !isRevenda));
+            const isAlimento = /arroz|feij[aã]o|carne|frango|peixe|leite|queijo|manteiga|p[aã]o|macarr[aã]o|farinha|a[çc][úu]car|caf[ée]|[óo]leo|biscoito|bolacha|fruta|verdura|legume|hortali[çc]a|ovo/i.test(prodName) || /020|030|040|070|080|090|100|110|160|190|200/.test(ncm.substring(0,3));
+            const isHigiene = /sabonete|shampoo|creme dental|pasta de dente|papel higi[êe]nico|fio dental|desodorante|absorvente|cotonete|escova de dente|condicionador/i.test(prodName) || /330|340|4818/.test(ncm.substring(0,4));
+            
+            const cstIcms = getXmlTextCaseInsensitive(prodNode, "CST") || getXmlTextCaseInsensitive(prodNode, "CSOSN");
+            const isZeroOuMonofasico = (cstIcms === '04' || cstIcms === '06' || cstIcms === '40' || cstIcms === '41' || cstIcms === '60');
+            const isHortifruti = /fruta|verdura|legume|hortali[çc]a|ovo|maca|banana|laranja|alho|cebola|tomate/i.test(prodName);
+            
+            const isAnexo15 = isHortifruti;
+            const isAnexo1 = isZeroOuMonofasico && isAlimento && !isAnexo15;
+            
+            // Devolutions
+            const isDevolucao = /^(1201|1202|2201|2202|3201|3202|5201|5202|6201|6202|7201|7202|1410|1411|2410|2411|5410|5411|6410|6411)$/.test(cfop);
+
+            produtosDetalhados.push({
+                nome: prodName,
+                valorBruto: vItemBruto,
+                desconto: vDescProd,
+                icms: vICMSProd,
+                pisCofins: vPISProd + vCOFINSProd,
+                valorLiquido: vItemBruto - vICMSProd - (vPISProd + vCOFINSProd) - vDescProd,
+                cfop: cfop,
+                ncm: ncm,
+                isAlimento60: isAlimento && !isAnexo1 && !isAnexo15,
+                isHigiene60: isHigiene,
+                isAnexo1: isAnexo1,
+                isAnexo15: isAnexo15,
+                isRevenda: isRevenda,
+                isFrete: isFreteComp,
+                isDevolucao,
+                cstPis,
+                cstCofins,
+                numeroNota: numero,
+                dataEmissao: dataEmi,
+                cliente: tomador
+            });
         }
-        desc = items.join(", ");
-        if (desc.length > 150) desc = desc.substring(0, 147) + "...";
+        const desc = items.join(", ").substring(0, 147) + (items.join(", ").length > 150 ? "..." : "");
         
         if (isXmlCanceled(xmlDoc)) {
             throw new Error("Nota fiscal cancelada.");
@@ -162,6 +248,17 @@ export function parseSalesXml(xmlDoc: Document, fileName: string, clientCnpjInpu
         let finalRegime = isAssoc ? "Isento de IRPJ" : "Lucro Presumido";
         if (cnpj && cnpj.replace(/\D/g, '').length === 11) finalRegime = "Pessoa Física";
 
+        const deducoes = { icms: 0, pisCofins: 0, desconto: 0, iss: 0 };
+        if (totalNode) {
+            const vICMS = parseFloat((getXmlTextCaseInsensitive(totalNode, "vICMS") || "0").replace(',', '.')) || 0;
+            const vPIS = parseFloat((getXmlTextCaseInsensitive(totalNode, "vPIS") || "0").replace(',', '.')) || 0;
+            const vCOFINS = parseFloat((getXmlTextCaseInsensitive(totalNode, "vCOFINS") || "0").replace(',', '.')) || 0;
+            const vDesc = parseFloat((getXmlTextCaseInsensitive(totalNode, "vDesc") || "0").replace(',', '.')) || 0;
+            deducoes.icms = vICMS;
+            deducoes.pisCofins = vPIS + vCOFINS;
+            deducoes.desconto = vDesc;
+        }
+
         return {
             id: 'xml-s-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
             chave,
@@ -174,7 +271,9 @@ export function parseSalesXml(xmlDoc: Document, fileName: string, clientCnpjInpu
             descricao: desc || "Venda de mercadoria",
             valor,
             fileName,
-            xmlType: 'NFe'
+            xmlType: 'NFe',
+            produtosDetalhados,
+            deducoes
         };
     }
     
@@ -258,7 +357,7 @@ export function parseSalesXml(xmlDoc: Document, fileName: string, clientCnpjInpu
     }
     valor = parseFloat(cleanValStr) || 0;
     
-    let desc = getXmlTextCaseInsensitive(xmlDoc, "Discriminacao") || 
+    const desc = getXmlTextCaseInsensitive(xmlDoc, "Discriminacao") || 
                  getXmlTextCaseInsensitive(xmlDoc, "xServ") || 
                  getXmlTextCaseInsensitive(xmlDoc, "ItemListaServico") ||
                  getXmlTextCaseInsensitive(xmlDoc, "Descricao") ||
@@ -286,6 +385,9 @@ export function parseSalesXml(xmlDoc: Document, fileName: string, clientCnpjInpu
     let finalRegime = isAssoc ? "Isento de IRPJ" : "Lucro Presumido";
     if (cnpj && cnpj.replace(/\D/g, '').length === 11) finalRegime = "Pessoa Física";
 
+    const vIss = parseFloat((getXmlTextCaseInsensitive(xmlDoc, "ValorIss") || getXmlTextCaseInsensitive(xmlDoc, "vISSRet") || getXmlTextCaseInsensitive(xmlDoc, "vISS") || "0").replace(',', '.')) || 0;
+    const deducoes = { icms: 0, pisCofins: 0, desconto: 0, iss: vIss };
+
     return {
         id: 'xml-s-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
         chave,
@@ -298,7 +400,8 @@ export function parseSalesXml(xmlDoc: Document, fileName: string, clientCnpjInpu
         descricao: descTrim,
         valor,
         fileName,
-        xmlType: 'NFSe'
+        xmlType: 'NFSe',
+        deducoes
     };
 }
 
@@ -361,11 +464,11 @@ export function parseExpenseXml(xmlDoc: Document, fileName: string, clientCnpjIn
             valor = parseFloat(cleanValStr) || 0;
         }
         
-        let desc = "Transporte/Frete de Carga";
-        let deducoes = { icms: 0, pisCofins: 0, desconto: 0, iss: 0 };
+        const desc = "Transporte/Frete de Carga";
+        const deducoes = { icms: 0, pisCofins: 0, desconto: 0, iss: 0 };
         
         if (vPrestNode) {
-            let vICMS = parseFloat((getXmlTextCaseInsensitive(xmlDoc, "vICMS") || "0").replace(',', '.')) || 0;
+            const vICMS = parseFloat((getXmlTextCaseInsensitive(xmlDoc, "vICMS") || "0").replace(',', '.')) || 0;
             deducoes.icms = vICMS;
         }
 
@@ -496,11 +599,11 @@ export function parseExpenseXml(xmlDoc: Document, fileName: string, clientCnpjIn
             const cfop = getXmlTextCaseInsensitive(prodNode, "CFOP");
             const ncm = getXmlTextCaseInsensitive(prodNode, "NCM");
             
-            let vProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vProd") || "0").replace(',', '.')) || 0;
-            let vDescProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vDesc") || "0").replace(',', '.')) || 0;
-            let vFreteProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vFrete") || "0").replace(',', '.')) || 0;
-            let vOutroProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vOutro") || "0").replace(',', '.')) || 0;
-            let vSegProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vSeg") || "0").replace(',', '.')) || 0;
+            const vProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vProd") || "0").replace(',', '.')) || 0;
+            const vDescProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vDesc") || "0").replace(',', '.')) || 0;
+            const vFreteProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vFrete") || "0").replace(',', '.')) || 0;
+            const vOutroProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vOutro") || "0").replace(',', '.')) || 0;
+            const vSegProd = parseFloat((getXmlTextCaseInsensitive(prodNode, "vSeg") || "0").replace(',', '.')) || 0;
             
             let vItemBruto = vProd + vFreteProd + vSegProd + vOutroProd;
             
@@ -530,18 +633,18 @@ export function parseExpenseXml(xmlDoc: Document, fileName: string, clientCnpjIn
             
             vItemBruto = vProd + vFreteProd + vSegProd + vOutroProd + vSTProd + vIPIProd;
             
-            let isRevenda = (cfop === "1102" || cfop === "2102" || cfop === "1403" || cfop === "2403" || cfop === "1113" || cfop === "2113");
-            let isFreteComp = (cfop === "1353" || cfop === "2353" || cfop === "1932" || cfop === "2932" || (prodName.toUpperCase().includes('FRETE') && !isRevenda));
-            let isAlimento = /arroz|feij[aã]o|carne|frango|peixe|leite|queijo|manteiga|p[aã]o|macarr[aã]o|farinha|a[çc][úu]car|caf[ée]|[óo]leo|biscoito|bolacha|fruta|verdura|legume|hortali[çc]a|ovo/i.test(prodName) || /020|030|040|070|080|090|100|110|160|190|200/.test(ncm.substring(0,3));
-            let isHigiene = /sabonete|shampoo|creme dental|pasta de dente|papel higi[êe]nico|fio dental|desodorante|absorvente|cotonete|escova de dente|condicionador/i.test(prodName) || /330|340|4818/.test(ncm.substring(0,4));
+            const isRevenda = (cfop === "1102" || cfop === "2102" || cfop === "1403" || cfop === "2403" || cfop === "1113" || cfop === "2113");
+            const isFreteComp = (cfop === "1353" || cfop === "2353" || cfop === "1932" || cfop === "2932" || (prodName.toUpperCase().includes('FRETE') && !isRevenda));
+            const isAlimento = /arroz|feij[aã]o|carne|frango|peixe|leite|queijo|manteiga|p[aã]o|macarr[aã]o|farinha|a[çc][úu]car|caf[ée]|[óo]leo|biscoito|bolacha|fruta|verdura|legume|hortali[çc]a|ovo/i.test(prodName) || /020|030|040|070|080|090|100|110|160|190|200/.test(ncm.substring(0,3));
+            const isHigiene = /sabonete|shampoo|creme dental|pasta de dente|papel higi[êe]nico|fio dental|desodorante|absorvente|cotonete|escova de dente|condicionador/i.test(prodName) || /330|340|4818/.test(ncm.substring(0,4));
             
             // Regras CST para Anexo 1 (Alíquota Zero CST 06/04/etc) e Hortifruti (Anexo 15)
             const cstIcms = getXmlTextCaseInsensitive(prodNode, "CST") || getXmlTextCaseInsensitive(prodNode, "CSOSN");
             const isZeroOuMonofasico = (cstIcms === '04' || cstIcms === '06' || cstIcms === '40' || cstIcms === '41' || cstIcms === '60');
             const isHortifruti = /fruta|verdura|legume|hortali[çc]a|ovo|maca|banana|laranja|alho|cebola|tomate/i.test(prodName);
             
-            let isAnexo15 = isHortifruti;
-            let isAnexo1 = isZeroOuMonofasico && isAlimento && !isAnexo15;
+            const isAnexo15 = isHortifruti;
+            const isAnexo1 = isZeroOuMonofasico && isAlimento && !isAnexo15;
 
             produtosDetalhados.push({
                 nome: prodName,
@@ -557,18 +660,19 @@ export function parseExpenseXml(xmlDoc: Document, fileName: string, clientCnpjIn
                 isAnexo1: isAnexo1,
                 isAnexo15: isAnexo15,
                 isRevenda: isRevenda,
-                isFrete: isFreteComp
+                isFrete: isFreteComp,
+                isDevolucao: false
             });
         }
         let desc = items.join(", ");
         if (desc.length > 150) desc = desc.substring(0, 147) + "...";
         
-        let deducoes = { icms: 0, pisCofins: 0, desconto: 0, iss: 0 };
+        const deducoes = { icms: 0, pisCofins: 0, desconto: 0, iss: 0 };
         if (totalNode) {
-            let vICMS = parseFloat((getXmlTextCaseInsensitive(totalNode, "vICMS") || "0").replace(',', '.')) || 0;
-            let vPIS = parseFloat((getXmlTextCaseInsensitive(totalNode, "vPIS") || "0").replace(',', '.')) || 0;
-            let vCOFINS = parseFloat((getXmlTextCaseInsensitive(totalNode, "vCOFINS") || "0").replace(',', '.')) || 0;
-            let vDesc = parseFloat((getXmlTextCaseInsensitive(totalNode, "vDesc") || "0").replace(',', '.')) || 0;
+            const vICMS = parseFloat((getXmlTextCaseInsensitive(totalNode, "vICMS") || "0").replace(',', '.')) || 0;
+            const vPIS = parseFloat((getXmlTextCaseInsensitive(totalNode, "vPIS") || "0").replace(',', '.')) || 0;
+            const vCOFINS = parseFloat((getXmlTextCaseInsensitive(totalNode, "vCOFINS") || "0").replace(',', '.')) || 0;
+            const vDesc = parseFloat((getXmlTextCaseInsensitive(totalNode, "vDesc") || "0").replace(',', '.')) || 0;
             deducoes.icms = vICMS;
             deducoes.pisCofins = vPIS + vCOFINS;
             deducoes.desconto = vDesc;
@@ -678,7 +782,7 @@ export function parseExpenseXml(xmlDoc: Document, fileName: string, clientCnpjIn
     }
     valor = parseFloat(cleanValStr) || 0;
     
-    let desc = getXmlTextCaseInsensitive(xmlDoc, "Discriminacao") || 
+    const desc = getXmlTextCaseInsensitive(xmlDoc, "Discriminacao") || 
                  getXmlTextCaseInsensitive(xmlDoc, "xServ") || 
                  getXmlTextCaseInsensitive(xmlDoc, "ItemListaServico") ||
                  getXmlTextCaseInsensitive(xmlDoc, "Descricao") ||
@@ -686,8 +790,8 @@ export function parseExpenseXml(xmlDoc: Document, fileName: string, clientCnpjIn
     let descTrim = desc.replace(/\s+/g, ' ').trim();
     if (descTrim.length > 150) descTrim = descTrim.substring(0, 147) + "...";
     
-    let deducoes = { icms: 0, pisCofins: 0, desconto: 0, iss: 0 };
-    let vISS = parseFloat((getXmlTextCaseInsensitive(xmlDoc, "ValorIss") || getXmlTextCaseInsensitive(xmlDoc, "vISS") || "0").replace(',', '.')) || 0;
+    const deducoes = { icms: 0, pisCofins: 0, desconto: 0, iss: 0 };
+    const vISS = parseFloat((getXmlTextCaseInsensitive(xmlDoc, "ValorIss") || getXmlTextCaseInsensitive(xmlDoc, "vISS") || "0").replace(',', '.')) || 0;
     deducoes.iss = vISS;
     
     let regime = "Lucro Presumido"; // NFS-e geralmente não tem CRT, mantemos heurística base ou assume Presumido

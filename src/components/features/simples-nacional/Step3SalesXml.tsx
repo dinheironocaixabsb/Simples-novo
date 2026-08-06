@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDiagnosisStore } from '../../../store/useDiagnosisStore';
+import { useClientStore } from '../../../store/useClientStore';
 import { parseSalesXml } from '../../../services/xml/xml-parser';
 import { consultarCnpj } from '../../../services/cnpj-service';
 import { UploadCloud, FileType, Trash2, CheckCircle2, AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
@@ -10,10 +11,15 @@ const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Jul
 
 export function Step3SalesXml() {
   const { 
-    companyData, xmlFaturamento, setXmlFaturamento, 
     currentXmlMonth, setCurrentXmlMonth, 
-    cnpjCache, addCnpjToCache, updateXmlSalesStatus 
+    cnpjCache, addCnpjToCache 
   } = useDiagnosisStore();
+  const { 
+    activeCompanyData: companyData, 
+    activeXmlFaturamento: xmlFaturamento, 
+    setXmlFaturamento, 
+    updateXmlSalesStatus 
+  } = useClientStore();
   
   const [isDragging, setIsDragging] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -49,11 +55,11 @@ export function Step3SalesXml() {
       const isCpf = doc.replace(/\D/g, '').length === 11;
 
       if (isCpf) {
-        useDiagnosisStore.getState().xmlFaturamento.forEach(x => {
+        useClientStore.getState().activeXmlFaturamento.forEach(x => {
           if (x.cnpj === doc) updateXmlSalesStatus(x.id, { isConsultingCnpj: true });
         });
         await new Promise(r => setTimeout(r, 600)); // fake delay for UI
-        useDiagnosisStore.getState().xmlFaturamento.forEach(x => {
+        useClientStore.getState().activeXmlFaturamento.forEach(x => {
           if (x.cnpj === doc) updateXmlSalesStatus(x.id, { regime: "Pessoa Física", isConsultingCnpj: false });
         });
         continue;
@@ -62,7 +68,7 @@ export function Step3SalesXml() {
       const cnpj = doc;
       if (useDiagnosisStore.getState().cnpjCache[cnpj]) {
         const regime = useDiagnosisStore.getState().cnpjCache[cnpj];
-        useDiagnosisStore.getState().xmlFaturamento.forEach(x => {
+        useClientStore.getState().activeXmlFaturamento.forEach(x => {
           if (x.cnpj === cnpj && x.regime !== regime) {
             updateXmlSalesStatus(x.id, { regime, isConsultingCnpj: false });
           }
@@ -71,18 +77,18 @@ export function Step3SalesXml() {
       }
       
       // Marcar como consultando
-      useDiagnosisStore.getState().xmlFaturamento.forEach(x => {
+      useClientStore.getState().activeXmlFaturamento.forEach(x => {
         if (x.cnpj === cnpj) updateXmlSalesStatus(x.id, { isConsultingCnpj: true });
       });
       
       const info = await consultarCnpj(cnpj);
       if (info) {
         addCnpjToCache(cnpj, info.regime);
-        useDiagnosisStore.getState().xmlFaturamento.forEach(x => {
+        useClientStore.getState().activeXmlFaturamento.forEach(x => {
           if (x.cnpj === cnpj) updateXmlSalesStatus(x.id, { regime: info.regime, isConsultingCnpj: false });
         });
       } else {
-        useDiagnosisStore.getState().xmlFaturamento.forEach(x => {
+        useClientStore.getState().activeXmlFaturamento.forEach(x => {
           if (x.cnpj === cnpj) updateXmlSalesStatus(x.id, { isConsultingCnpj: false });
         });
       }
@@ -93,15 +99,15 @@ export function Step3SalesXml() {
 
   const processFiles = async (fileList: FileList | File[]) => {
     setErrorMsg(null);
-    let newXmls: ParsedXmlSales[] = [...xmlFaturamento];
-    let justAdded: ParsedXmlSales[] = [];
-    let errors: string[] = [];
+    const newXmls: ParsedXmlSales[] = [...xmlFaturamento];
+    const justAdded: ParsedXmlSales[] = [];
+    const errors: string[] = [];
 
     const files = Array.from(fileList);
 
     const parseAndAddXml = async (text: string, filename: string) => {
       const parser = new DOMParser();
-      let xmlDoc = parser.parseFromString(text, "text/xml");
+      const xmlDoc = parser.parseFromString(text, "text/xml");
       const parseError = xmlDoc.getElementsByTagName("parsererror");
       
       // We assume text is already properly decoded here, or we'd handle fallback before this.

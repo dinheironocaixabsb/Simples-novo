@@ -1,4 +1,5 @@
-import { CompanyData, RevenueData, SimulationParams, useDiagnosisStore } from '../../store/useDiagnosisStore';
+import { RevenueData, SimulationParams, useDiagnosisStore } from '../../store/useDiagnosisStore';
+import { CompanyData } from '../../store/useClientStore';
 import { ParsedXmlSales, ParsedXmlExpense, ProdutoDetalhado } from '../../domain/types/xml.types';
 import { SIMPLES_TABLES, SIMPLES_TABLES_DEFINITIVA, SIMPLES_PARTILHA } from './constants';
 import { AnexoId } from '../../domain/types/tax.types';
@@ -43,8 +44,8 @@ export function calculateSimulation(
   let valorDasPorForaTotal = 0;
   let creditoB2BIbsTotal = 0;
   let creditoB2BCbsTotal = 0;
-  let c1Taxes: Record<string, number> = {};
-  let c2Taxes: Record<string, number> = {};
+  const c1Taxes: Record<string, number> = {};
+  const c2Taxes: Record<string, number> = {};
 
   const activeYear = simulationParams.anoSimulacao || '2026';
   const isTransition = (activeYear !== 'definitivo');
@@ -75,7 +76,7 @@ export function calculateSimulation(
     const tableSource = activeYear === 'definitivo' ? SIMPLES_TABLES_DEFINITIVA : SIMPLES_TABLES;
     const table = tableSource[anexo] || tableSource['1'];
     
-    for (let faixa of table) {
+    for (const faixa of table) {
       if (rbt12 >= faixa.min && rbt12 <= faixa.max) {
         aliqNominal = faixa.nom;
         parcela = faixa.pd;
@@ -98,8 +99,8 @@ export function calculateSimulation(
 
     if (aliqEfetivaPadrao < 0) aliqEfetivaPadrao = 0;
 
-    let aliqEfetivaPadraoFull = Math.round(aliqEfetivaPadrao * 1000000) / 1000000;
-    let valorDasCheioAnexo = rbaAnexo * aliqEfetivaPadraoFull;
+    const aliqEfetivaPadraoFull = Math.round(aliqEfetivaPadrao * 1000000) / 1000000;
+    const valorDasCheioAnexo = rbaAnexo * aliqEfetivaPadraoFull;
 
     let faixaIdx = 1;
     for (let idx = 0; idx < table.length; idx++) {
@@ -113,7 +114,7 @@ export function calculateSimulation(
     }
 
     // Clone da partilha
-    let dist = { ...SIMPLES_PARTILHA[activeYear][anexo][faixaIdx] };
+    const dist = { ...SIMPLES_PARTILHA[activeYear][anexo][faixaIdx] };
 
     const ultrapassouSublimite = simulationParams.ultrapassouSublimite || false;
     
@@ -140,7 +141,7 @@ export function calculateSimulation(
     if (anexo === '1' || anexo === '2') {
       isIcmsStSegregado = dadosAnexo.isIcmsStSegregado || false;
       if (isIcmsStSegregado) {
-        let comSt = dadosAnexo.receitaComIcmsSt || 0;
+        const comSt = dadosAnexo.receitaComIcmsSt || 0;
         percIcmsSt = comSt / rbaAnexo;
         if (percIcmsSt > 1) percIcmsSt = 1;
         percIcmsNormal = 1 - percIcmsSt;
@@ -151,18 +152,18 @@ export function calculateSimulation(
     if (faixaIdx === 6 && !ultrapassouSublimite) {
       fractionPadrao = 1 + (dist['ICMS'] || 0) + (dist['ISS'] || 0) + (dist['IBS'] || 0);
     }
-    let fractionIcmsTotal = dist['ICMS'] || 0;
+    const fractionIcmsTotal = dist['ICMS'] || 0;
     
     if (fractionIcmsTotal > 0 && percIcmsSt > 0) {
-      let icmsDeduzido = fractionIcmsTotal * percIcmsSt;
+      const icmsDeduzido = fractionIcmsTotal * percIcmsSt;
       fractionPadrao -= icmsDeduzido;
       dist['ICMS'] = fractionIcmsTotal * percIcmsNormal;
     }
 
     aliqEfetivaPadrao = Math.round(aliqEfetivaPadraoFull * fractionPadrao * 1000000) / 1000000;
 
-    let aliqEfetivaIbsDentro = Math.round(aliqEfetivaPadraoFull * (dist['IBS'] || 0) * 1000000) / 1000000;
-    let aliqEfetivaCbsDentro = Math.round(aliqEfetivaPadraoFull * (dist['CBS'] || 0) * 1000000) / 1000000;
+    const aliqEfetivaIbsDentro = Math.round(aliqEfetivaPadraoFull * (dist['IBS'] || 0) * 1000000) / 1000000;
+    const aliqEfetivaCbsDentro = Math.round(aliqEfetivaPadraoFull * (dist['CBS'] || 0) * 1000000) / 1000000;
     creditoB2BIbsTotal += rbaAnexo * aliqEfetivaIbsDentro;
     creditoB2BCbsTotal += rbaAnexo * aliqEfetivaCbsDentro;
 
@@ -171,13 +172,13 @@ export function calculateSimulation(
 
     const aliqEfetivaPorFora = Math.round(aliqEfetivaPadraoFull * dasFractionPorFora * 1000000) / 1000000;
     
-    let valorDasPadraoAnexo = Math.round(rbaAnexo * aliqEfetivaPadrao * 100) / 100;
-    let valorDasPorForaAnexo = Math.round(rbaAnexo * aliqEfetivaPorFora * 100) / 100;
+    const valorDasPadraoAnexo = Math.round(rbaAnexo * aliqEfetivaPadrao * 100) / 100;
+    const valorDasPorForaAnexo = Math.round(rbaAnexo * aliqEfetivaPorFora * 100) / 100;
 
     valorDasPadraoTotal += valorDasPadraoAnexo;
     valorDasPorForaTotal += valorDasPorForaAnexo;
 
-    for (let tributo in dist) {
+    for (const tributo in dist) {
       let val1 = valorDasCheioAnexo * dist[tributo];
       if (tributo === 'ICMS' && percIcmsSt > 0) {
         val1 = val1 * (1 - percIcmsSt);
@@ -197,9 +198,9 @@ export function calculateSimulation(
   });
 
   // Cálculo de Débitos
-  let debitoIbs = rbaTotal * aliqIbsDebito;
-  let debitoCbs = rbaTotal * aliqCbsDebito;
-  let creditoB2BTotal = creditoB2BIbsTotal + creditoB2BCbsTotal;
+  const debitoIbs = rbaTotal * aliqIbsDebito;
+  const debitoCbs = rbaTotal * aliqCbsDebito;
+  const creditoB2BTotal = creditoB2BIbsTotal + creditoB2BCbsTotal;
 
   // Agregação de Despesas dos XMLs
   let totalCreditoBruto = 0;
@@ -240,9 +241,9 @@ export function calculateSimulation(
     }
   });
 
-  let baseCreditoNormal = totalCreditoBruto;
-  let baseCredito = totalCreditoBruto + totalCreditoReduzido30 + totalCreditoSimplesNacional + totalCreditoSimplesNacionalReduzido30;
-  let totalExpenses = baseCredito;
+  const baseCreditoNormal = totalCreditoBruto;
+  const baseCredito = totalCreditoBruto + totalCreditoReduzido30 + totalCreditoSimplesNacional + totalCreditoSimplesNacionalReduzido30;
+  const totalExpenses = baseCredito;
 
   const snRegimeCredito = simulationParams.regimeCreditoSn || 'porDentro';
   const snAliqDentro = simulationParams.snAliqDentro / 100;

@@ -3,29 +3,94 @@ export interface LucroPresumidoConfig {
   regimePisCofins: 'cumulativo' | 'nao_cumulativo'; 
   aliquotaPisCumulativo: number;    // Default: 0.0065 (0.65%)
   aliquotaCofinsCumulativo: number; // Default: 0.03 (3%)
-  aliquotaIss: number;              // Alíquota média de ISS (ex: 0.05 para 5%)
 
-  // Reforma Tributária
-  aliquotaIbsDebito: number; // Default: 0.177
-  aliquotaCbsDebito: number; // Default: 0.088
-  aliquotaIbsCredito: number; // Default: 0.177
-  aliquotaCbsCredito: number; // Default: 0.088
+  // Novas Configurações Dinâmicas (Video)
+  anoSimulacao: string;
+  aliquotaIbsDebito: number;
+  aliquotaCbsDebito: number;
+  aliquotaIcms: number;
+  aliquotaIss: number;
+  creditoPresumidoEstoque: number;
+  redutorIbsCbs: number; // 0 para sem redutor, 0.3 para 30%, 0.6 para 60%
+  tipoCreditoSimples: 'por_dentro_estimado' | 'por_fora_destacado';
+  aliquotaMediaSimples: number;
+  aliquotaIbsFornecedorSimples: number;
+  aliquotaCbsFornecedorSimples: number;
+  aliquotaIbsCreditoGeral: number;
+  aliquotaCbsCreditoGeral: number;
 }
 
 export interface ReceitaMensalLP {
   mes: string;
-  receitaServicos: number;         
-  receitaComercio: number;         
-  receitaMonofasica: number;       
-  icmsDestacado: number;           
-  issRetido: number;               
-  devolucoesDescontos: number;     
+  atividades: {
+    industria: boolean;
+    comercio: boolean;
+    servicos: boolean;
+    equipHospitalar: boolean;
+    transporteCargas: boolean;
+    transportePassageiros: boolean;
+  };
+  receitas: {
+    mercadoInterno: number;
+    mercadoExterno: number;
+    cst04: number;
+    cst06Monofasico: number;
+    cst06AliquotaZero: number;
+    anexo1: number;
+    anexo5: number;
+    anexo7: number;
+    anexo8: number;
+  };
+  exclusoes: {
+    descontosIncondicionais: number;
+    devolucoesVendas: number;
+    iss: number;
+    icmsPisCofins: number;
+    icmsIbsCbs: number;
+    pisCofinsIbsCbs: number;
+  };
+}
+
+export type RegimeTributario = 'Lucro Real' | 'Lucro Presumido' | 'Simples Nacional';
+export type TipoCreditoIbsCbs = 'Gera Crédito' | 'Não Gera Crédito';
+
+export interface CategoriaDespesa {
+  id: string;
+  nome: string;
+  enquadramento: string;
+  percentualCredito: number; // 1 (100%), 0.4 (40% de base), 0 (Sem crédito)
+}
+
+export interface DespesaNota {
+  id: string;
+  mes: string;
+  nNota: string;
+  dataEmissao: string;
+  cnpjFornecedor: string;
+  nomeFornecedor: string;
+  regimeTributario: RegimeTributario;
+  tipoCredito: TipoCreditoIbsCbs;
+  categoriaId: string;
+  descricao: string;
+  valorTotal: number;
 }
 
 export interface DespesaMensalLP {
   mes: string;
-  despesasGeraCredito: number; // Valor das despesas/compras que geram crédito cheio IBS/CBS
-  comprasSimplesNacional: number; // Compras de optantes do Simples (crédito reduzido aprox. 4%)
+  despesasGeraCredito: number; // Legacy
+  comprasSimplesNacional: number; // Legacy
+  notas: DespesaNota[];
+  
+  // Novos campos LC 214 e XML
+  despesaGeral?: number;
+  despesaCreditoIntegral?: number;
+  despesaAnexo1?: number;
+  despesaAnexo15?: number;
+  despesaAnexo7?: number;
+  despesaAnexo8?: number;
+  deducaoIcmsIss?: number;
+  deducaoPisCofins?: number;
+  deducaoDescontos?: number;
 }
 
 export interface ReceitaTrimestralLP {

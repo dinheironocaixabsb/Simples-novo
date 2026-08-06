@@ -1,9 +1,17 @@
 import React, { useState, useRef } from 'react';
 import { useDiagnosisStore } from '../../../store/useDiagnosisStore';
+import { useClientStore } from '../../../store/useClientStore';
 import { FileText, Copy, CheckCircle2, ChevronRight, Download, Printer } from 'lucide-react';
 
 export function Step7Report() {
-  const { companyData, revenueData, simulationParams, xmlDespesas, xmlFaturamento, setStep, calculationResults, currentMonth, monthlyExpenses, firmData, professionalData } = useDiagnosisStore();
+  const { revenueData, simulationParams, setStep, calculationResults, currentMonth, monthlyExpenses } = useDiagnosisStore();
+  const { 
+    activeCompanyData: companyData, 
+    activeXmlDespesas: xmlDespesas, 
+    activeXmlFaturamento: xmlFaturamento, 
+    activeFirmData: firmData, 
+    activeProfessionalData: professionalData 
+  } = useClientStore();
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);

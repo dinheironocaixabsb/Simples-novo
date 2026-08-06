@@ -12,6 +12,8 @@ export interface ParsedXmlSales {
   fileName: string;
   xmlType: 'NFe' | 'NFSe';
   isConsultingCnpj?: boolean;
+  produtosDetalhados?: ProdutoDetalhado[];
+  deducoes?: Deducoes;
 }
 
 export interface Deducoes {
@@ -36,6 +38,12 @@ export interface ProdutoDetalhado {
   isAnexo15: boolean;
   isRevenda: boolean;
   isFrete: boolean;
+  isDevolucao: boolean;
+  cstPis?: string;
+  cstCofins?: string;
+  numeroNota?: string;
+  dataEmissao?: string;
+  cliente?: string;
 }
 
 export interface ParsedXmlExpense {
@@ -50,10 +58,15 @@ export interface ParsedXmlExpense {
   tipoDespesa: string; // Usually 'Gera crédito de IBS/CBS'
   descricao: string;
   valor: number;
-  category: string; // 'frete' | 'insumos' | 'servicos'
+  category: string; // 'frete' | 'insumos' | 'servicos' or custom ID
   fileName: string;
-  xmlType: 'CTe' | 'NFe' | 'NFSe';
+  xmlType: 'CTe' | 'NFe' | 'NFSe' | 'Manual';
   deducoes: Deducoes;
   produtosDetalhados?: ProdutoDetalhado[]; // Only for NFe
   isConsultingCnpj?: boolean;
+}
+
+export interface ExpenseCategory {
+  id: string;
+  nome: string;
 }

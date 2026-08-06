@@ -6,8 +6,8 @@ import { ParsedXmlSales, ParsedXmlExpense } from '../domain/types/xml.types';
 import { calculateResults, TaxCalculatorParams, TaxCalculatorResult } from '../services/tax-calculator';
 import { verificarReducaoCnae } from '../services/cnae-reducer';
 import { consolidarXmlDespesas } from '../services/xml/xml-consolidator';
+import { useClientStore } from './useClientStore';
 
-// AdaptaÃ§Ã£o do IndexedDB para a API do Zustand
 const idbStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
     return (await get(name)) || null;
@@ -19,35 +19,6 @@ const idbStorage: StateStorage = {
     await del(name);
   },
 };
-
-// ==================== INTERFACES ====================
-
-export interface CompanyData {
-  cnpj: string;
-  razaoSocial: string;
-  responsavelReceita: string;
-  inscricaoEstadual: string;
-  inscricaoMunicipal: string;
-  cep: string;
-  endereco: string;
-  cnaePrincipal: string;
-  cnaesSecundarios: string[];
-}
-
-export interface FirmData {
-  nome: string;
-  email: string;
-  telefone: string;
-  endereco: string;
-  logo: string;
-}
-
-export interface ProfessionalData {
-  nome: string;
-  crc: string;
-  cargo: string;
-  assinatura: string;
-}
 
 export interface RevenueData {
   competencia: string;
@@ -63,7 +34,6 @@ export interface RevenueData {
   }>;
 }
 
-// Despesas mensais detalhadas (espelho do sistema original Step 4)
 export interface MonthlyExpenses {
   despesaGeral: number;
   despesaCreditoIntegral: number;
@@ -108,79 +78,39 @@ export interface SimulationParams {
   redutorIbsCbs: number;
 }
 
-export interface ClientProfile {
-  id: string;
-  name: string;
-  savedAt: string;
-  companyData: CompanyData;
-  firmData: FirmData;
-  revenueData: RevenueData[];
-  monthlyExpenses: MonthlyExpenses[];
-  simulationParams: SimulationParams;
-  xmlFaturamento: ParsedXmlSales[];
-  xmlDespesas: ParsedXmlExpense[];
-}
-
-// ==================== STATE ====================
-
 interface DiagnosisState {
   currentStep: number;
   currentMonth: number;
   analysisMode: 'monthly' | 'average';
-  companyData: CompanyData;
-  firmData: FirmData;
-  professionalData: ProfessionalData;
+  
   revenueData: RevenueData[];
   monthlyExpenses: MonthlyExpenses[];
   simulationParams: SimulationParams;
-  xmlFaturamento: ParsedXmlSales[];
-  xmlDespesas: ParsedXmlExpense[];
+  
   calculationResults: Record<number, TaxCalculatorResult | null>;
-  savedClients: ClientProfile[];
-  activeClientId: string | null;
   currentXmlMonth: number;
   cnpjCache: Record<string, string>;
 
   setStep: (step: number) => void;
   setCurrentMonth: (month: number) => void;
   setAnalysisMode: (mode: 'monthly' | 'average') => void;
-  updateCompanyData: (data: Partial<CompanyData>) => void;
-  updateFirmData: (data: Partial<FirmData>) => void;
-  updateProfessionalData: (data: Partial<ProfessionalData>) => void;
+  
   updateRevenueData: (monthIndex: number, data: Partial<RevenueData>) => void;
   updateMonthlyExpenses: (monthIndex: number, data: Partial<MonthlyExpenses>) => void;
   updateSimulationParams: (data: Partial<SimulationParams>) => void;
-  setXmlFaturamento: (xmls: ParsedXmlSales[]) => void;
-  setXmlDespesas: (xmls: ParsedXmlExpense[]) => void;
-  addXmlDespesa: (xml: ParsedXmlExpense) => void;
-  removeXmlDespesa: (id: string) => void;
+  
   runCalculation: (monthIndex?: number) => TaxCalculatorResult | null;
-  saveClient: (id: string, name: string) => void;
+  saveClient: () => void;
   loadClient: (id: string) => void;
   deleteClient: (id: string) => void;
   newClient: () => void;
+  
   setCurrentXmlMonth: (month: number) => void;
-  updateXmlSalesStatus: (id: string, updates: Partial<ParsedXmlSales>) => void;
-  updateXmlExpenseStatus: (id: string, updates: Partial<ParsedXmlExpense>) => void;
   addCnpjToCache: (cnpj: string, regime: string) => void;
+  
+  // Utilidades para refazer os expenses baseados nos XMLs globais
+  recalcularDespesasDosXmls: () => void;
 }
-
-// ==================== DEFAULTS ====================
-
-const defaultCompanyData: CompanyData = {
-  cnpj: '', razaoSocial: '', responsavelReceita: '',
-  inscricaoEstadual: '', inscricaoMunicipal: '',
-  cep: '', endereco: '', cnaePrincipal: '',
-  cnaesSecundarios: Array(14).fill('')
-};
-
-const defaultFirmData: FirmData = {
-  nome: '', email: '', telefone: '', endereco: '', logo: ''
-};
-
-const defaultProfessionalData: ProfessionalData = {
-  nome: '', crc: '', cargo: 'Contador ResponsÃ¡vel', assinatura: ''
-};
 
 const defaultAnexosData = {
   '1': { mercadoInterno: 0, mercadoExterno: 0, isIcmsStSegregado: false, receitaComIcmsSt: 0 },
@@ -208,7 +138,7 @@ const defaultMonthlyExpensesMonth: MonthlyExpenses = {
 const makeRevenueArray = (): RevenueData[] => Array(12).fill(null).map(() => JSON.parse(JSON.stringify(defaultRevenueDataMonth)));
 const makeExpensesArray = (): MonthlyExpenses[] => Array(12).fill(null).map(() => ({ ...defaultMonthlyExpensesMonth }));
 
-const defaultSimulationParams: SimulationParams = {
+export const defaultSimulationParams: SimulationParams = {
   anoSimulacao: '2026',
   faturamentoAliquotaIBS: 0.10, faturamentoAliquotaCBS: 0.90,
   despesasAliquotaIBS: 0.10, despesasAliquotaCBS: 0.90,
@@ -218,25 +148,16 @@ const defaultSimulationParams: SimulationParams = {
   creditoEstoqueVal: 0, redutorIbsCbs: 0,
 };
 
-// ==================== STORE ====================
-
 export const useDiagnosisStore = create<DiagnosisState>()(
   persist(
     (set, get) => ({
       currentStep: 1,
       currentMonth: 0,
       analysisMode: 'monthly' as const,
-      companyData: defaultCompanyData,
-      firmData: defaultFirmData,
-      professionalData: defaultProfessionalData,
       revenueData: makeRevenueArray(),
       monthlyExpenses: makeExpensesArray(),
       simulationParams: defaultSimulationParams,
-      xmlFaturamento: [],
-      xmlDespesas: [],
       calculationResults: {},
-      savedClients: [],
-      activeClientId: null,
       currentXmlMonth: 0,
       cnpjCache: {},
 
@@ -244,26 +165,6 @@ export const useDiagnosisStore = create<DiagnosisState>()(
       setCurrentMonth: (month) => set({ currentMonth: month, currentXmlMonth: month }),
       setCurrentXmlMonth: (month) => set({ currentXmlMonth: month }),
       setAnalysisMode: (mode) => set({ analysisMode: mode }),
-
-      updateCompanyData: (data) => set((state) => {
-        const newCompanyData = { ...state.companyData, ...data };
-        if (data.cnaePrincipal !== undefined) {
-          const reduction = verificarReducaoCnae(data.cnaePrincipal);
-          return {
-            companyData: newCompanyData,
-            simulationParams: { ...state.simulationParams, redutorIbsCbs: reduction.percentage / 100 }
-          };
-        }
-        return { companyData: newCompanyData };
-      }),
-
-      updateFirmData: (data) => set((state) => ({
-        firmData: { ...state.firmData, ...data }
-      })),
-
-      updateProfessionalData: (data) => set((state) => ({
-        professionalData: { ...state.professionalData, ...data }
-      })),
 
       updateRevenueData: (monthIndex, data) => set((state) => {
         const newRevenueData = [...state.revenueData];
@@ -281,13 +182,9 @@ export const useDiagnosisStore = create<DiagnosisState>()(
         simulationParams: { ...state.simulationParams, ...data }
       })),
 
-      updateXmlSalesStatus: (id, updates) => set((state) => ({
-        xmlFaturamento: state.xmlFaturamento.map(xml => xml.id === id ? { ...xml, ...updates } : xml)
-      })),
-
-      updateXmlExpenseStatus: (id, updates) => set((state) => {
-        const newXmls = state.xmlDespesas.map(xml => xml.id === id ? { ...xml, ...updates } : xml);
-        const consolidado = consolidarXmlDespesas(newXmls);
+      recalcularDespesasDosXmls: () => set((state) => {
+        const xmls = useClientStore.getState().activeXmlDespesas;
+        const consolidado = consolidarXmlDespesas(xmls);
         const newExpenses = [...state.monthlyExpenses];
         
         for (let i = 0; i < 12; i++) {
@@ -314,102 +211,12 @@ export const useDiagnosisStore = create<DiagnosisState>()(
              };
           }
         }
-        
-        return {
-          xmlDespesas: newXmls,
-          monthlyExpenses: newExpenses
-        };
+        return { monthlyExpenses: newExpenses };
       }),
 
       addCnpjToCache: (cnpj, regime) => set((state) => ({
         cnpjCache: { ...state.cnpjCache, [cnpj]: regime }
       })),
-
-      setXmlFaturamento: (xmls) => set({ xmlFaturamento: xmls }),
-      setXmlDespesas: (xmls) => set((state) => {
-        const consolidado = consolidarXmlDespesas(xmls);
-        const newExpenses = [...state.monthlyExpenses];
-        for (let i = 0; i < 12; i++) {
-          if (consolidado[i]) {
-             newExpenses[i] = {
-                ...newExpenses[i],
-                despesaGeral: consolidado[i].despesaGeral || 0,
-                despesaCreditoIntegral: consolidado[i].despesaCreditoIntegral || 0, despesaAnexo1: consolidado[i].despesaAnexo1 || 0, despesaAnexo15: consolidado[i].despesaAnexo15 || 0, despesaAnexo7: consolidado[i].despesaAnexo7 || 0, despesaAnexo8: consolidado[i].despesaAnexo8 || 0,
-                deducaoIcmsIss: consolidado[i].deducaoIcmsIss || 0,
-                deducaoPisCofins: consolidado[i].deducaoPisCofins || 0,
-                deducaoDescontos: consolidado[i].deducaoDescontos || 0,
-                despesaSimplesNacional: consolidado[i].despesaSimplesNacional || 0,
-                despesaSimplesNacionalReduzido30: consolidado[i].despesaSimplesNacionalReduzido30 || 0,
-             };
-          }
-        }
-        return { 
-          xmlDespesas: xmls,
-          monthlyExpenses: newExpenses
-        };
-      }),
-
-      addXmlDespesa: (xml) => set((state) => {
-        const newXmls = [...state.xmlDespesas, xml];
-        const consolidado = consolidarXmlDespesas(newXmls);
-        const newExpenses = [...state.monthlyExpenses];
-        
-        for (let i = 0; i < 12; i++) {
-          if (consolidado[i]) {
-             newExpenses[i] = {
-                ...newExpenses[i],
-                despesaGeral: consolidado[i].despesaGeral || 0,
-                despesaCreditoIntegral: consolidado[i].despesaCreditoIntegral || 0, despesaAnexo1: consolidado[i].despesaAnexo1 || 0, despesaAnexo15: consolidado[i].despesaAnexo15 || 0, despesaAnexo7: consolidado[i].despesaAnexo7 || 0, despesaAnexo8: consolidado[i].despesaAnexo8 || 0,
-                deducaoIcmsIss: consolidado[i].deducaoIcmsIss || 0,
-                deducaoPisCofins: consolidado[i].deducaoPisCofins || 0,
-                deducaoDescontos: consolidado[i].deducaoDescontos || 0,
-                despesaSimplesNacional: consolidado[i].despesaSimplesNacional || 0,
-                despesaSimplesNacionalReduzido30: consolidado[i].despesaSimplesNacionalReduzido30 || 0,
-             };
-          }
-        }
-        
-        return {
-          xmlDespesas: newXmls,
-          monthlyExpenses: newExpenses
-        };
-      }),
-
-      removeXmlDespesa: (id) => set((state) => {
-        const newXmls = state.xmlDespesas.filter(x => x.id !== id);
-        const consolidado = consolidarXmlDespesas(newXmls);
-        const newExpenses = [...state.monthlyExpenses];
-        
-        for (let i = 0; i < 12; i++) {
-          newExpenses[i] = {
-             ...newExpenses[i],
-             despesaGeral: 0,
-             despesaCreditoIntegral: 0, despesaAnexo1: 0, despesaAnexo15: 0, despesaAnexo7: 0, despesaAnexo8: 0,
-             deducaoIcmsIss: 0,
-             deducaoPisCofins: 0,
-             deducaoDescontos: 0,
-             despesaSimplesNacional: 0,
-             despesaSimplesNacionalReduzido30: 0,
-          };
-          if (consolidado[i]) {
-             newExpenses[i] = {
-                ...newExpenses[i],
-                despesaGeral: consolidado[i].despesaGeral || 0,
-                despesaCreditoIntegral: consolidado[i].despesaCreditoIntegral || 0, despesaAnexo1: consolidado[i].despesaAnexo1 || 0, despesaAnexo15: consolidado[i].despesaAnexo15 || 0, despesaAnexo7: consolidado[i].despesaAnexo7 || 0, despesaAnexo8: consolidado[i].despesaAnexo8 || 0,
-                deducaoIcmsIss: consolidado[i].deducaoIcmsIss || 0,
-                deducaoPisCofins: consolidado[i].deducaoPisCofins || 0,
-                deducaoDescontos: consolidado[i].deducaoDescontos || 0,
-                despesaSimplesNacional: consolidado[i].despesaSimplesNacional || 0,
-                despesaSimplesNacionalReduzido30: consolidado[i].despesaSimplesNacionalReduzido30 || 0,
-             };
-          }
-        }
-        
-        return {
-          xmlDespesas: newXmls,
-          monthlyExpenses: newExpenses
-        };
-      }),
 
       runCalculation: (monthIndex?: number) => {
         const state = get();
@@ -438,7 +245,6 @@ export const useDiagnosisStore = create<DiagnosisState>()(
           - expenseData.deducaoDescontos - expenseData.deducaoIbsCbs;
 
         const totalCreditoReduzido30 = expenseData.despesaAnexo7 + expenseData.despesaAnexo8;
-        
         const totalCreditoSimplesNacional = expenseData.despesaSimplesNacional || 0;
         const totalCreditoSimplesNacionalReduzido30 = expenseData.despesaSimplesNacionalReduzido30 || 0;
 
@@ -470,105 +276,59 @@ export const useDiagnosisStore = create<DiagnosisState>()(
         return results;
       },
 
-      saveClient: (id, name) => set((state) => {
-        const profile: ClientProfile = {
-          id, name, savedAt: new Date().toISOString(),
-          companyData: state.companyData,
-          firmData: state.firmData,
-          revenueData: state.revenueData,
-          monthlyExpenses: state.monthlyExpenses,
-          simulationParams: state.simulationParams,
-          xmlFaturamento: state.xmlFaturamento,
-          xmlDespesas: state.xmlDespesas,
-        };
-        const newClients = [...state.savedClients];
-        const existingIdx = newClients.findIndex(c => c.id === id);
-        if (existingIdx >= 0) { newClients[existingIdx] = profile; }
-        else { newClients.push(profile); }
-        return { savedClients: newClients, activeClientId: id };
-      }),
+      saveClient: () => {
+        const state = get();
+        useClientStore.getState().saveClient({
+          simplesNacional: {
+            revenueData: state.revenueData,
+            monthlyExpenses: state.monthlyExpenses,
+            simulationParams: state.simulationParams
+          }
+        });
+      },
 
-      loadClient: (id) => set((state) => {
-        const profile = state.savedClients.find(c => c.id === id);
-        if (!profile) return {};
-        return {
-          activeClientId: id, companyData: profile.companyData,
-          firmData: profile.firmData || defaultFirmData,
-          revenueData: profile.revenueData,
-          monthlyExpenses: profile.monthlyExpenses || makeExpensesArray(),
-          simulationParams: profile.simulationParams,
-          xmlFaturamento: profile.xmlFaturamento,
-          xmlDespesas: profile.xmlDespesas,
-          calculationResults: {},
-        };
-      }),
+      loadClient: (id) => {
+        const profile = useClientStore.getState().loadClient(id);
+        if (profile) {
+           if (profile.simplesNacional) {
+              set({
+                 revenueData: profile.simplesNacional.revenueData,
+                 monthlyExpenses: profile.simplesNacional.monthlyExpenses,
+                 simulationParams: profile.simplesNacional.simulationParams,
+                 calculationResults: {},
+              });
+           } else {
+              set({
+                 revenueData: makeRevenueArray(), monthlyExpenses: makeExpensesArray(),
+                 simulationParams: defaultSimulationParams, calculationResults: {},
+              });
+           }
+        }
+      },
 
-      deleteClient: (id) => set((state) => ({
-        savedClients: state.savedClients.filter(c => c.id !== id),
-        activeClientId: state.activeClientId === id ? null : state.activeClientId,
-      })),
+      deleteClient: (id) => {
+        useClientStore.getState().deleteClient(id);
+      },
 
-      newClient: () => set({
-        activeClientId: null, companyData: defaultCompanyData,
-        firmData: defaultFirmData,
-        revenueData: makeRevenueArray(), monthlyExpenses: makeExpensesArray(),
-        simulationParams: defaultSimulationParams,
-        xmlFaturamento: [], xmlDespesas: [], calculationResults: {},
-      }),
+      newClient: () => {
+        useClientStore.getState().newClient();
+        set({
+          revenueData: makeRevenueArray(), monthlyExpenses: makeExpensesArray(),
+          simulationParams: defaultSimulationParams, calculationResults: {},
+        });
+      }
     }),
     {
       name: 'simples-nacional-storage',
       storage: createJSONStorage(() => idbStorage),
-      version: 5,
+      version: 6,
       partialize: (state) => ({
         currentStep: state.currentStep, currentMonth: state.currentMonth,
-        analysisMode: state.analysisMode, companyData: state.companyData,
-        firmData: state.firmData, professionalData: state.professionalData,
+        analysisMode: state.analysisMode,
         revenueData: state.revenueData, monthlyExpenses: state.monthlyExpenses,
         simulationParams: state.simulationParams,
-        xmlFaturamento: state.xmlFaturamento, xmlDespesas: state.xmlDespesas,
-        savedClients: state.savedClients, activeClientId: state.activeClientId,
         currentXmlMonth: state.currentXmlMonth, cnpjCache: state.cnpjCache,
-      }),
-      migrate: (persistedState: any, version: number) => {
-        if (version < 5) {
-          persistedState.firmData = persistedState.firmData || defaultFirmData;
-          persistedState.professionalData = persistedState.professionalData || defaultProfessionalData;
-          
-          if (!Array.isArray(persistedState.revenueData)) {
-            persistedState.revenueData = makeRevenueArray();
-          }
-          if (!Array.isArray(persistedState.monthlyExpenses)) {
-            persistedState.monthlyExpenses = makeExpensesArray();
-          }
-
-          persistedState.currentMonth = persistedState.currentMonth || 0;
-          persistedState.analysisMode = persistedState.analysisMode || 'monthly';
-          
-          persistedState.savedClients = persistedState.savedClients || [];
-          if (Array.isArray(persistedState.savedClients)) {
-            persistedState.savedClients.forEach((client: any) => {
-              if (!Array.isArray(client.revenueData)) {
-                client.revenueData = makeRevenueArray();
-              }
-              if (!Array.isArray(client.monthlyExpenses)) {
-                client.monthlyExpenses = makeExpensesArray();
-              }
-              if (!client.firmData) client.firmData = defaultFirmData;
-            });
-          }
-
-          persistedState.activeClientId = persistedState.activeClientId || null;
-          persistedState.simulationParams = {
-            ...defaultSimulationParams,
-            ...(persistedState.simulationParams || {}),
-            creditoEstoqueVal: 0, redutorIbsCbs: 0,
-          };
-          persistedState.currentXmlMonth = persistedState.currentMonth || 0;
-          persistedState.cnpjCache = persistedState.cnpjCache || {};
-        }
-        return persistedState;
-      },
+      })
     }
   )
 );

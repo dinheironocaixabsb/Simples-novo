@@ -116,7 +116,7 @@ function processWithRegex(text: string): Partial<PgdasData> {
 
   // 3. RBA
   const regexRBACorrenteDominio = /ano-calend[^\s]*rio\s+([\d.,]+(?:,\d{2}|\.\d{2}))\s+corrente/i;
-  let matchRBA = text.match(regexRBACorrenteDominio);
+  const matchRBA = text.match(regexRBACorrenteDominio);
   if (matchRBA) {
     extracted.rba = parseBrFloat(matchRBA[1]);
   } else {
@@ -129,7 +129,7 @@ function processWithRegex(text: string): Partial<PgdasData> {
 
   // 4. RBAA
   const regexRBAAnteriorDominio = /ano-calend[^\s]*rio\s+([\d.,]+(?:,\d{2}|\.\d{2}))\s+anterior/i;
-  let matchRBAA = text.match(regexRBAAnteriorDominio);
+  const matchRBAA = text.match(regexRBAAnteriorDominio);
   if (matchRBAA) {
     extracted.rbaa = parseBrFloat(matchRBAA[1]);
   } else {
@@ -154,8 +154,8 @@ function processWithRegex(text: string): Partial<PgdasData> {
     regexAnexoSplit = /(?:Anexo)[\s\:\-]*([1-5]|I{1,3}|IV|V)\b|(Com[ée]rcio|Revenda|Venda de mercadoria)|(Ind[úu]stria|Industrializada)|(Presta[çc][ãa]o de Servi[çc]o)/ig;
   }
 
-  let anexoMatches = [...textoParaBusca.matchAll(regexAnexoSplit)];
-  let anexosEncontrados: any = {};
+  const anexoMatches = [...textoParaBusca.matchAll(regexAnexoSplit)];
+  const anexosEncontrados: any = {};
 
   if (anexoMatches.length > 0) {
     for (let i = 0; i < anexoMatches.length; i++) {
@@ -175,7 +175,7 @@ function processWithRegex(text: string): Partial<PgdasData> {
       
       if (val && matchInfo.index !== undefined) {
         const startIdx = matchInfo.index + matchInfo[0].length;
-        let blocoTexto = textoParaBusca.substring(startIdx, startIdx + 800);
+        const blocoTexto = textoParaBusca.substring(startIdx, startIdx + 800);
         
         let matchReceita = blocoTexto.match(/(?:Receita Tributada Total|Total|Receita Bruta)[\s\S]{0,60}?([\d\.]+,\d{2})/i);
         if (!matchReceita) {
@@ -185,10 +185,10 @@ function processWithRegex(text: string): Partial<PgdasData> {
         if (matchReceita && matchReceita[0]) {
           const numMatch = matchReceita[0].match(/\b\d{1,3}(?:\.\d{3})*,\d{2}\b/);
           if (numMatch) {
-            let interno = numMatch[0];
+            const interno = numMatch[0];
             let externo = "0,00";
             
-            let matchExt = blocoTexto.match(/(?:Mercado Externo|Exporta[çc][ãa]o)[\s\S]{0,40}?(\b\d{1,3}(?:\.\d{3})*,\d{2}\b)/i);
+            const matchExt = blocoTexto.match(/(?:Mercado Externo|Exporta[çc][ãa]o)[\s\S]{0,40}?(\b\d{1,3}(?:\.\d{3})*,\d{2}\b)/i);
             if (matchExt) externo = matchExt[1];
             
             let comSt = "0,00";
@@ -224,7 +224,7 @@ function processWithRegex(text: string): Partial<PgdasData> {
     if (matchReceitaPA && matchReceitaPA[1]) {
       const numbers = matchReceitaPA[1].match(/\b\d{1,3}(?:\.\d{3})*,\d{2}\b|\b\d+,\d{2}\b/g);
       if (numbers && numbers.length > 0) {
-        let interno = parseBrFloat(numbers[0]);
+        const interno = parseBrFloat(numbers[0]);
         // default to Anexo 1 for fallback as in most simple trade companies
         anexosEncontrados["1"] = { interno: interno, externo: 0, comSt: 0, hasSt: false };
       }

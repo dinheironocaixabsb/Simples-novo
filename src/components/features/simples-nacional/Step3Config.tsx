@@ -53,18 +53,18 @@ export const Step3Config: React.FC = () => {
   };
 
   const handleNext = () => {
-    setStep(4);
+    setStep(5);
   };
 
   const handleBack = () => {
-    setStep(2);
+    setStep(3);
   };
 
   return (
     <div className="bg-white rounded-lg p-6">
       <div className="mb-6 border-b border-gray-200 pb-2">
         <h2 className="text-xl font-bold text-gray-900">
-          Configuração de Alíquotas
+          Passo 4: Configuração de Alíquotas (Débitos IBS/CBS)
         </h2>
         <p className="text-gray-500 text-sm mt-1">
           Informe as Alíquotas do IBS e CBS para o cenário do novo IVA (Por Fora).
