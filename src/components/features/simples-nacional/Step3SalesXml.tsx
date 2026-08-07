@@ -48,7 +48,7 @@ export function Step3SalesXml() {
     return '213-5 - Empresário (Individual)';
   };
 
-  const checkCnpjs = async (xmlsToCheck: ParsedXmlSales[]) => {
+  const checkCnpjs = async (xmlsToCheck: ParsedXmlSales[], force: boolean = false) => {
     const uniqueDocs = Array.from(new Set(xmlsToCheck.map(x => x.cnpj).filter(c => c && (c.replace(/\D/g, '').length === 14 || c.replace(/\D/g, '').length === 11))));
     
     for (const doc of uniqueDocs) {
@@ -66,7 +66,7 @@ export function Step3SalesXml() {
       }
       
       const cnpj = doc;
-      if (useDiagnosisStore.getState().cnpjCache[cnpj]) {
+      if (!force && useDiagnosisStore.getState().cnpjCache[cnpj]) {
         const regime = useDiagnosisStore.getState().cnpjCache[cnpj];
         useClientStore.getState().activeXmlFaturamento.forEach(x => {
           if (x.cnpj === cnpj && x.regime !== regime) {
@@ -83,10 +83,19 @@ export function Step3SalesXml() {
       
       const info = await consultarCnpj(cnpj);
       if (info) {
-        addCnpjToCache(cnpj, info.regime);
-        useClientStore.getState().activeXmlFaturamento.forEach(x => {
-          if (x.cnpj === cnpj) updateXmlSalesStatus(x.id, { regime: info.regime, isConsultingCnpj: false });
-        });
+          useClientStore.getState().activeXmlFaturamento.forEach(x => {
+            if (x.cnpj === cnpj) {
+              let finalRegime = x.regime;
+              if (info.regime !== "Não Optante") {
+                 finalRegime = info.regime;
+              } else if (info.regime === "Não Optante" && x.regime === "Simples Nacional") {
+                 finalRegime = "Lucro Presumido"; // Descobriu que NÃO é simples, fallback
+              }
+              
+              updateXmlSalesStatus(x.id, { regime: finalRegime as any, isConsultingCnpj: false });
+              addCnpjToCache(cnpj, finalRegime);
+            }
+          });
       } else {
         useClientStore.getState().activeXmlFaturamento.forEach(x => {
           if (x.cnpj === cnpj) updateXmlSalesStatus(x.id, { isConsultingCnpj: false });
@@ -212,7 +221,7 @@ export function Step3SalesXml() {
 
   const handleReconsultCnpjs = async () => {
     setIsReconsultando(true);
-    await checkCnpjs(filteredXmls);
+    await checkCnpjs(filteredXmls, true); // force reconsult bypassing cache
     setIsReconsultando(false);
   };
 

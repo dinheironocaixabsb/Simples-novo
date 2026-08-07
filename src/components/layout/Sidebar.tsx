@@ -25,6 +25,7 @@ export function Sidebar() {
   const isSimplesNacional = pathname?.startsWith('/simples-nacional');
   const isLucroPresumido = pathname?.startsWith('/lucro-presumido');
   const isLucroReal = pathname?.startsWith('/lucro-real');
+  const isComparativo = pathname?.startsWith('/comparativo');
   const isHome = pathname === '/';
 
   // Usa o store correto para a etapa e navegação
@@ -151,7 +152,7 @@ export function Sidebar() {
       )}
 
       {/* Client Manager (For all regimes) */}
-      {!isHome && (
+      {!isHome && !isComparativo && (
         <div className="p-4 pt-0 mb-4">
           <label className="text-[14px] font-bold text-[#005696] uppercase tracking-wider mb-2 block text-center">
             DIAGNÓSTICO DE CLIENTES

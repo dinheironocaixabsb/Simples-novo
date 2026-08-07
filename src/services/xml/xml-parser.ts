@@ -612,6 +612,8 @@ export function parseExpenseXml(xmlDoc: Document, fileName: string, clientCnpjIn
             let vCOFINSProd = 0;
             let vSTProd = 0;
             let vIPIProd = 0;
+            let cstPis = '';
+            let cstCofins = '';
             
             const impostoNode = getXmlNodeCaseInsensitive(detList[i], "imposto");
             if (impostoNode) {
@@ -622,10 +624,16 @@ export function parseExpenseXml(xmlDoc: Document, fileName: string, clientCnpjIn
                 }
                 
                 const pisNode = getXmlNodeCaseInsensitive(impostoNode, "PIS");
-                if (pisNode) vPISProd = parseFloat((getXmlTextCaseInsensitive(pisNode, "vPIS") || "0").replace(',', '.')) || 0;
+                if (pisNode) {
+                    vPISProd = parseFloat((getXmlTextCaseInsensitive(pisNode, "vPIS") || "0").replace(',', '.')) || 0;
+                    cstPis = getXmlTextCaseInsensitive(pisNode, "CST") || '';
+                }
                 
                 const cofinsNode = getXmlNodeCaseInsensitive(impostoNode, "COFINS");
-                if (cofinsNode) vCOFINSProd = parseFloat((getXmlTextCaseInsensitive(cofinsNode, "vCOFINS") || "0").replace(',', '.')) || 0;
+                if (cofinsNode) {
+                    vCOFINSProd = parseFloat((getXmlTextCaseInsensitive(cofinsNode, "vCOFINS") || "0").replace(',', '.')) || 0;
+                    cstCofins = getXmlTextCaseInsensitive(cofinsNode, "CST") || '';
+                }
                 
                 const ipiNode = getXmlNodeCaseInsensitive(impostoNode, "IPI");
                 if (ipiNode) vIPIProd = parseFloat((getXmlTextCaseInsensitive(ipiNode, "vIPI") || "0").replace(',', '.')) || 0;
@@ -661,7 +669,12 @@ export function parseExpenseXml(xmlDoc: Document, fileName: string, clientCnpjIn
                 isAnexo15: isAnexo15,
                 isRevenda: isRevenda,
                 isFrete: isFreteComp,
-                isDevolucao: false
+                isDevolucao: false,
+                cstPis: cstPis || '',
+                cstCofins: cstCofins || '',
+                numeroNota: numero,
+                dataEmissao: dataEmi,
+                cliente: fornecedor
             });
         }
         let desc = items.join(", ");

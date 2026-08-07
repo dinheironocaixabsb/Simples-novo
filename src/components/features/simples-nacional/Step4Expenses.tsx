@@ -15,11 +15,18 @@ const FULL_MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
 const SHORT_MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
 const formatCnpj = (val: string) => {
-  const v = val.replace(/\D/g, '').slice(0, 14);
-  return v.replace(/^(\d{2})(\d)/, '$1.$2')
-          .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
-          .replace(/\.(\d{3})(\d)/, '.$1/$2')
-          .replace(/(\d{4})(\d)/, '$1-$2');
+  const v = val.replace(/\D/g, '');
+  if (v.length <= 11) {
+    return v.replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+            .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+  } else {
+    return v.slice(0, 14)
+            .replace(/^(\d{2})(\d)/, '$1.$2')
+            .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+            .replace(/\.(\d{3})(\d)/, '.$1/$2')
+            .replace(/(\d{4})(\d)/, '$1-$2');
+  }
 };
 
 const formatDate = (val: string) => {
@@ -69,6 +76,104 @@ export function Step4Expenses() {
   const [manualCategoria, setManualCategoria] = useState('Compras / Insumos / Mercadorias');
   const [manualDesc, setManualDesc] = useState('');
   const [manualValor, setManualValor] = useState('');
+  const [isConsultingManual, setIsConsultingManual] = useState(false);
+  const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
+
+  const resetManualForm = () => {
+    setManualNumNota('');
+    setManualData('');
+    setManualCnpj('');
+    setManualProvider('');
+    setManualRegime('Lucro Presumido');
+    setManualTipoCredito('Gera Crédito de IBS/CBS');
+    setManualCategoria('Compras / Insumos / Mercadorias');
+    setManualDesc('');
+    setManualValor('');
+    setEditingExpenseId(null);
+    setShowManualModal(false);
+  };
+
+  React.useEffect(() => {
+    const cleanDoc = manualCnpj.replace(/\D/g, '');
+    if (cleanDoc.length === 14) {
+      setIsConsultingManual(true);
+      consultarCnpj(cleanDoc).then(info => {
+        if (info) {
+          if (info.razaoSocial) setManualProvider(info.razaoSocial);
+          if (info.regime && info.regime !== "Não Optante") {
+            setManualRegime(info.regime);
+          }
+        }
+      }).finally(() => {
+        setIsConsultingManual(false);
+      });
+    }
+  }, [manualCnpj]);
+
+  React.useEffect(() => {
+    let despesaGeral = 0;
+    let despesaCreditoIntegral = 0;
+    let despesaAnexo1 = 0;
+    let despesaAnexo15 = 0;
+    let despesaAnexo7 = 0;
+    let despesaAnexo8 = 0;
+    let deducaoIcmsIss = 0;
+    let deducaoPisCofins = 0;
+    let deducaoDescontos = 0;
+
+    const xmls = xmlDespesas.filter(x => x.monthIndex === currentMonth);
+
+    xmls.forEach(xml => {
+      const isCredit = xml.tipoDespesa === "Gera Crédito de IBS/CBS" || xml.tipoDespesa === "Gera crédito" || xml.tipoDespesa === "Gera crédito de IBS/CBS" || xml.tipoDespesa === 'true';
+      if (!isCredit) return;
+
+      if (xml.produtosDetalhados && xml.produtosDetalhados.length > 0) {
+        xml.produtosDetalhados.forEach(prod => {
+            if (prod.isAnexo1) despesaAnexo1 += prod.valorBruto;
+            else if (prod.isAnexo15) despesaAnexo15 += prod.valorBruto;
+            else if (prod.isAlimento60) despesaAnexo7 += prod.valorBruto;
+            else if (prod.isHigiene60) despesaAnexo8 += prod.valorBruto;
+            else despesaCreditoIntegral += prod.valorBruto;
+          });
+        } else {
+        despesaGeral += xml.valor;
+      }
+      
+      const iss = xml.xmlType === 'NFSe' || xml.fileName === 'Lançamento Manual' ? (xml.deducoes?.iss || 0) : 0;
+      deducaoIcmsIss += (xml.deducoes?.icms || 0) + iss;
+      deducaoPisCofins += (xml.deducoes?.pisCofins || 0);
+      deducaoDescontos += (xml.deducoes?.desconto || 0);
+    });
+
+    const currentData = (monthlyExpenses[currentMonth] as any) || {};
+    
+    // Round to 2 decimal places to prevent infinite loops due to floating point precision
+    const round2 = (num: number) => Math.round(num * 100) / 100;
+    
+    if (
+      round2(currentData.despesaGeral || 0) !== round2(despesaGeral) ||
+      round2(currentData.despesaCreditoIntegral || 0) !== round2(despesaCreditoIntegral) ||
+      round2(currentData.despesaAnexo1 || 0) !== round2(despesaAnexo1) ||
+      round2(currentData.despesaAnexo15 || 0) !== round2(despesaAnexo15) ||
+      round2(currentData.despesaAnexo7 || 0) !== round2(despesaAnexo7) ||
+      round2(currentData.despesaAnexo8 || 0) !== round2(despesaAnexo8) ||
+      round2(currentData.deducaoIcmsIss || 0) !== round2(deducaoIcmsIss) ||
+      round2(currentData.deducaoPisCofins || 0) !== round2(deducaoPisCofins) ||
+      round2(currentData.deducaoDescontos || 0) !== round2(deducaoDescontos)
+    ) {
+      updateMonthlyExpenses(currentMonth, {
+        despesaGeral: round2(despesaGeral),
+        despesaCreditoIntegral: round2(despesaCreditoIntegral),
+        despesaAnexo1: round2(despesaAnexo1),
+        despesaAnexo15: round2(despesaAnexo15),
+        despesaAnexo7: round2(despesaAnexo7),
+        despesaAnexo8: round2(despesaAnexo8),
+        deducaoIcmsIss: round2(deducaoIcmsIss),
+        deducaoPisCofins: round2(deducaoPisCofins),
+        deducaoDescontos: round2(deducaoDescontos)
+      });
+    }
+  }, [xmlDespesas, currentMonth, monthlyExpenses, updateMonthlyExpenses]);
   
   const handleAddManual = () => {
     if (!manualDesc || !manualValor || !manualProvider) {
@@ -78,7 +183,7 @@ export function Step4Expenses() {
     const numericValue = parseFloat(manualValor.replace(/,/g, '.'));
     
     const manualExpense: ParsedXmlExpense = {
-      id: 'manual-' + Date.now(),
+      id: editingExpenseId || ('manual-' + Date.now()),
       chave: '',
       numero: manualNumNota || 'Manual',
       data: manualData || `15/${String(currentMonth + 1).padStart(2, '0')}/2024`,
@@ -96,16 +201,30 @@ export function Step4Expenses() {
       deducoes: { icms: 0, pisCofins: 0, desconto: 0, iss: 0 }
     };
     
+    if (editingExpenseId) {
+      removeXmlDespesa(editingExpenseId);
+    }
     addXmlDespesa(manualExpense);
-    setShowManualModal(false);
-    
-    // Clear form
-    setManualNumNota('');
-    setManualData('');
-    setManualCnpj('');
-    setManualProvider('');
-    setManualDesc('');
-    setManualValor('');
+    resetManualForm();
+  };
+
+  const handleOpenManualModal = () => {
+    resetManualForm();
+    setShowManualModal(true);
+  };
+
+  const handleEditExpense = (xml: ParsedXmlExpense) => {
+    setEditingExpenseId(xml.id);
+    setManualNumNota(xml.numero === 'Manual' ? '' : xml.numero);
+    setManualData(xml.data);
+    setManualCnpj(xml.cnpj);
+    setManualProvider(xml.fornecedor);
+    setManualRegime(xml.regime);
+    setManualTipoCredito(xml.tipoDespesa || 'Gera Crédito de IBS/CBS');
+    setManualCategoria(xml.category || 'Compras / Insumos / Mercadorias');
+    setManualDesc(xml.descricao || '');
+    setManualValor(xml.valor.toString().replace('.', ','));
+    setShowManualModal(true);
   };
 
   const handleAddCategory = () => {
@@ -124,15 +243,31 @@ export function Step4Expenses() {
     currentXmls.forEach(n => {
       let include = false;
       const isCredit = n.tipoDespesa === "Gera Crédito de IBS/CBS" || n.tipoDespesa === "Gera crédito" || n.tipoDespesa === "Gera crédito de IBS/CBS" || n.tipoDespesa === 'true';
+      const hasProducts = n.produtosDetalhados && n.produtosDetalhados.length > 0;
       
-      if (tipoCst === 'despesaGeral' && isCredit) include = true;
+      if (isCredit) {
+         if (hasProducts) {
+            if (tipoCst === 'despesaCreditoIntegral' || tipoCst === 'despesaAnexo1' || tipoCst === 'despesaAnexo15' || tipoCst === 'despesaAnexo7' || tipoCst === 'despesaAnexo8') include = true;
+         } else {
+            if (tipoCst === 'despesaGeral') include = true;
+         }
+      }
+      
       if (tipoCst === 'icms_compras' && n.deducoes?.icms) include = true;
       if (tipoCst === 'pis_cofins_compras' && n.deducoes?.pisCofins) include = true;
       if (tipoCst === 'desconto_incondicional' && n.deducoes?.desconto) include = true;
       
       if (include) {
          if (n.produtosDetalhados && n.produtosDetalhados.length > 0) {
-            extractedProdutos.push(...n.produtosDetalhados);
+            let prodsToPush = n.produtosDetalhados;
+            if (tipoCst === 'despesaAnexo1') prodsToPush = prodsToPush.filter(p => p.isAnexo1);
+            else if (tipoCst === 'despesaAnexo15') prodsToPush = prodsToPush.filter(p => p.isAnexo15);
+            else if (tipoCst === 'despesaAnexo7') prodsToPush = prodsToPush.filter(p => p.isAlimento60);
+            else if (tipoCst === 'despesaAnexo8') prodsToPush = prodsToPush.filter(p => p.isHigiene60);
+            else if (tipoCst === 'despesaCreditoIntegral') prodsToPush = prodsToPush.filter(p => !p.isAnexo1 && !p.isAnexo15 && !p.isAlimento60 && !p.isHigiene60);
+            else if (tipoCst === 'despesaGeral') prodsToPush = [];
+            
+            extractedProdutos.push(...prodsToPush);
          } else {
             const icms = tipoCst === 'icms_compras' ? (n.deducoes?.icms || 0) : 0;
             const pisCofins = tipoCst === 'pis_cofins_compras' ? (n.deducoes?.pisCofins || 0) : 0;
@@ -228,7 +363,7 @@ export function Step4Expenses() {
     setXmlDespesas(newXmls);
   };
 
-  const checkCnpjs = async (xmlsToCheck: ParsedXmlExpense[]) => {
+  const checkCnpjs = async (xmlsToCheck: ParsedXmlExpense[], force: boolean = false) => {
     const uniqueDocs = Array.from(new Set(xmlsToCheck.map(x => x.cnpj).filter(c => c && (c.replace(/\D/g, '').length === 14 || c.replace(/\D/g, '').length === 11))));
     
     for (const doc of uniqueDocs) {
@@ -246,7 +381,7 @@ export function Step4Expenses() {
       }
       
       const cnpj = doc;
-      if (useDiagnosisStore.getState().cnpjCache[cnpj]) {
+      if (!force && useDiagnosisStore.getState().cnpjCache[cnpj]) {
         const regime = useDiagnosisStore.getState().cnpjCache[cnpj];
         useClientStore.getState().activeXmlDespesas.forEach(x => {
           if (x.cnpj === cnpj && x.regime !== regime) {
@@ -263,9 +398,18 @@ export function Step4Expenses() {
       
       const info = await consultarCnpj(cnpj);
       if (info) {
-        addCnpjToCache(cnpj, info.regime);
         useClientStore.getState().activeXmlDespesas.forEach(x => {
-          if (x.cnpj === cnpj) updateXmlExpenseStatus(x.id, { regime: info.regime as any, isConsultingCnpj: false });
+          if (x.cnpj === cnpj) {
+            let finalRegime = x.regime;
+            if (info.regime !== "Não Optante") {
+               finalRegime = info.regime;
+            } else if (info.regime === "Não Optante" && x.regime === "Simples Nacional") {
+               finalRegime = "Lucro Presumido"; // Descobriu que NÃO é simples, fallback
+            }
+            
+            updateXmlExpenseStatus(x.id, { regime: finalRegime as any, isConsultingCnpj: false });
+            addCnpjToCache(cnpj, finalRegime);
+          }
         });
       } else {
         useClientStore.getState().activeXmlDespesas.forEach(x => {
@@ -279,7 +423,7 @@ export function Step4Expenses() {
 
   const handleReconsultar = async () => {
     setIsReconsultando(true);
-    await checkCnpjs(currentMonthXmls);
+    await checkCnpjs(currentMonthXmls, true); // force reconsult bypassing cache
     setIsReconsultando(false);
   };
 
@@ -468,7 +612,7 @@ export function Step4Expenses() {
             <option value="Sem direito a crédito IBS/CBS">Sem direito a crédito IBS/CBS</option>
           </select>
           <button 
-            onClick={() => setShowManualModal(true)}
+            onClick={handleOpenManualModal}
             className="text-[15px] font-bold bg-white border border-[#005696] text-[#005696] hover:bg-blue-50 px-4 py-1.5 rounded transition-colors"
           >
             Lançar Nota Manual
@@ -546,7 +690,7 @@ export function Step4Expenses() {
                   <td className="px-3 py-2 text-right font-bold text-[#005696]">R$ {xml.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                   <td className="px-3 py-2 text-center">
                     <div className="flex justify-center gap-2">
-                      <button className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"><Edit2 className="w-4 h-4" /></button>
+                      <button onClick={() => handleEditExpense(xml)} className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"><Edit2 className="w-4 h-4" /></button>
                       <button onClick={() => removeXmlDespesa(xml.id)} className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </td>
@@ -626,7 +770,7 @@ export function Step4Expenses() {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-[550px] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
             <div className="p-4 flex justify-between items-center bg-[#003b6e] text-white">
               <h3 className="font-bold text-[15px]">Lançamento Manual de Despesa</h3>
-              <button onClick={() => setShowManualModal(false)} className="text-white/70 hover:text-white font-bold text-lg">&times;</button>
+              <button onClick={resetManualForm} className="text-white/70 hover:text-white font-bold text-lg">&times;</button>
             </div>
             
             <div className="p-6 space-y-4 flex-1 overflow-y-auto">
@@ -644,7 +788,25 @@ export function Step4Expenses() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[13px] font-bold text-gray-700 mb-1">CNPJ do Fornecedor</label>
-                  <input type="text" value={manualCnpj} onChange={(e: any)=>setManualCnpj(formatCnpj(e.target.value))} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="00.000.000/0000-00" />
+                  <div className="relative">
+                    <input 
+                      type="text" 
+                      value={manualCnpj} 
+                      onChange={(e) => setManualCnpj(e.target.value)} 
+                      onBlur={(e) => {
+                        const clean = e.target.value.replace(/\D/g, '');
+                        setManualCnpj(formatCnpj(clean));
+                        if (clean.length === 11) setManualRegime('Pessoa Física');
+                      }}
+                      className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" 
+                      placeholder="00.000.000/0000-00" 
+                    />
+                    {isConsultingManual && (
+                      <div className="absolute right-3 top-2">
+                        <div className="w-5 h-5 border-2 border-[#005696] border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-[13px] font-bold text-gray-700 mb-1">Fornecedor (Razão Social)</label>
@@ -660,6 +822,7 @@ export function Step4Expenses() {
                     <option value="Lucro Real">Lucro Real</option>
                     <option value="Simples Nacional">Simples Nacional</option>
                     <option value="Isento de IRPJ">Isento de IRPJ</option>
+                    <option value="Pessoa Física">Pessoa Física</option>
                   </select>
                 </div>
                 <div>
@@ -706,7 +869,7 @@ export function Step4Expenses() {
             </div>
             
             <div className="p-4 bg-gray-50 flex justify-end gap-3 rounded-b-lg border-t border-gray-200">
-              <button onClick={() => setShowManualModal(false)} className="px-5 py-2 text-[15px] font-bold text-gray-600 hover:text-gray-800 bg-white border border-gray-300 rounded shadow-sm">Cancelar</button>
+              <button onClick={resetManualForm} className="px-5 py-2 text-[15px] font-bold text-gray-600 hover:text-gray-800 bg-white border border-gray-300 rounded shadow-sm">Cancelar</button>
               <button onClick={handleAddManual} className="px-5 py-2 text-[15px] font-bold text-white bg-[#005696] hover:bg-[#004a82] rounded shadow-sm">Salvar Despesa</button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Search } from 'lucide-react';
+import { X, Search, Download } from 'lucide-react';
 import { ProdutoDetalhado } from '../../../domain/types/xml.types';
 
 interface ProductDetailsModalProps {
@@ -33,6 +33,48 @@ export function ProductDetailsModal({ isOpen, onClose, title, produtos }: Produc
   const totalPisCofins = filteredProdutos.reduce((acc, p) => acc + (p.pisCofins || 0), 0);
   const totalIcms = filteredProdutos.reduce((acc, p) => acc + (p.icms || 0), 0);
   const totalLiquido = filteredProdutos.reduce((acc, p) => acc + (p.valorLiquido || 0), 0);
+
+  const handleExportCSV = () => {
+    const headers = [
+      'Nº Nota', 'Data', 'Cliente / Fornecedor', 'Produto', 'NCM', 'CFOP', 'CST PIS/COF', 
+      'Valor Bruto', 'PIS/COFINS (Destacado)', 'ICMS Destacado', 'Valor Líquido (Base Crédito)'
+    ];
+
+    const rows = filteredProdutos.map(p => [
+      p.numeroNota || '',
+      p.dataEmissao || '',
+      `"${p.cliente || 'Não Identificado'}"`,
+      `"${(p.nome || '').replace(/"/g, '""')}"`,
+      p.ncm || '',
+      p.cfop || '',
+      `${p.cstPis || ''}/${p.cstCofins || ''}`,
+      (p.valorBruto || 0).toString().replace('.', ','),
+      (p.pisCofins || 0).toString().replace('.', ','),
+      (p.icms || 0).toString().replace('.', ','),
+      (p.valorLiquido || 0).toString().replace('.', ',')
+    ]);
+
+    // Footer row with totals
+    rows.push([
+      '', '', '', '', '', '', 'TOTAIS:',
+      totalBruto.toString().replace('.', ','),
+      totalPisCofins.toString().replace('.', ','),
+      totalIcms.toString().replace('.', ','),
+      totalLiquido.toString().replace('.', ',')
+    ]);
+
+    const csvContent = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+    
+    // Create blob and download
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `detalhamento_creditos_${new Date().getTime()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[1000] flex items-center justify-center p-4">
@@ -70,10 +112,11 @@ export function ProductDetailsModal({ isOpen, onClose, title, produtos }: Produc
         </div>
 
         {/* Table Content */}
-        <div className="flex-1 overflow-auto bg-gray-50 p-4">
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
-            <table className="w-full text-sm text-left whitespace-nowrap">
-              <thead className="text-[11px] text-white uppercase bg-[#005696]">
+        <div className="flex-1 overflow-hidden bg-gray-50 p-4 flex flex-col">
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
+            <div className="overflow-auto flex-1">
+              <table className="w-full text-sm text-left whitespace-nowrap relative">
+              <thead className="text-[11px] text-white uppercase bg-[#005696] sticky top-0 z-10">
                 <tr>
                   <th className="px-3 py-3">Nº Nota</th>
                   <th className="px-3 py-3">Data</th>
@@ -101,7 +144,7 @@ export function ProductDetailsModal({ isOpen, onClose, title, produtos }: Produc
                     </td>
                     <td className="px-3 py-2 text-center text-gray-600">{p.ncm}</td>
                     <td className="px-3 py-2 text-center font-medium text-gray-700">{p.cfop}</td>
-                    <td className="px-3 py-2 text-center text-gray-600">{p.cstPis}/{p.cstCofins}</td>
+                    <td className="px-3 py-2 text-center text-gray-600">{p.cstPis === p.cstCofins ? p.cstPis : `${p.cstPis}/${p.cstCofins}`}</td>
                     <td className="px-3 py-2 text-right font-medium text-gray-900">{formatCurrency(p.valorBruto)}</td>
                     <td className="px-3 py-2 text-right text-gray-600">{formatCurrency(p.pisCofins)}</td>
                     <td className="px-3 py-2 text-right text-gray-600">{formatCurrency(p.icms)}</td>
@@ -117,6 +160,7 @@ export function ProductDetailsModal({ isOpen, onClose, title, produtos }: Produc
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 
@@ -140,12 +184,21 @@ export function ProductDetailsModal({ isOpen, onClose, title, produtos }: Produc
               <span className="text-lg font-bold text-emerald-600">{formatCurrency(totalLiquido)}</span>
             </div>
           </div>
-          <button 
-            onClick={onClose}
-            className="px-6 py-2 bg-[#005696] text-white font-bold rounded-lg shadow-sm hover:bg-[#004a82] transition-colors"
-          >
-            Fechar Janela
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleExportCSV}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm transition-colors flex items-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Excel (CSV)
+            </button>
+            <button 
+              onClick={onClose}
+              className="px-6 py-2 bg-[#005696] text-white font-bold rounded-lg shadow-sm hover:bg-[#004a82] transition-colors"
+            >
+              Fechar Janela
+            </button>
+          </div>
         </div>
 
       </div>
