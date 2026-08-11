@@ -3,11 +3,42 @@ import { useDiagnosisStore } from '../../../store/useDiagnosisStore';
 import { useClientStore } from '../../../store/useClientStore';
 import { parseSalesXml } from '../../../services/xml/xml-parser';
 import { consultarCnpj } from '../../../services/cnpj-service';
-import { UploadCloud, FileType, Trash2, CheckCircle2, AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
+import { UploadCloud, FileType, Trash2, CheckCircle2, AlertCircle, RefreshCw, Loader2, Edit2 } from 'lucide-react';
 import { ParsedXmlSales } from '../../../domain/types/xml.types';
 import JSZip from 'jszip';
+import CurrencyInput from 'react-currency-input-field';
 
 const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+const formatCnpjProgressive = (val: string) => {
+  const v = val.replace(/\D/g, '');
+  if (v.length <= 11) {
+    return v.replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+            .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+  } else {
+    return v.slice(0, 14)
+            .replace(/^(\d{2})(\d)/, '$1.$2')
+            .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+            .replace(/\.(\d{3})(\d)/, '.$1/$2')
+            .replace(/(\d{4})(\d)/, '$1-$2');
+  }
+};
+
+const formatDateProgressive = (val: string) => {
+  const v = val.replace(/\D/g, '').slice(0, 8);
+  return v.replace(/^(\d{2})(\d)/, '$1/$2')
+          .replace(/^(\d{2})\/(\d{2})(\d)/, '$1/$2/$3');
+};
+
+const parseDateForSort = (dateStr: string) => {
+  if (!dateStr) return 0;
+  const parts = dateStr.split(' ')[0].split('/');
+  if (parts.length === 3) {
+    return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0])).getTime();
+  }
+  return 0;
+};
 
 export function Step3SalesXml() {
   const { 
@@ -25,14 +56,93 @@ export function Step3SalesXml() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isReconsultando, setIsReconsultando] = useState(false);
 
-  const formatCpfCnpj = (val: string) => {
-    const clean = val.replace(/\D/g, '');
-    if (clean.length === 11) {
-      return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-    } else if (clean.length === 14) {
-      return clean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterRegime, setFilterRegime] = useState('Todos os Regimes');
+  
+  const [showManualModal, setShowManualModal] = useState(false);
+  const [editingXmlId, setEditingXmlId] = useState<string | null>(null);
+  
+  const [manualNumNota, setManualNumNota] = useState('');
+  const [manualData, setManualData] = useState('');
+  const [manualCnpj, setManualCnpj] = useState('');
+  const [manualTomador, setManualTomador] = useState('');
+  const [manualRegime, setManualRegime] = useState('Lucro Presumido');
+  const [manualDesc, setManualDesc] = useState('');
+  const [manualValor, setManualValor] = useState('');
+  const [isConsultingManual, setIsConsultingManual] = useState(false);
+
+  const resetManualForm = () => {
+    setManualNumNota('');
+    setManualData('');
+    setManualCnpj('');
+    setManualTomador('');
+    setManualRegime('Lucro Presumido');
+    setManualDesc('');
+    setManualValor('');
+    setEditingXmlId(null);
+    setShowManualModal(false);
+  };
+
+  React.useEffect(() => {
+    const cleanDoc = manualCnpj.replace(/\D/g, '');
+    if (cleanDoc.length === 14) {
+      setIsConsultingManual(true);
+      consultarCnpj(cleanDoc).then(info => {
+        if (info) {
+          if (info.razaoSocial) setManualTomador(info.razaoSocial);
+          if (info.regime && info.regime !== "Não Optante") {
+            setManualRegime(info.regime);
+          }
+        }
+      }).finally(() => {
+        setIsConsultingManual(false);
+      });
     }
-    return val;
+  }, [manualCnpj]);
+
+  const handleAddManual = () => {
+    if (!manualDesc || !manualValor || !manualTomador) {
+      alert("Preencha descrição, cliente e valor.");
+      return;
+    }
+    const numericValue = parseFloat(manualValor.replace(/,/g, '.'));
+    
+    const manualSales: ParsedXmlSales = {
+      id: editingXmlId || ('manual-' + Date.now()),
+      chave: '',
+      numero: manualNumNota || 'Manual',
+      data: manualData || `15/${String(currentXmlMonth + 1).padStart(2, '0')}/2024`,
+      monthIndex: currentXmlMonth,
+      tomador: manualTomador,
+      cnpj: manualCnpj,
+      regime: manualRegime,
+      descricao: manualDesc,
+      valor: numericValue,
+      fileName: 'Lançamento Manual',
+      xmlType: 'NFSe',
+      isConsultingCnpj: false,
+      deducoes: { icms: 0, pisCofins: 0, desconto: 0, iss: 0 }
+    };
+    
+    const newXmls = xmlFaturamento.filter(x => x.id !== editingXmlId);
+    setXmlFaturamento([...newXmls, manualSales]);
+    resetManualForm();
+  };
+
+  const handleEditXml = (xml: ParsedXmlSales) => {
+    setEditingXmlId(xml.id);
+    setManualNumNota(xml.numero === 'Manual' ? '' : xml.numero);
+    setManualData(xml.data);
+    setManualCnpj(xml.cnpj);
+    setManualTomador(xml.tomador);
+    setManualRegime(xml.regime);
+    setManualDesc(xml.descricao || '');
+    setManualValor(xml.valor.toString().replace('.', ','));
+    setShowManualModal(true);
+  };
+
+  const formatCpfCnpj = (val: string) => {
+    return formatCnpjProgressive(val);
   };
 
   const getNaturezaJuridica = (nome: string, cnpj: string) => {
@@ -229,7 +339,23 @@ export function Step3SalesXml() {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
   };
 
-  const filteredXmls = xmlFaturamento.filter(xml => xml.monthIndex === currentXmlMonth);
+  const filteredXmls = xmlFaturamento.filter(xml => {
+    if (xml.monthIndex !== currentXmlMonth) return false;
+    
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      const matchesSearch = (
+        (xml.numero || '').toLowerCase().includes(term) || 
+        (xml.tomador || '').toLowerCase().includes(term) || 
+        (xml.cnpj || '').includes(term)
+      );
+      if (!matchesSearch) return false;
+    }
+
+    if (filterRegime !== 'Todos os Regimes' && xml.regime !== filterRegime) return false;
+    
+    return true;
+  }).sort((a, b) => parseDateForSort(a.data) - parseDateForSort(b.data));
   const totalValue = filteredXmls.reduce((acc, curr) => acc + curr.valor, 0);
 
   return (
@@ -289,33 +415,46 @@ export function Step3SalesXml() {
 
       {/* Tabela de XMLs Importados */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <div className="p-4 bg-[#f9fafb] border-b border-gray-200 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex-1 min-w-[200px]">
+        <div className="p-3 bg-[#f9fafb] border-b border-gray-200 flex flex-wrap items-center gap-3">
+          <div className="flex-1 min-w-[200px] relative">
             <input 
               type="text" 
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
               placeholder="Buscar por número, cliente ou CNPJ..." 
-              className="w-full max-w-md border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#005696]"
+              className="w-full text-[15px] border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-[#005696]"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={handleReconsultCnpjs}
-              disabled={filteredXmls.length === 0 || isReconsultando}
-              className={`flex items-center gap-2 text-white font-bold text-[15px] py-2 px-4 rounded transition-colors shadow-sm ${
-                isReconsultando ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#005696] hover:bg-[#004a82]'
-              }`}
-            >
-              <RefreshCw className={`w-4 h-4 ${isReconsultando ? 'animate-spin' : ''}`} />
-              {isReconsultando ? 'Consultando...' : 'Reconsultar CNPJs'}
-            </button>
-            <button 
-              onClick={handleClearMonth}
-              disabled={filteredXmls.length === 0}
-              className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold text-[15px] py-2 px-4 rounded transition-colors shadow-sm"
-            >
-              Limpar Tudo
-            </button>
-          </div>
+          <select value={filterRegime} onChange={e=>setFilterRegime(e.target.value)} className="text-[15px] border border-gray-300 rounded px-2 py-1.5 outline-none text-gray-700 bg-white">
+            <option value="Todos os Regimes">Todos os Regimes</option>
+            <option value="Lucro Presumido">Lucro Presumido</option>
+            <option value="Simples Nacional">Simples Nacional</option>
+            <option value="Lucro Real">Lucro Real</option>
+            <option value="Isento de IRPJ">Isento de IRPJ</option>
+            <option value="Pessoa Física">Pessoa Física</option>
+          </select>
+          <button 
+            onClick={() => { resetManualForm(); setShowManualModal(true); }}
+            className="text-[15px] font-bold bg-white border border-[#005696] text-[#005696] hover:bg-blue-50 px-4 py-1.5 rounded transition-colors"
+          >
+            Lançar Nota Manual
+          </button>
+          <button 
+            onClick={handleReconsultCnpjs}
+            disabled={filteredXmls.length === 0 || isReconsultando}
+            className={`flex items-center gap-2 text-white font-bold text-[15px] py-1.5 px-4 rounded transition-colors shadow-sm ${
+              isReconsultando ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#004a82] hover:bg-[#003d6b]'
+            }`}
+          >
+            {isReconsultando ? 'Consultando...' : 'Reconsultar CNPJs'}
+          </button>
+          <button 
+            onClick={handleClearMonth}
+            disabled={filteredXmls.length === 0}
+            className="bg-[#dc2626] hover:bg-[#b91c1c] disabled:opacity-50 text-white font-bold text-[15px] py-1.5 px-4 rounded transition-colors shadow-sm"
+          >
+            Limpar Tudo
+          </button>
         </div>
         
         <div className="overflow-x-auto">
@@ -379,13 +518,10 @@ export function Step3SalesXml() {
                       {formatCurrency(xml.valor)}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <button 
-                        onClick={() => removeXml(xml.id)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-                        title="Remover"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex justify-center gap-2">
+                        <button onClick={() => handleEditXml(xml)} className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded" title="Editar"><Edit2 className="w-4 h-4" /></button>
+                        <button onClick={() => removeXml(xml.id)} className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded" title="Remover"><Trash2 className="w-4 h-4" /></button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -426,6 +562,79 @@ export function Step3SalesXml() {
             <div className="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-1">Isento / Pessoa Física</div>
             <div className="text-lg font-bold text-[#005696]">
               {formatCurrency(filteredXmls.filter(x => x.regime === 'Isento / Não Informado' || x.regime.includes('Física') || x.regime.includes('Isento')).reduce((acc, curr) => acc + curr.valor, 0))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Lançamento Manual */}
+      {showManualModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-[550px] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
+            <div className="p-4 flex justify-between items-center bg-[#003b6e] text-white">
+              <h3 className="font-bold text-[15px]">{editingXmlId ? 'Editar Lançamento' : 'Lançamento Manual de Receita'}</h3>
+              <button onClick={resetManualForm} className="text-white/70 hover:text-white font-bold text-lg">&times;</button>
+            </div>
+            
+            <div className="p-6 space-y-4 flex-1 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Número da Nota</label>
+                  <input type="text" value={manualNumNota} onChange={e=>setManualNumNota(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696]" placeholder="Ex: 17" />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Data</label>
+                  <input type="text" value={manualData} onChange={e=>setManualData(formatDateProgressive(e.target.value))} placeholder="DD/MM/AAAA" className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696]" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-bold text-gray-700 mb-1">CNPJ do Cliente (Opcional)</label>
+                <input type="text" value={manualCnpj} onChange={e=>setManualCnpj(formatCnpjProgressive(e.target.value))} onBlur={(e) => { const clean = e.target.value.replace(/\D/g, ''); if (clean.length === 11) setManualRegime('Pessoa Física'); }} placeholder="00.000.000/0000-00" className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696]" />
+                {isConsultingManual && <span className="text-xs text-blue-500 mt-1 flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin"/> Consultando CNPJ...</span>}
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-bold text-gray-700 mb-1">Nome do Cliente <span className="text-red-500">*</span></label>
+                <input type="text" value={manualTomador} onChange={e=>setManualTomador(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696]" />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Regime Tributário</label>
+                  <select value={manualRegime} onChange={e=>setManualRegime(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696] bg-white">
+                    <option value="Lucro Presumido">Lucro Presumido</option>
+                    <option value="Simples Nacional">Simples Nacional</option>
+                    <option value="Lucro Real">Lucro Real</option>
+                    <option value="Isento de IRPJ">Isento de IRPJ</option>
+                    <option value="Pessoa Física">Pessoa Física</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Valor (R$) <span className="text-red-500">*</span></label>
+                  <CurrencyInput
+                    value={manualValor}
+                    onValueChange={(val) => setManualValor(val || '')}
+                    decimalsLimit={2} decimalSeparator="," groupSeparator="."
+                    className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696]"
+                    placeholder="0,00"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-bold text-gray-700 mb-1">Descrição / Serviço <span className="text-red-500">*</span></label>
+                <input type="text" value={manualDesc} onChange={e=>setManualDesc(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696]" />
+              </div>
+            </div>
+            
+            <div className="p-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+              <button onClick={resetManualForm} className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded font-bold transition-colors">
+                Cancelar
+              </button>
+              <button onClick={handleAddManual} className="px-4 py-2 bg-[#005696] hover:bg-[#004a82] text-white rounded font-bold transition-colors shadow-sm">
+                Salvar Lançamento
+              </button>
             </div>
           </div>
         </div>

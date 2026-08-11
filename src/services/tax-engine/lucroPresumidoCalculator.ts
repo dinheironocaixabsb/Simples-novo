@@ -173,9 +173,18 @@ export function calcularLucroPresumidoAnual(
 
   // --- Reforma Tributária (Cálculos IBS/CBS) ---
   for (const desp of despesasMensais) {
+    // Aplicar deduções na base do crédito cheio
+    const deducoes = (desp.deducaoIcmsIss || 0) + (desp.deducaoPisCofins || 0) + (desp.deducaoDescontos || 0);
+    const baseCreditoCheio = Math.max(0, (desp.despesasGeraCredito || 0) - deducoes);
+
     // Crédito Cheio
-    totalCreditoIbs += desp.despesasGeraCredito * config.aliquotaIbsCreditoGeral;
-    totalCreditoCbs += desp.despesasGeraCredito * config.aliquotaCbsCreditoGeral;
+    totalCreditoIbs += baseCreditoCheio * config.aliquotaIbsCreditoGeral;
+    totalCreditoCbs += baseCreditoCheio * config.aliquotaCbsCreditoGeral;
+
+    // Crédito Reduzido 30% (Anexo 7 e Anexo 8) - Paridade com o sistema do Simples Nacional
+    const baseCreditoReduzido = (desp.despesaAnexo7 || 0) + (desp.despesaAnexo8 || 0);
+    totalCreditoIbs += baseCreditoReduzido * (config.aliquotaIbsCreditoGeral * 0.70);
+    totalCreditoCbs += baseCreditoReduzido * (config.aliquotaCbsCreditoGeral * 0.70);
     
     // Crédito do Simples Nacional
     let ibsSimples = 0;
@@ -190,8 +199,8 @@ export function calcularLucroPresumidoAnual(
       cbsSimples = config.aliquotaCbsFornecedorSimples;
     }
 
-    totalCreditoIbs += desp.comprasSimplesNacional * ibsSimples; 
-    totalCreditoCbs += desp.comprasSimplesNacional * cbsSimples; 
+    totalCreditoIbs += (desp.comprasSimplesNacional || 0) * ibsSimples; 
+    totalCreditoCbs += (desp.comprasSimplesNacional || 0) * cbsSimples; 
   }
 
   // Crédito Presumido de Estoque (Mensal * 12)

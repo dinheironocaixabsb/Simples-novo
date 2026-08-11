@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { LucroPresumidoConfig, ReceitaMensalLP, DespesaMensalLP, CategoriaDespesa, DespesaNota } from '../domain/types/lucro-presumido';
 import { useClientStore } from './useClientStore';
 
-const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
 const defaultReceitas = MESES.map(mes => ({
   mes,

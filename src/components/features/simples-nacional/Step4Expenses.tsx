@@ -12,7 +12,7 @@ import JSZip from 'jszip';
 import { ProductDetailsModal } from './ProductDetailsModal';
 
 const FULL_MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-const SHORT_MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+const SHORT_MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
 const formatCnpj = (val: string) => {
   const v = val.replace(/\D/g, '');
@@ -33,6 +33,14 @@ const formatDate = (val: string) => {
   const v = val.replace(/\D/g, '').slice(0, 8);
   return v.replace(/^(\d{2})(\d)/, '$1/$2')
           .replace(/^(\d{2})\/(\d{2})(\d)/, '$1/$2/$3');
+};
+const parseDateForSort = (dateStr: string) => {
+  if (!dateStr) return 0;
+  const parts = dateStr.split(' ')[0].split('/');
+  if (parts.length === 3) {
+    return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0])).getTime();
+  }
+  return 0;
 };
 
 export function Step4Expenses() {
@@ -117,6 +125,8 @@ export function Step4Expenses() {
     let despesaAnexo15 = 0;
     let despesaAnexo7 = 0;
     let despesaAnexo8 = 0;
+    let despesaSimplesNacional = 0;
+    let despesaSimplesNacionalReduzido30 = 0;
     let deducaoIcmsIss = 0;
     let deducaoPisCofins = 0;
     let deducaoDescontos = 0;
@@ -129,14 +139,26 @@ export function Step4Expenses() {
 
       if (xml.produtosDetalhados && xml.produtosDetalhados.length > 0) {
         xml.produtosDetalhados.forEach(prod => {
-            if (prod.isAnexo1) despesaAnexo1 += prod.valorBruto;
-            else if (prod.isAnexo15) despesaAnexo15 += prod.valorBruto;
-            else if (prod.isAlimento60) despesaAnexo7 += prod.valorBruto;
-            else if (prod.isHigiene60) despesaAnexo8 += prod.valorBruto;
-            else despesaCreditoIntegral += prod.valorBruto;
+            if (xml.regime === "Simples Nacional") {
+              if (prod.isAlimento60 || prod.isHigiene60) {
+                despesaSimplesNacionalReduzido30 += prod.valorBruto;
+              } else {
+                despesaSimplesNacional += prod.valorBruto;
+              }
+            } else {
+              if (prod.isAnexo1) despesaAnexo1 += prod.valorBruto;
+              else if (prod.isAnexo15) despesaAnexo15 += prod.valorBruto;
+              else if (prod.isAlimento60) despesaAnexo7 += prod.valorBruto;
+              else if (prod.isHigiene60) despesaAnexo8 += prod.valorBruto;
+              else despesaCreditoIntegral += prod.valorBruto;
+            }
           });
         } else {
-        despesaGeral += xml.valor;
+          if (xml.regime === "Simples Nacional") {
+            despesaSimplesNacional += xml.valor;
+          } else {
+            despesaGeral += xml.valor;
+          }
       }
       
       const iss = xml.xmlType === 'NFSe' || xml.fileName === 'Lançamento Manual' ? (xml.deducoes?.iss || 0) : 0;
@@ -157,6 +179,8 @@ export function Step4Expenses() {
       round2(currentData.despesaAnexo15 || 0) !== round2(despesaAnexo15) ||
       round2(currentData.despesaAnexo7 || 0) !== round2(despesaAnexo7) ||
       round2(currentData.despesaAnexo8 || 0) !== round2(despesaAnexo8) ||
+      round2(currentData.despesaSimplesNacional || 0) !== round2(despesaSimplesNacional) ||
+      round2(currentData.despesaSimplesNacionalReduzido30 || 0) !== round2(despesaSimplesNacionalReduzido30) ||
       round2(currentData.deducaoIcmsIss || 0) !== round2(deducaoIcmsIss) ||
       round2(currentData.deducaoPisCofins || 0) !== round2(deducaoPisCofins) ||
       round2(currentData.deducaoDescontos || 0) !== round2(deducaoDescontos)
@@ -168,6 +192,8 @@ export function Step4Expenses() {
         despesaAnexo15: round2(despesaAnexo15),
         despesaAnexo7: round2(despesaAnexo7),
         despesaAnexo8: round2(despesaAnexo8),
+        despesaSimplesNacional: round2(despesaSimplesNacional),
+        despesaSimplesNacionalReduzido30: round2(despesaSimplesNacionalReduzido30),
         deducaoIcmsIss: round2(deducaoIcmsIss),
         deducaoPisCofins: round2(deducaoPisCofins),
         deducaoDescontos: round2(deducaoDescontos)
@@ -332,7 +358,7 @@ export function Step4Expenses() {
     }
     
     return true;
-  });
+  }).sort((a, b) => parseDateForSort(a.data) - parseDateForSort(b.data));
   const totalAcumulado = currentMonthXmls.reduce((acc, curr) => acc + curr.valor, 0);
 
   const formatCpfCnpj = (val: string) => {
@@ -792,10 +818,9 @@ export function Step4Expenses() {
                     <input 
                       type="text" 
                       value={manualCnpj} 
-                      onChange={(e) => setManualCnpj(e.target.value)} 
+                      onChange={(e) => setManualCnpj(formatCnpj(e.target.value))} 
                       onBlur={(e) => {
                         const clean = e.target.value.replace(/\D/g, '');
-                        setManualCnpj(formatCnpj(clean));
                         if (clean.length === 11) setManualRegime('Pessoa Física');
                       }}
                       className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-blue-500" 

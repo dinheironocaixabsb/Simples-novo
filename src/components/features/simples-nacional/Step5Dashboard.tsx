@@ -13,7 +13,7 @@ const formatPercent4 = (value: number) => {
   return new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 4, maximumFractionDigits: 4 }).format(value);
 };
 
-const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
 export function Step5Dashboard() {
   const { 
@@ -55,10 +55,16 @@ export function Step5Dashboard() {
     aliqEfetivaPorFora: 0,
     cargaTributariaPorFora: 0
   };
-  const currentExpenses = (revenueData[currentMonth] as any)?.expenses || 0;
-  const breakEvenPercentage = results && results.metaDespesas > 0 
-    ? Math.min(100, (currentExpenses / results.metaDespesas) * 100) 
-    : 0;
+  const currentExpenses = results ? results.baseCredito : 0;
+  
+  let breakEvenPercentage = 0;
+  if (results) {
+    if (results.metaDespesas === 0 && results.diferenca >= 0) {
+      breakEvenPercentage = 100;
+    } else if (results.metaDespesas > 0) {
+      breakEvenPercentage = Math.min(100, (currentExpenses / results.metaDespesas) * 100);
+    }
+  }
 
   const clientesMap = React.useMemo(() => {
     const map: Record<string, { nome: string; cnpj: string; faturamentoAtual: number; regime: string }> = {};
@@ -137,11 +143,31 @@ export function Step5Dashboard() {
                 <div className="pt-2">
                   <h4 className="text-[15px] text-gray-700 font-bold mb-3">Detalhamento dos Tributos no DAS</h4>
                   <div className="border-t border-gray-200 pt-3">
-                    <h5 className="text-[14px] font-bold text-[#005696] mb-2">Totalização</h5>
+                    <h5 className="text-[14px] font-bold text-[#005696] mb-2">Totalização por Tributo</h5>
                     <div className="text-[14px] text-gray-600 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium text-gray-500">Tributos Consolidados (IRPJ, CSLL, INSS, etc)</span>
-                        <span className="text-gray-700">{formatCurrency(results.valorDasPadraoTotal)}</span>
+                      {results.c1Taxes && Object.entries(results.c1Taxes).map(([tributo, valor]) => {
+                        const aliqFraction = results.c1Aliquots?.[tributo];
+                        const aliqFormatted = aliqFraction ? ` (${(aliqFraction * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}%)` : '';
+                        
+                        return (
+                          <div key={tributo} className="flex justify-between items-center">
+                            <span className="font-medium text-gray-500">
+                              {tributo === 'CPP' ? 'INSS (CPP)' : tributo}
+                              <span className="text-[12px] text-gray-400 font-normal ml-1">{aliqFormatted}</span>
+                            </span>
+                            <span className="text-gray-700">{formatCurrency(valor)}</span>
+                          </div>
+                        );
+                      })}
+                      {!results.c1Taxes && (
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-500">Tributos Consolidados</span>
+                          <span className="text-gray-700">{formatCurrency(results.valorDasPadraoTotal)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center pt-2 border-t border-gray-100 font-bold">
+                        <span className="text-[#005696]">Total Devido</span>
+                        <span className="text-[#005696]">{formatCurrency(results.valorDasPadraoTotal)}</span>
                       </div>
                     </div>
                   </div>
@@ -211,11 +237,31 @@ export function Step5Dashboard() {
                 <div className="pt-2 pb-2">
                   <h4 className="text-[15px] text-gray-700 font-bold mb-3">Detalhamento dos Tributos no DAS Reduzido</h4>
                   <div className="border-t border-gray-200 pt-3">
-                    <h5 className="text-[14px] font-bold text-[#005696] mb-2">Totalização</h5>
+                    <h5 className="text-[14px] font-bold text-[#005696] mb-2">Totalização por Tributo</h5>
                     <div className="text-[14px] text-gray-600 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium text-gray-500">Tributos Residuais</span>
-                        <span className="text-gray-700">{formatCurrency(results.valorDasPorForaTotal)}</span>
+                      {results.c2Taxes && Object.entries(results.c2Taxes).map(([tributo, valor]) => {
+                        const aliqFraction = results.c1Aliquots?.[tributo];
+                        const aliqFormatted = aliqFraction ? ` (${(aliqFraction * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}%)` : '';
+                        
+                        return (
+                          <div key={tributo} className="flex justify-between items-center">
+                            <span className="font-medium text-gray-500">
+                              {tributo === 'CPP' ? 'INSS (CPP)' : tributo}
+                              <span className="text-[12px] text-gray-400 font-normal ml-1">{aliqFormatted}</span>
+                            </span>
+                            <span className="text-gray-700">{formatCurrency(valor)}</span>
+                          </div>
+                        );
+                      })}
+                      {!results.c2Taxes && (
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-500">Tributos Residuais</span>
+                          <span className="text-gray-700">{formatCurrency(results.valorDasPorForaTotal)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center pt-2 border-t border-gray-100 font-bold">
+                        <span className="text-[#005696]">Total Devido</span>
+                        <span className="text-[#005696]">{formatCurrency(results.valorDasPorForaTotal)}</span>
                       </div>
                     </div>
                   </div>
@@ -361,7 +407,7 @@ export function Step5Dashboard() {
               <div className="bg-red-50 border border-red-200 border-l-4 border-l-[#e53935] p-4 rounded-md flex gap-3">
                 <span className="text-[#e53935] text-lg">⚠️</span>
                 <p className="text-[14px] text-[#b71c1c] leading-relaxed">
-                  <strong>Alerta de Prejuízo:</strong> Faltam <strong>{formatCurrency(results.metaDespesas - currentExpenses)}</strong> em despesas elegíveis para empatar o jogo. Caso não seja possível realocar fornecedores ou aumentar os créditos, a recomendação matemática é manter o IBS/CBS <strong>POR DENTRO</strong>.
+                  <strong>Alerta de Prejuízo:</strong> Faltam <strong>{formatCurrency(Math.max(0, results.metaDespesas - currentExpenses))}</strong> em despesas elegíveis para empatar o jogo. Caso não seja possível realocar fornecedores ou aumentar os créditos, a recomendação matemática é manter o IBS/CBS <strong>POR DENTRO</strong>.
                 </p>
               </div>
             ) : (

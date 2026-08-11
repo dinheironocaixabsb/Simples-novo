@@ -13,7 +13,7 @@ import JSZip from 'jszip';
 import { ProductDetailsModal } from '../simples-nacional/ProductDetailsModal';
 
 const FULL_MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-const SHORT_MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+const SHORT_MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
 const formatCnpj = (val: string) => {
   const v = val.replace(/\D/g, '').slice(0, 14);
@@ -105,24 +105,43 @@ export function Step4Despesas() {
   React.useEffect(() => {
     const fromXml = xmlDespesas.filter(x => x.monthIndex === currentMonth);
     let geral = 0, integral = 0, anexo1 = 0, anexo15 = 0, anexo7 = 0, anexo8 = 0;
+    let comprasSimplesNacional = 0;
     let icms = 0, pisCofins = 0, descontos = 0;
 
     fromXml.forEach(x => {
       let isCredit = x.tipoDespesa === "Gera Crédito de IBS/CBS" || x.tipoDespesa === "Gera crédito" || x.tipoDespesa === 'true';
       if (!isCredit) return;
 
-      if (x.category?.toLowerCase().includes('anexo i') || x.category?.toLowerCase().includes('anexo 1') || x.category?.toLowerCase().includes('zero')) {
-        anexo1 += x.valor;
-      } else if (x.category?.toLowerCase().includes('anexo xv') || x.category?.toLowerCase().includes('anexo 15') || x.category?.toLowerCase().includes('hortifruti')) {
-        anexo15 += x.valor;
-      } else if (x.category?.toLowerCase().includes('anexo vii') || x.category?.toLowerCase().includes('anexo 7') || x.category?.toLowerCase().includes('alimento')) {
-        anexo7 += x.valor;
-      } else if (x.category?.toLowerCase().includes('anexo viii') || x.category?.toLowerCase().includes('anexo 8') || x.category?.toLowerCase().includes('higiene')) {
-        anexo8 += x.valor;
-      } else if (x.category?.toLowerCase().includes('normal') || x.category?.toLowerCase().includes('crédito 100%')) {
-        integral += x.valor;
+      if (x.produtosDetalhados && x.produtosDetalhados.length > 0) {
+        x.produtosDetalhados.forEach(prod => {
+            if (x.regime === "Simples Nacional") {
+              comprasSimplesNacional += prod.valorBruto;
+            } else {
+              if (prod.isAnexo1) anexo1 += prod.valorBruto;
+              else if (prod.isAnexo15) anexo15 += prod.valorBruto;
+              else if (prod.isAlimento60) anexo7 += prod.valorBruto;
+              else if (prod.isHigiene60) anexo8 += prod.valorBruto;
+              else integral += prod.valorBruto;
+            }
+        });
       } else {
-        geral += x.valor;
+        if (x.regime === "Simples Nacional") {
+          comprasSimplesNacional += x.valor;
+        } else {
+          if (x.category?.toLowerCase().includes('anexo i') || x.category?.toLowerCase().includes('anexo 1') || x.category?.toLowerCase().includes('zero')) {
+            anexo1 += x.valor;
+          } else if (x.category?.toLowerCase().includes('anexo xv') || x.category?.toLowerCase().includes('anexo 15') || x.category?.toLowerCase().includes('hortifruti')) {
+            anexo15 += x.valor;
+          } else if (x.category?.toLowerCase().includes('anexo vii') || x.category?.toLowerCase().includes('anexo 7') || x.category?.toLowerCase().includes('alimento')) {
+            anexo7 += x.valor;
+          } else if (x.category?.toLowerCase().includes('anexo viii') || x.category?.toLowerCase().includes('anexo 8') || x.category?.toLowerCase().includes('higiene')) {
+            anexo8 += x.valor;
+          } else if (x.category?.toLowerCase().includes('normal') || x.category?.toLowerCase().includes('crédito 100%')) {
+            integral += x.valor;
+          } else {
+            geral += x.valor;
+          }
+        }
       }
 
       icms += x.deducoes?.icms || 0;
@@ -133,6 +152,8 @@ export function Step4Despesas() {
     updateMonthlyExpenses(currentMonth, {
       despesaGeral: geral,
       despesaCreditoIntegral: integral,
+      despesasGeraCredito: integral + geral + anexo15,
+      comprasSimplesNacional: comprasSimplesNacional,
       despesaAnexo1: anexo1,
       despesaAnexo15: anexo15,
       despesaAnexo7: anexo7,

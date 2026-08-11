@@ -1,15 +1,44 @@
-'use client';
-
 import React, { useState, useMemo } from 'react';
 import { useLucroPresumidoStore } from '../../../store/useLucroPresumidoStore';
 import { useClientStore } from '../../../store/useClientStore';
-import { Upload, FileText, Check, Search, Pencil, Trash2, ArrowRight, RefreshCw, X } from 'lucide-react';
+import { Upload, FileText, Check, Search, Pencil, Trash2, ArrowRight, RefreshCw, X, Edit2, Loader2 } from 'lucide-react';
 import JSZip from 'jszip';
 import { parseSalesXml } from '../../../services/xml/xml-parser';
 import { ParsedXmlSales, ProdutoDetalhado } from '../../../domain/types/xml.types';
 import { ProductsModal } from './ProductsModal';
+import CurrencyInput from 'react-currency-input-field';
 
 const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+const formatCnpjProgressive = (val: string) => {
+  const v = val.replace(/\D/g, '');
+  if (v.length <= 11) {
+    return v.replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+            .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+  } else {
+    return v.slice(0, 14)
+            .replace(/^(\d{2})(\d)/, '$1.$2')
+            .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+            .replace(/\.(\d{3})(\d)/, '.$1/$2')
+            .replace(/(\d{4})(\d)/, '$1-$2');
+  }
+};
+
+const formatDateProgressive = (val: string) => {
+  const v = val.replace(/\D/g, '').slice(0, 8);
+  return v.replace(/^(\d{2})(\d)/, '$1/$2')
+          .replace(/^(\d{2})\/(\d{2})(\d)/, '$1/$2/$3');
+};
+
+const parseDateForSort = (dateStr: string) => {
+  if (!dateStr) return 0;
+  const parts = dateStr.split(' ')[0].split('/');
+  if (parts.length === 3) {
+    return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0])).getTime();
+  }
+  return 0;
+};
 
 export function Step3Receitas() {
   const receitasMensais = useLucroPresumidoStore((state) => state.receitasMensais);
@@ -28,7 +57,28 @@ export function Step3Receitas() {
   const [searchTerm, setSearchTerm] = useState('');
   const [regimeFilter, setRegimeFilter] = useState('Todos os Regimes');
   const [editingXmlId, setEditingXmlId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<any>({});
+  
+  const [showManualModal, setShowManualModal] = useState(false);
+  const [manualNumNota, setManualNumNota] = useState('');
+  const [manualData, setManualData] = useState('');
+  const [manualCnpj, setManualCnpj] = useState('');
+  const [manualTomador, setManualTomador] = useState('');
+  const [manualRegime, setManualRegime] = useState('Lucro Presumido');
+  const [manualDesc, setManualDesc] = useState('');
+  const [manualValor, setManualValor] = useState('');
+  const [isConsultingManual, setIsConsultingManual] = useState(false);
+
+  const resetManualForm = () => {
+    setManualNumNota('');
+    setManualData('');
+    setManualCnpj('');
+    setManualTomador('');
+    setManualRegime('Lucro Presumido');
+    setManualDesc('');
+    setManualValor('');
+    setEditingXmlId(null);
+    setShowManualModal(false);
+  };
   const [isDragging, setIsDragging] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
@@ -251,34 +301,45 @@ export function Step3Receitas() {
     }
   };
 
-  const startEditingXml = (xml: any) => {
-    setEditingXmlId(xml.id);
-    setEditForm({
-      numero: xml.numero || '',
-      dataEmissao: xml.data || '',
-      cnpjCliente: xml.cnpj || '',
-      nomeCliente: xml.tomador || '',
-      regimeTributario: xml.regime || '',
-      valorTotal: xml.valor || 0
-    });
+  const handleAddManual = () => {
+    if (!manualDesc || !manualValor || !manualTomador) {
+      alert("Preencha descrição, cliente e valor.");
+      return;
+    }
+    const numericValue = parseFloat(manualValor.replace(/,/g, '.'));
+    
+    const manualSales: ParsedXmlSales = {
+      id: editingXmlId || ('manual-' + Date.now()),
+      chave: '',
+      numero: manualNumNota || 'Manual',
+      data: manualData || `15/${String(activeXmlMonthIndex + 1).padStart(2, '0')}/2024`,
+      monthIndex: activeXmlMonthIndex,
+      tomador: manualTomador,
+      cnpj: manualCnpj,
+      regime: manualRegime,
+      descricao: manualDesc,
+      valor: numericValue,
+      fileName: 'Lançamento Manual',
+      xmlType: 'NFSe',
+      isConsultingCnpj: false,
+      deducoes: { icms: 0, pisCofins: 0, desconto: 0, iss: 0 }
+    };
+    
+    const newXmls = activeXmlFaturamento.filter(x => x.id !== editingXmlId);
+    setXmlFaturamento([...newXmls, manualSales]);
+    resetManualForm();
   };
 
-  const saveEditedXml = () => {
-    setXmlFaturamento(activeXmlFaturamento.map(x => {
-      if (x.id === editingXmlId) {
-        return {
-          ...x,
-          numero: editForm.numero,
-          data: editForm.dataEmissao,
-          cnpj: editForm.cnpjCliente,
-          tomador: editForm.nomeCliente,
-          regime: editForm.regimeTributario,
-          valor: editForm.valorTotal
-        };
-      }
-      return x;
-    }));
-    setEditingXmlId(null);
+  const handleEditXml = (xml: ParsedXmlSales) => {
+    setEditingXmlId(xml.id);
+    setManualNumNota(xml.numero === 'Manual' ? '' : xml.numero);
+    setManualData(xml.data);
+    setManualCnpj(xml.cnpj);
+    setManualTomador(xml.tomador);
+    setManualRegime(xml.regime || 'Lucro Presumido');
+    setManualDesc(xml.descricao || '');
+    setManualValor(xml.valor.toString().replace('.', ','));
+    setShowManualModal(true);
   };
 
   const filteredXmlsByMonth = useMemo(() => {
@@ -292,7 +353,7 @@ export function Step3Receitas() {
                           (xml.cnpj && String(xml.cnpj).includes(searchTerm));
       const matchRegime = regimeFilter === 'Todos os Regimes' || xml.regime === regimeFilter;
       return matchSearch && matchRegime;
-    });
+    }).sort((a, b) => parseDateForSort(a.data) - parseDateForSort(b.data));
   }, [filteredXmlsByMonth, searchTerm, regimeFilter]);
 
   const totalXmls = filteredXmls.reduce((acc, curr) => acc + (curr.valor || 0), 0);
@@ -312,11 +373,12 @@ export function Step3Receitas() {
   const ValueInput = ({ label, value, onChange, tooltip, onVerProdutos }: { label: string, value: number, onChange: (v: number) => void, tooltip?: string, onVerProdutos?: () => void }) => (
     <div className="flex flex-col gap-1.5" title={tooltip}>
       <label className="text-[11px] font-bold text-gray-700 truncate block whitespace-nowrap overflow-hidden text-ellipsis">{label}</label>
-      <input 
-        type="text"
+      <CurrencyInput 
         value={value || ''}
-        onChange={(e) => onChange(parseCurrencyInput(e.target.value))}
-        className="border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]"
+        onValueChange={(val) => onChange(val ? parseFloat(val.replace(',', '.')) : 0)}
+        decimalsLimit={2} decimalSeparator="," groupSeparator="."
+        prefix="R$ "
+        className="border border-gray-300 rounded px-3 py-1.5 text-[13px] text-gray-700 focus:outline-none focus:border-[#005696] focus:ring-1 focus:ring-[#005696]"
         placeholder="R$ 0,00"
       />
       {onVerProdutos && (
@@ -485,119 +547,6 @@ export function Step3Receitas() {
                 type="file" 
                 id="salesXmlInputLP" 
                 accept=".xml,.zip" 
-                className="hidden" 
-                multiple
-                onChange={(e) => {
-                  if (e.target.files?.length) processFiles(e.target.files);
-                  e.target.value = '';
-                }} 
-              />
-            </div>
-
-            {/* Tabela de Todos os XMLs Importados */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden bg-white mt-4">
-              <div className="bg-gray-50 p-2 border-b border-gray-200 flex flex-wrap gap-2 justify-between items-center">
-                <div className="relative w-64">
-                  <Search className="w-4 h-4 text-gray-400 absolute left-2 top-1/2 -translate-y-1/2" />
-                  <input 
-                    type="text" 
-                    placeholder="Buscar por número, cliente ou CNPJ..." 
-                    className="w-full pl-8 pr-2 py-1 text-[12px] border border-gray-300 rounded focus:outline-none focus:border-[#005696]"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <select 
-                    className="border border-gray-300 rounded px-2 py-1 text-[12px] bg-white"
-                    value={regimeFilter}
-                    onChange={(e) => setRegimeFilter(e.target.value)}
-                  >
-                    <option value="Todos os Regimes">Todos os Regimes</option>
-                    <option value="Simples Nacional">Simples Nacional</option>
-                    <option value="Lucro Presumido">Lucro Presumido</option>
-                    <option value="Lucro Real">Lucro Real</option>
-                  </select>
-                  <button className="bg-[#005696] text-white px-3 py-1 text-[12px] font-bold rounded hover:bg-[#004a82]">
-                    Reconsultar CNPJs
-                  </button>
-                  <button onClick={handleClearAllXmls} className="bg-[#e11d48] text-white px-3 py-1 text-[12px] font-bold rounded hover:bg-[#be123c]">
-                    Limpar Tudo
-                  </button>
-                </div>
-              </div>
-
-              <div className="overflow-x-auto max-h-96">
-                <table className="w-full text-[11px] text-left">
-                  <thead className="text-[11px] font-bold text-[#1f2937] bg-gray-100 sticky top-0 border-b border-gray-200">
-                    <tr>
-                      <th className="px-3 py-2 w-16">Nº Nota</th>
-                      <th className="px-3 py-2 w-20">Data</th>
-                      <th className="px-3 py-2">Cliente / CNPJ</th>
-                      <th className="px-3 py-2 w-32">Regime Tributário</th>
-                      <th className="px-3 py-2 text-right w-24">Valor</th>
-                      <th className="px-3 py-2 text-center w-16">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredXmls.map((xml) => (
-                      <tr key={xml.id} className="hover:bg-gray-50">
-                        {editingXmlId === xml.id ? (
-                          <td colSpan={6} className="px-3 py-2 bg-blue-50">
-                            <div className="grid grid-cols-5 gap-2">
-                              <input type="text" value={editForm.numero} onChange={e => setEditForm({...editForm, numero: e.target.value})} className="border p-1 text-[11px] rounded" placeholder="Nº Nota" />
-                              <input type="text" value={editForm.dataEmissao} onChange={e => setEditForm({...editForm, dataEmissao: e.target.value})} className="border p-1 text-[11px] rounded" placeholder="Data" />
-                              <input type="text" value={editForm.cnpjCliente} onChange={e => setEditForm({...editForm, cnpjCliente: e.target.value})} className="border p-1 text-[11px] rounded" placeholder="CNPJ" />
-                              <input type="text" value={editForm.nomeCliente} onChange={e => setEditForm({...editForm, nomeCliente: e.target.value})} className="border p-1 text-[11px] rounded" placeholder="Cliente" />
-                              <div className="flex gap-1">
-                                <input type="number" value={editForm.valorTotal} onChange={e => setEditForm({...editForm, valorTotal: parseFloat(e.target.value)})} className="border p-1 text-[11px] rounded w-full" placeholder="Valor" />
-                                <button onClick={saveEditedXml} className="bg-green-600 text-white p-1 rounded hover:bg-green-700" title="Salvar">
-                                  <Check className="w-3 h-3" />
-                                </button>
-                                <button onClick={() => setEditingXmlId(null)} className="bg-gray-400 text-white p-1 rounded hover:bg-gray-500" title="Cancelar">
-                                  <X className="w-3 h-3" />
-                                </button>
-                              </div>
-                            </div>
-                          </td>
-                        ) : (
-                          <>
-                            <td className="px-3 py-2 font-medium">{xml.numero}</td>
-                            <td className="px-3 py-2 text-gray-500">{xml.data}</td>
-                            <td className="px-3 py-2">
-                              <div className="font-bold text-[#1f2937] leading-tight">{xml.tomador}</div>
-                              <div className="text-gray-500 leading-tight">{xml.cnpj}</div>
-                            </td>
-                            <td className="px-3 py-2 text-gray-600">{xml.regime || 'Não Identificado'}</td>
-                            <td className="px-3 py-2 text-right font-bold text-[#1f2937]">{formatCurrency(xml.valor)}</td>
-                            <td className="px-3 py-2 flex items-center justify-center gap-2">
-                              <button className="text-gray-400 hover:text-blue-600" onClick={() => startEditingXml(xml)} title="Editar">
-                                <Pencil className="w-3 h-3" />
-                              </button>
-                              <button className="text-gray-400 hover:text-red-600" onClick={() => handleDeleteXml(xml.id)} title="Excluir">
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </td>
-                          </>
-                        )}
-                      </tr>
-                    ))}
-                    {filteredXmls.length === 0 && (
-                      <tr>
-                        <td colSpan={6} className="px-3 py-8 text-center text-gray-500">Nenhum XML de venda importado ainda para este mês.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              <div className="bg-gray-50 p-2 text-right border-t border-gray-200">
-                <span className="text-[12px] font-bold text-[#1f2937]">Total Acumulado (Filtrado): <span className="text-[#005696]">{formatCurrency(totalXmls)}</span></span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Footer Actions */}
       <div className="flex justify-center gap-4 mt-4 pb-8">
         <button
@@ -632,9 +581,80 @@ export function Step3Receitas() {
         </button>
       </div>
 
-      <ProductsModal
-        isOpen={modalState.isOpen}
-        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+      {showManualModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-[550px] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
+            <div className="p-4 flex justify-between items-center bg-[#003b6e] text-white">
+              <h3 className="font-bold text-[15px]">{editingXmlId ? 'Editar Lançamento' : 'Lançamento Manual de Receita'}</h3>
+              <button onClick={resetManualForm} className="text-white/70 hover:text-white font-bold text-lg">&times;</button>
+            </div>
+            
+            <div className="p-6 space-y-4 flex-1 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Número da Nota</label>
+                  <input type="text" value={manualNumNota} onChange={e=>setManualNumNota(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696]" placeholder="Ex: 17" />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Data</label>
+                  <input type="text" value={manualData} onChange={e=>setManualData(formatDateProgressive(e.target.value))} placeholder="DD/MM/AAAA" className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696]" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-bold text-gray-700 mb-1">CNPJ do Cliente (Opcional)</label>
+                <input type="text" value={manualCnpj} onChange={e=>setManualCnpj(formatCnpjProgressive(e.target.value))} onBlur={(e) => { const clean = e.target.value.replace(/\D/g, ''); if (clean.length === 11) setManualRegime('Pessoa Física'); }} placeholder="00.000.000/0000-00" className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696]" />
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-bold text-gray-700 mb-1">Nome do Cliente <span className="text-red-500">*</span></label>
+                <input type="text" value={manualTomador} onChange={e=>setManualTomador(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696]" />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Regime Tributário</label>
+                  <select value={manualRegime} onChange={e=>setManualRegime(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696] bg-white">
+                    <option value="Lucro Presumido">Lucro Presumido</option>
+                    <option value="Simples Nacional">Simples Nacional</option>
+                    <option value="Lucro Real">Lucro Real</option>
+                    <option value="Isento de IRPJ">Isento de IRPJ</option>
+                    <option value="Pessoa Física">Pessoa Física</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[13px] font-bold text-gray-700 mb-1">Valor (R$) <span className="text-red-500">*</span></label>
+                  <CurrencyInput
+                    value={manualValor}
+                    onValueChange={(val) => setManualValor(val || '')}
+                    decimalsLimit={2} decimalSeparator="," groupSeparator="."
+                    className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696]"
+                    placeholder="0,00"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-bold text-gray-700 mb-1">Descrição / Serviço <span className="text-red-500">*</span></label>
+                <input type="text" value={manualDesc} onChange={e=>setManualDesc(e.target.value)} className="w-full text-[15px] border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#005696]" />
+              </div>
+            </div>
+            
+            <div className="p-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+              <button onClick={resetManualForm} className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded font-bold transition-colors">
+                Cancelar
+              </button>
+              <button onClick={handleAddManual} className="px-4 py-2 bg-[#005696] hover:bg-[#004a82] text-white rounded font-bold transition-colors shadow-sm">
+                Salvar Lançamento
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <ProductsModal 
+        isOpen={modalState.isOpen} 
+        onClose={() => setModalState({ ...modalState, isOpen: false })}
         title={modalState.title}
         produtos={modalState.produtos}
       />

@@ -60,6 +60,10 @@ export interface TaxCalculatorResult {
   aliqEfetivaPadrao: number;
   aliqEfetivaPorFora: number;
   cargaTributariaPorFora: number;
+  
+  c1Taxes: Record<string, number>;
+  c1Aliquots: Record<string, number>;
+  c2Taxes: Record<string, number>;
 }
 
 export function calculateResults(params: TaxCalculatorParams): TaxCalculatorResult {
@@ -71,6 +75,10 @@ export function calculateResults(params: TaxCalculatorParams): TaxCalculatorResu
   let creditoB2BTotal = 0;
   let creditoB2BIbsTotal = 0;
   let creditoB2BCbsTotal = 0;
+  
+  const c1Taxes: Record<string, number> = {};
+  const c1Aliquots: Record<string, number> = {};
+  const c2Taxes: Record<string, number> = {};
 
   const isTransition = (activeYear === '2026');
   const tableSource = activeYear === 'definitivo' ? SIMPLES_TABLES_DEFINITIVA : SIMPLES_TABLES;
@@ -190,6 +198,30 @@ export function calculateResults(params: TaxCalculatorParams): TaxCalculatorResu
 
     valorDasPadraoTotal += valorDasPadraoAnexo;
     valorDasPorForaTotal += valorDasPorForaAnexo;
+
+    // Popula c1Taxes com o valor distribuído por tributo
+    const valorDasCheioAnexo = Math.round(rbaAnexo * aliqEfetivaPadraoFull * 100) / 100;
+    for (const tributo in dist) {
+      let val1 = valorDasCheioAnexo * (dist as any)[tributo];
+      if (tributo === 'ICMS' && percIcmsSt > 0) {
+        val1 = val1 * (1 - percIcmsSt);
+      }
+      val1 = Math.round(val1 * 100) / 100;
+      c1Taxes[tributo] = (c1Taxes[tributo] || 0) + val1;
+      
+      // Armazena a alíquota de distribuição do Simples Nacional (ex: 0.055 para 5.5%)
+      c1Aliquots[tributo] = (dist as any)[tributo];
+
+      // Popula c2Taxes (Tributos Residuais, sem IBS e CBS)
+      if (tributo !== 'IBS' && tributo !== 'CBS') {
+        let val2 = valorDasCheioAnexo * (dist as any)[tributo];
+        if (tributo === 'ICMS' && percIcmsSt > 0) {
+          val2 = val2 * (1 - percIcmsSt);
+        }
+        val2 = Math.round(val2 * 100) / 100;
+        c2Taxes[tributo] = (c2Taxes[tributo] || 0) + val2;
+      }
+    }
   }
 
   // IVA Calculations
@@ -274,6 +306,9 @@ export function calculateResults(params: TaxCalculatorParams): TaxCalculatorResu
     diferenca,
     aliqEfetivaPadrao,
     aliqEfetivaPorFora,
-    cargaTributariaPorFora
+    cargaTributariaPorFora,
+    c1Taxes,
+    c1Aliquots,
+    c2Taxes
   };
 }
